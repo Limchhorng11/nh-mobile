@@ -1,12 +1,31 @@
-import { ReactNode, useMemo, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Slider from '@mui/material/Slider'
-import { Icon } from '../components/Icon'
+import { Icon, type IconName } from '../components/Icon'
 import { FieldCard, BLUE } from './mwl/MwlParts'
+
+type IconOption = { name: string; icon: IconName }
+
+const REPAYMENT_METHODS: IconOption[] = [
+  { name: 'Constant', icon: 'equal' },
+  { name: 'Decline', icon: 'trendingDown' },
+  { name: 'Ballon', icon: 'banknote' },
+  { name: 'Mix-Grace Period', icon: 'calendarClock' },
+  { name: 'Mix Installment', icon: 'layers' },
+]
+
+const LOAN_PRODUCTS: IconOption[] = [
+  { name: 'Micro Loan', icon: 'sprout' },
+  { name: 'Small Biz Loan', icon: 'store' },
+  { name: 'Small & Medium Enterprise Loan', icon: 'briefcase' },
+  { name: 'Housing Loan', icon: 'home' },
+  { name: 'Migrant Worker Loan', icon: 'plane' },
+  { name: 'None', icon: 'minusCircle' },
+]
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Loan calculator — equal-monthly-payment (annuity) amortization.
@@ -39,11 +58,17 @@ export default function CalculatorScreen() {
   const navigate = useNavigate()
   const [amount] = useState(1000)
   const [term, setTerm] = useState(12)
-  const monthlyInterest = 1.04
+  const [repaymentMethod, setRepaymentMethod] = useState(REPAYMENT_METHODS[0].name)
+  const [loanProduct, setLoanProduct] = useState('Migrant Worker Loan')
+  const [currency, setCurrency] = useState<'USD' | 'KHR'>('USD')
+  const [termUnit, setTermUnit] = useState<'Month' | 'Year'>('Month')
+  const [monthlyInterest, setMonthlyInterest] = useState(1.04)
+  // The rate is fixed per product; only the "None" option lets the user edit it.
+  const rateEditable = loanProduct === 'None'
 
   const { payment, totalPayable, totalInterest, rows } = useMemo(
-    () => amortize(amount, term, monthlyInterest),
-    [amount, term],
+    () => amortize(amount, term, Number.isNaN(monthlyInterest) ? 0 : monthlyInterest),
+    [amount, term, monthlyInterest],
   )
   const totalPrincipalPaid = rows.slice(1).reduce((s, r) => s + r.principal, 0)
 
@@ -63,23 +88,23 @@ export default function CalculatorScreen() {
         <Box sx={{ px: 3, pb: '34px', display: 'flex', flexDirection: 'column', gap: 4 }}>
           {/* ─── Inputs ───────────────────────────────────────────────────── */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <FieldCard
-              label="Loan product"
-              value="Migrant Worker Loan"
-              onClick={() => {}}
-              trailing={<Icon name="chevronDown" size={18} color={MUTED} />}
-            />
+            <IconSelect label="Loan product" options={LOAN_PRODUCTS} value={loanProduct} onChange={setLoanProduct} />
 
             {/* Amount */}
             <Box sx={{ bgcolor: '#fff', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.5 }}>
               <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: '16px' }}>Amount $100 ~ $300,000</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED }}>$</Typography>
+                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED }}>{currency === 'USD' ? '$' : '៛'}</Typography>
                   <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#000' }}>{amount.toLocaleString('en-US')}</Typography>
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED }}>USD</Typography>
+                <Box
+                  role="button"
+                  aria-label="Toggle currency"
+                  onClick={() => setCurrency((c) => (c === 'USD' ? 'KHR' : 'USD'))}
+                  sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:active': { opacity: 0.6 } }}
+                >
+                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED }}>{currency}</Typography>
                   <Icon name="chevronsUpDown" size={18} color={MUTED} />
                 </Box>
               </Box>
@@ -124,18 +149,53 @@ export default function CalculatorScreen() {
               <Box sx={{ width: 171, flexShrink: 0, bgcolor: '#fff', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.5 }}>
                 <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: '16px' }}>Loan term</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#000' }}>{term}</Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED }}>Month</Typography>
+                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#000' }}>
+                    {termUnit === 'Month' ? term : (term / 12) % 1 === 0 ? term / 12 : (term / 12).toFixed(1)}
+                  </Typography>
+                  <Box
+                    role="button"
+                    aria-label="Toggle term unit"
+                    onClick={() => setTermUnit((u) => (u === 'Month' ? 'Year' : 'Month'))}
+                    sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:active': { opacity: 0.6 } }}
+                  >
+                    <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED }}>{termUnit}</Typography>
                     <Icon name="chevronsUpDown" size={18} color={MUTED} />
                   </Box>
                 </Box>
               </Box>
-              <Box sx={{ flex: 1, minWidth: 0, bgcolor: '#E5E5E5', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.5 }}>
+              <Box sx={{ flex: 1, minWidth: 0, bgcolor: rateEditable ? '#fff' : '#E5E5E5', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.5 }}>
                 <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: '16px' }}>Monthly interest</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#000' }}>{monthlyInterest.toFixed(2)}</Typography>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED }}>%</Typography>
+                  {rateEditable ? (
+                    <Box
+                      component="input"
+                      type="number"
+                      inputMode="decimal"
+                      step="0.01"
+                      min="0"
+                      value={Number.isNaN(monthlyInterest) ? '' : monthlyInterest}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMonthlyInterest(parseFloat(e.target.value))}
+                      aria-label="Monthly interest rate"
+                      sx={{
+                        width: 0,
+                        flex: 1,
+                        minWidth: 0,
+                        border: 'none',
+                        outline: 'none',
+                        bgcolor: 'transparent',
+                        p: 0,
+                        fontSize: 16,
+                        fontWeight: 600,
+                        color: '#000',
+                        fontFamily: 'inherit',
+                        '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': { WebkitAppearance: 'none', margin: 0 },
+                        MozAppearance: 'textfield',
+                      }}
+                    />
+                  ) : (
+                    <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#000' }}>{monthlyInterest.toFixed(2)}</Typography>
+                  )}
+                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED, ml: 1 }}>%</Typography>
                 </Box>
               </Box>
             </Box>
@@ -143,11 +203,11 @@ export default function CalculatorScreen() {
 
           {/* ─── Results ──────────────────────────────────────────────────── */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <FieldCard
+            <IconSelect
               label="Repayment method"
-              value="Equal monthly payment"
-              onClick={() => {}}
-              trailing={<Icon name="chevronDown" size={18} color={MUTED} />}
+              options={REPAYMENT_METHODS}
+              value={repaymentMethod}
+              onChange={setRepaymentMethod}
             />
 
             {/* Monthly payment summary */}
@@ -195,6 +255,82 @@ export default function CalculatorScreen() {
           Apply this loan
         </Button>
       </Box>
+    </Box>
+  )
+}
+
+// ─── Icon select — FieldCard that opens a list of options each with an icon ──
+function IconSelect({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  options: IconOption[]
+  value: string
+  onChange: (v: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onDown = (e: MouseEvent | TouchEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('touchstart', onDown)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('touchstart', onDown)
+    }
+  }, [open])
+
+  return (
+    <Box ref={ref} sx={{ position: 'relative' }}>
+      <FieldCard
+        label={label}
+        value={value}
+        onClick={() => setOpen((v) => !v)}
+        trailing={
+          <Box sx={{ display: 'flex', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+            <Icon name="chevronDown" size={18} color={MUTED} />
+          </Box>
+        }
+      />
+      {open && (
+        <Box sx={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 30, bgcolor: '#fff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 6px 20px rgba(11,15,26,0.12)' }}>
+          {options.map((p, i) => {
+            const active = p.name === value
+            return (
+              <Box
+                key={p.name}
+                onClick={() => {
+                  onChange(p.name)
+                  setOpen(false)
+                }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  px: 2,
+                  py: 1.5,
+                  borderTop: i > 0 ? '1px solid #F1F4F8' : 'none',
+                  bgcolor: active ? '#F4F8FF' : '#fff',
+                  cursor: 'pointer',
+                }}
+              >
+                <Icon name={p.icon} size={22} color={active ? BLUE : '#9CA3AF'} />
+                <Typography sx={{ flex: 1, minWidth: 0, fontSize: 16, fontWeight: active ? 700 : 500, color: active ? BLUE : '#0B0F1A' }}>
+                  {p.name}
+                </Typography>
+                {active && <Box component="span" sx={{ color: BLUE, fontSize: 16, fontWeight: 800, lineHeight: 1 }}>✓</Box>}
+              </Box>
+            )
+          })}
+        </Box>
+      )}
     </Box>
   )
 }

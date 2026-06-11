@@ -39,6 +39,7 @@ const EarlyPayoffScreen = lazy(() => import('../screens/EarlyPayoffScreen'))
 const ProfileScreen    = lazy(() => import('../screens/profile/ProfileScreen'))
 const ProfileDocumentsScreen = lazy(() => import('../screens/profile/ProfileDocumentsScreen'))
 const ProfileEditScreen = lazy(() => import('../screens/profile/ProfileEditScreen'))
+const AllLoanScreen    = lazy(() => import('../screens/AllLoanScreen'))
 // ─────────────────────────────────────────────────────────────────────────────
 
 function ScreenLoader() {
@@ -87,6 +88,7 @@ export default function AppRouter() {
         <Route path="/profile-documents" element={<ProfileDocumentsScreen />} />
         <Route path="/profile-edit" element={<ProfileEditScreen />} />
         <Route path="/products" element={<ProductsScreen />} />
+        <Route path="/all-loan" element={<AllLoanScreen />} />
         <Route path="/sign-up" element={<SignUpScreen />} />
         <Route path="/qr-signin" element={<QrSignInScreen />} />
         <Route path="/otp" element={<OtpScreen />} />

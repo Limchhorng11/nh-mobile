@@ -56,6 +56,10 @@ export default function ProductDetailScreen() {
   const [params] = useSearchParams()
   const name = params.get('p') ?? 'SME Loan'
   const hero = HERO_BY_NAME[name] ?? BANNERS.enterprise
+  // Only the Migration Worker Loan uses the MWL apply flow; the other four
+  // products (Micro / Small Biz / Housing / SME) apply via the Non-MWL flow.
+  const isMwl = name === 'Migration Worker Loan'
+  const applyPath = isMwl ? '/mwl-about' : '/nonmwl-about'
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -171,12 +175,12 @@ export default function ProductDetailScreen() {
       </Box>
 
       {/* ── Footer CTA ─────────────────────────────────────────────────── */}
-      <Box sx={{ flexShrink: 0, px: 2, pt: 1, pb: '12px', bgcolor: '#F5F5F5' }}>
+      <Box sx={{ flexShrink: 0, px: 2, pt: 1, pb: '44px', bgcolor: '#F5F5F5' }}>
         <Button
           variant="contained"
           fullWidth
           endIcon={<Icon name="arrowRight" size={18} color="#fff" />}
-          onClick={() => navigate('/mwl-about')}
+          onClick={() => navigate(applyPath)}
           sx={{ minHeight: 48, borderRadius: '8px', fontSize: 16, fontWeight: 600, bgcolor: BRAND, '&:hover': { bgcolor: '#1F4F9E' } }}
         >
           Apply this loan

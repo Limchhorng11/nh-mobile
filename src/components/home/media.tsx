@@ -42,6 +42,12 @@ export const BANNERS = mapAssets({
   productHousing: 'banners/housing.png',
   productAgri: 'banners/micro.png',
   productSmallBiz: 'banners/small-business.png',
+  // Sample 1 product thumbnails (rate + Khmer label baked into the image)
+  microS1: 'banners/Mico_Sample1.png',
+  smallS1: 'banners/Small_Sample1.png',
+  housingS1: 'banners/Housing_Sample1.png',
+  smeS1: 'banners/SME_Sample1.png',
+  mwlS1: 'banners/MWL_Sample1.png',
 })
 
 export const ILLUS = mapAssets({

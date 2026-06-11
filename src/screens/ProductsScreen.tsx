@@ -15,15 +15,15 @@ const MUTED = '#8A94A6'
 type Product = { name: string; amount: string; rate: string; img?: string }
 
 const PRODUCTS: Product[] = [
-  { name: 'Micro Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.micro },
-  { name: 'Small Biz Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.smallBusiness },
-  { name: 'Housing Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.housing },
-  { name: 'SME Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.enterprise },
+  { name: 'Micro Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.microS1 },
+  { name: 'Small Biz Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.smallS1 },
+  { name: 'Housing Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.housingS1 },
+  { name: 'SME Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.smeS1 },
 ]
 
-const MIGRATION: Product = { name: 'Migration Worker Loan', amount: 'USD ≤ 15,000', rate: '1.2%', img: BANNERS.migrant }
+const MIGRATION: Product = { name: 'Migration Worker Loan', amount: 'USD ≤ 15,000', rate: '1.2%', img: BANNERS.mwlS1 }
 
-function ProductCard({ p, height }: { p: Product; height: number }) {
+function ProductCard({ p, height, showRate = false }: { p: Product; height: number; showRate?: boolean }) {
   const navigate = useNavigate()
   return (
     <Box
@@ -38,9 +38,11 @@ function ProductCard({ p, height }: { p: Product; height: number }) {
           sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
           fallback={<Box sx={{ width: '100%', height: '100%', bgcolor: '#E7ECF2' }} />}
         />
-        <Box sx={{ position: 'absolute', top: 8, right: 8, bgcolor: 'rgba(255,255,255,0.92)', borderRadius: '8px', px: 0.75, py: 0.25 }}>
-          <Typography sx={{ fontSize: 11, fontWeight: 800, color: HEADING }}>{p.rate}</Typography>
-        </Box>
+        {showRate && (
+          <Box sx={{ position: 'absolute', top: 8, right: 8, bgcolor: 'rgba(255,255,255,0.92)', borderRadius: '8px', px: 0.75, py: 0.25 }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 800, color: HEADING }}>{p.rate}</Typography>
+          </Box>
+        )}
       </Box>
       <Box sx={{ px: 1.25, py: 1.25 }}>
         <Typography sx={{ fontSize: 13, fontWeight: 700, color: HEADING }} noWrap>{p.name}</Typography>
@@ -51,6 +53,10 @@ function ProductCard({ p, height }: { p: Product; height: number }) {
     </Box>
   )
 }
+
+// Exported product data + card so the dedicated All Loan screen can reuse them.
+export { ProductCard, PRODUCTS, MIGRATION }
+export type { Product }
 
 // ─── Discover — horizontal carousel of shortcuts + news under "All Loan" ─────
 type NewsItem = { tag: string; title: string; body: string; img?: string }
@@ -200,6 +206,7 @@ function ProductsTopBar() {
 }
 
 export default function ProductsScreen() {
+  const navigate = useNavigate()
   const { sample } = useSample()
   const { flow } = useFlow()
   const showNav = sample === '1'
@@ -222,17 +229,24 @@ export default function ProductsScreen() {
             </Box>
           )}
 
-          <Typography sx={{ fontSize: 30, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px' }}>
-            All Loan
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Typography sx={{ fontSize: 13, fontWeight: 800, color: MUTED, letterSpacing: '0.6px' }}>
+              POPULAR PRODUCTS
+            </Typography>
+            <Box
+              onClick={() => navigate('/all-loan')}
+              role="button"
+              sx={{ cursor: 'pointer', '&:active': { opacity: 0.6 } }}
+            >
+              <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#0052CC' }}>See all</Typography>
+            </Box>
+          </Box>
 
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
             {PRODUCTS.map((p) => (
-              <ProductCard key={p.name} p={p} height={108} />
+              <ProductCard key={p.name} p={p} height={130} />
             ))}
           </Box>
-
-          <ProductCard p={MIGRATION} height={140} />
 
           {sample === '1' && <DiscoverSection />}
         </Box>

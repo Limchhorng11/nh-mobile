@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import { Icon } from '../components/Icon'
+import { useFlow } from '../workspace/FlowContext'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Notifications — opened from the bell in the greeting header.
@@ -26,7 +27,11 @@ const FILTERS: { id: Filter; label: string; dot?: boolean }[] = [
 
 export default function NotificationsScreen() {
   const navigate = useNavigate()
+  const { flow } = useFlow()
   const [filter, setFilter] = useState<Filter>('reminder')
+
+  // Visitors and applicants have no loan yet → no transaction history.
+  const hasTransactions = flow === 'Borrower'
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -48,14 +53,20 @@ export default function NotificationsScreen() {
           {/* Filter pills */}
           <Box sx={{ display: 'flex', gap: 1, mt: 2, pb: 1 }}>
             {FILTERS.map((f) => (
-              <FilterPill key={f.id} label={f.label} dot={f.dot} active={filter === f.id} onClick={() => setFilter(f.id)} />
+              <FilterPill
+                key={f.id}
+                label={f.label}
+                dot={f.dot && hasTransactions}
+                active={filter === f.id}
+                onClick={() => setFilter(f.id)}
+              />
             ))}
           </Box>
         </Box>
 
         <Box sx={{ px: 3, pt: 1, pb: 5 }}>
           {filter === 'reminder' && <ReminderFeed />}
-          {filter === 'transaction' && <TransactionFeed />}
+          {filter === 'transaction' && (hasTransactions ? <TransactionFeed /> : <EmptyTransactions />)}
           {filter === 'announcements' && <AnnouncementsFeed />}
         </Box>
       </Box>
@@ -188,6 +199,21 @@ function TransactionFeed() {
           </Button>
         </NotifCard>
       ))}
+    </Box>
+  )
+}
+
+// ─── Empty transactions (Visitor / Applicant — no loan yet) ──────────────────
+function EmptyTransactions() {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', pt: 8, px: 4 }}>
+      <Box sx={{ width: 76, height: 76, borderRadius: '50%', bgcolor: '#EEF1F5', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2.5 }}>
+        <Icon name="pay" size={34} color={MUTED} />
+      </Box>
+      <Typography sx={{ fontSize: 17, fontWeight: 800, color: HEADING }}>No transactions yet</Typography>
+      <Typography sx={{ fontSize: 14, color: MUTED, lineHeight: 1.5, mt: 0.75, maxWidth: 260 }}>
+        Once you have an active loan, your payment receipts and activity will show up here.
+      </Typography>
     </Box>
   )
 }

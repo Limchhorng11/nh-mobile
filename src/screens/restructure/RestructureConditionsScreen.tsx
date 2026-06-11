@@ -191,15 +191,18 @@ function KeyValue({ label, value, bold }: { label: string; value: string; bold?:
 function InfoPill({ text, highlight }: { text: string; highlight?: string }) {
   const parts = highlight ? text.split(highlight) : [text]
   return (
-    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, bgcolor: '#0B0F1A', borderRadius: '12px', px: '14px', py: '12px' }}>
-      <Box sx={{ mt: '1px', flexShrink: 0 }}>
-        <Icon name="info" size={16} color="#fff" />
-      </Box>
-      <Typography sx={{ fontSize: 12.5, color: 'rgba(255,255,255,0.92)', lineHeight: 1.45 }}>
+    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.25, bgcolor: '#E9EBEF', borderRadius: '12px', px: '14px', py: '12px' }}>
+      <Box
+        component="img"
+        src="/assets/brand/ico_info_16.svg"
+        alt=""
+        sx={{ mt: '1px', flexShrink: 0, width: 16, height: 16, display: 'block' }}
+      />
+      <Typography sx={{ fontSize: 12.5, color: '#3A3F4A', lineHeight: 1.45 }}>
         {highlight ? (
           <>
             {parts[0]}
-            <Box component="span" sx={{ fontWeight: 800, color: '#fff' }}>{highlight}</Box>
+            <Box component="span" sx={{ fontWeight: 800, color: '#0B0F1A' }}>{highlight}</Box>
             {parts[1]}
           </>
         ) : (

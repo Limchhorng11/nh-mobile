@@ -47,6 +47,14 @@ import {
   Calendar,
   Trash2,
   ChevronUp,
+  Sprout,
+  Store,
+  CircleMinus,
+  Equal,
+  TrendingDown,
+  Banknote,
+  CalendarClock,
+  Layers,
   type LucideProps,
 } from 'lucide-react'
 
@@ -111,6 +119,14 @@ export type IconName =
   | 'calendar'
   | 'trash'
   | 'chevronUp'
+  | 'sprout'
+  | 'store'
+  | 'minusCircle'
+  | 'equal'
+  | 'trendingDown'
+  | 'banknote'
+  | 'calendarClock'
+  | 'layers'
 
 // ─── Custom filled tab-bar glyphs (brand exports, recolor via `color`) ───────
 const Filled = (path: string): ComponentType<LucideProps> =>
@@ -184,6 +200,14 @@ const REGISTRY: Record<IconName, { sf: string; cmp: ComponentType<LucideProps> }
   calendar:        { sf: 'calendar',                cmp: Calendar },
   trash:           { sf: 'trash',                   cmp: Trash2 },
   chevronUp:       { sf: 'chevron.up',              cmp: ChevronUp },
+  sprout:          { sf: 'leaf',                    cmp: Sprout },
+  store:           { sf: 'storefront',              cmp: Store },
+  minusCircle:     { sf: 'minus.circle',            cmp: CircleMinus },
+  equal:           { sf: 'equal',                   cmp: Equal },
+  trendingDown:    { sf: 'chart.line.downtrend.xyaxis', cmp: TrendingDown },
+  banknote:        { sf: 'banknote',                cmp: Banknote },
+  calendarClock:   { sf: 'calendar.badge.clock',    cmp: CalendarClock },
+  layers:          { sf: 'square.3.layers.3d',      cmp: Layers },
 }
 
 export interface IconProps {
