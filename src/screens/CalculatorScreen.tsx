@@ -34,41 +34,102 @@ const LOAN_PRODUCTS: IconOption[] = [
 const MUTED = '#747A81'
 const LABEL = '#737373'
 
-const usd = (n: number) =>
-  '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+type Currency = 'USD' | 'KHR'
+
+// Format a number in the selected currency. KHR shows whole riel (no decimals); USD shows cents.
+const money = (n: number, currency: Currency) =>
+  currency === 'KHR'
+    ? '៛' + Math.round(n).toLocaleString('en-US')
+    : '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 type ScheduleRow = { month: number; principal: number; interest: number; payment: number; balance: number }
 
-function amortize(amount: number, months: number, monthlyRatePct: number) {
+// Build the full repayment schedule for the chosen method. Each method shapes the
+// principal/interest split differently, so the headline payment and totals follow.
+function buildSchedule(amount: number, months: number, monthlyRatePct: number, method: string) {
   const r = monthlyRatePct / 100
-  const payment = r === 0 ? amount / months : (amount * r) / (1 - Math.pow(1 + r, -months))
   const rows: ScheduleRow[] = [{ month: 0, principal: 0, interest: 0, payment: 0, balance: amount }]
   let balance = amount
-  for (let m = 1; m <= months; m++) {
-    const interest = balance * r
-    const principal = payment - interest
-    balance = Math.max(0, balance - principal)
-    rows.push({ month: m, principal, interest, payment, balance })
+
+  // Equal monthly payment (annuity) helper over a given principal & term.
+  const annuityPayment = (principal: number, n: number) =>
+    r === 0 ? principal / n : (principal * r) / (1 - Math.pow(1 + r, -n))
+
+  if (method === 'Decline') {
+    // Equal principal each month; interest on the declining balance → payment falls.
+    const principalPart = amount / months
+    for (let m = 1; m <= months; m++) {
+      const interest = balance * r
+      const principal = Math.min(principalPart, balance)
+      balance = Math.max(0, balance - principal)
+      rows.push({ month: m, principal, interest, payment: principal + interest, balance })
+    }
+  } else if (method === 'Ballon') {
+    // Interest-only each month, full principal repaid as a balloon in the final month.
+    for (let m = 1; m <= months; m++) {
+      const interest = balance * r
+      const isLast = m === months
+      const principal = isLast ? balance : 0
+      balance = Math.max(0, balance - principal)
+      rows.push({ month: m, principal, interest, payment: principal + interest, balance })
+    }
+  } else if (method === 'Mix-Grace Period') {
+    // First few months interest-only (grace), then annuity over the remaining term.
+    const grace = Math.min(3, Math.max(0, months - 1))
+    const payAfter = annuityPayment(amount, months - grace)
+    for (let m = 1; m <= months; m++) {
+      const interest = balance * r
+      if (m <= grace) {
+        rows.push({ month: m, principal: 0, interest, payment: interest, balance })
+      } else {
+        const principal = Math.min(payAfter - interest, balance)
+        balance = Math.max(0, balance - principal)
+        rows.push({ month: m, principal, interest, payment: principal + interest, balance })
+      }
+    }
+  } else if (method === 'Mix Installment') {
+    // Partial balloon: annuity sized so ~20% of principal remains, settled at the end.
+    const balloon = amount * 0.2
+    const pv = amount - (r === 0 ? balloon : balloon * Math.pow(1 + r, -months))
+    const pay = annuityPayment(pv === 0 ? amount : pv, months)
+    for (let m = 1; m <= months; m++) {
+      const interest = balance * r
+      const isLast = m === months
+      const principal = isLast ? balance : Math.min(pay - interest, balance)
+      balance = Math.max(0, balance - principal)
+      rows.push({ month: m, principal, interest, payment: principal + interest, balance })
+    }
+  } else {
+    // Constant (default): equal monthly payment (annuity).
+    const payment = annuityPayment(amount, months)
+    for (let m = 1; m <= months; m++) {
+      const interest = balance * r
+      const principal = Math.min(payment - interest, balance)
+      balance = Math.max(0, balance - principal)
+      rows.push({ month: m, principal, interest, payment, balance })
+    }
   }
-  const totalPayable = payment * months
+
+  const totalPayable = rows.reduce((s, row) => s + row.payment, 0)
+  const payment = rows[1]?.payment ?? 0
   return { payment, totalPayable, totalInterest: totalPayable - amount, rows }
 }
 
 export default function CalculatorScreen() {
   const navigate = useNavigate()
-  const [amount] = useState(1000)
+  const [amount, setAmount] = useState(1000)
   const [term, setTerm] = useState(12)
   const [repaymentMethod, setRepaymentMethod] = useState(REPAYMENT_METHODS[0].name)
-  const [loanProduct, setLoanProduct] = useState('Migrant Worker Loan')
-  const [currency, setCurrency] = useState<'USD' | 'KHR'>('USD')
+  const [loanProduct, setLoanProduct] = useState('None')
+  const [currency, setCurrency] = useState<Currency>('USD')
   const [termUnit, setTermUnit] = useState<'Month' | 'Year'>('Month')
   const [monthlyInterest, setMonthlyInterest] = useState(1.04)
   // The rate is fixed per product; only the "None" option lets the user edit it.
   const rateEditable = loanProduct === 'None'
 
   const { payment, totalPayable, totalInterest, rows } = useMemo(
-    () => amortize(amount, term, Number.isNaN(monthlyInterest) ? 0 : monthlyInterest),
-    [amount, term, monthlyInterest],
+    () => buildSchedule(amount, term, Number.isNaN(monthlyInterest) ? 0 : monthlyInterest, repaymentMethod),
+    [amount, term, monthlyInterest, repaymentMethod],
   )
   const totalPrincipalPaid = rows.slice(1).reduce((s, r) => s + r.principal, 0)
 
@@ -94,9 +155,32 @@ export default function CalculatorScreen() {
             <Box sx={{ bgcolor: '#fff', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.5 }}>
               <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: '16px' }}>Amount $100 ~ $300,000</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flex: 1, minWidth: 0 }}>
                   <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED }}>{currency === 'USD' ? '$' : '៛'}</Typography>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#000' }}>{amount.toLocaleString('en-US')}</Typography>
+                  <Box
+                    component="input"
+                    type="text"
+                    inputMode="numeric"
+                    value={amount ? amount.toLocaleString('en-US') : ''}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const digits = e.target.value.replace(/[^0-9]/g, '')
+                      setAmount(digits ? parseInt(digits, 10) : 0)
+                    }}
+                    aria-label="Loan amount"
+                    sx={{
+                      width: 0,
+                      flex: 1,
+                      minWidth: 0,
+                      border: 'none',
+                      outline: 'none',
+                      bgcolor: 'transparent',
+                      p: 0,
+                      fontSize: 16,
+                      fontWeight: 600,
+                      color: '#000',
+                      fontFamily: 'inherit',
+                    }}
+                  />
                 </Box>
                 <Box
                   role="button"
@@ -115,8 +199,8 @@ export default function CalculatorScreen() {
               <SectionLabel>Payment estimate</SectionLabel>
               <Box sx={{ bgcolor: '#fff', borderRadius: '12px', p: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#525252' }}>12 months</Typography>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#525252' }}>240 months</Typography>
+                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#525252' }}>{termUnit === 'Year' ? '1 year' : '12 months'}</Typography>
+                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#525252' }}>{termUnit === 'Year' ? '20 years' : '240 months'}</Typography>
                 </Box>
                 <Slider
                   value={term}
@@ -150,7 +234,7 @@ export default function CalculatorScreen() {
                 <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: '16px' }}>Loan term</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#000' }}>
-                    {termUnit === 'Month' ? term : (term / 12) % 1 === 0 ? term / 12 : (term / 12).toFixed(1)}
+                    {termUnit === 'Month' ? term : Math.round(term / 12)}
                   </Typography>
                   <Box
                     role="button"
@@ -217,13 +301,13 @@ export default function CalculatorScreen() {
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.75, mt: 0.5 }}>
                 <Typography sx={{ fontSize: 32, fontWeight: 800, color: '#000', letterSpacing: '-0.5px', lineHeight: 1 }}>
-                  {usd(payment)}
+                  {money(payment, currency)}
                 </Typography>
                 <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#000', mb: '2px' }}>/ month</Typography>
               </Box>
               <Box sx={{ display: 'flex', gap: 2, mt: 1.5, pt: 1.5, borderTop: '1px solid rgba(0,0,0,0.18)' }}>
-                <SummaryStat label="Total interest" value={usd(totalInterest)} />
-                <SummaryStat label="Total payable" value={usd(totalPayable)} />
+                <SummaryStat label="Total interest" value={money(totalInterest, currency)} />
+                <SummaryStat label="Total payable" value={money(totalPayable, currency)} />
               </Box>
             </Box>
 
@@ -234,6 +318,7 @@ export default function CalculatorScreen() {
                 <RepaymentTable
                   rows={rows}
                   totals={{ principal: totalPrincipalPaid, interest: totalInterest, payable: totalPayable }}
+                  currency={currency}
                 />
               </Box>
               <Typography sx={{ fontSize: 14, color: LABEL, textAlign: 'center', py: 1.5 }}>
@@ -358,9 +443,11 @@ const HEAD = ['ចំនួនខែ', 'ប្រាក់ដើម', 'ការ
 function RepaymentTable({
   rows,
   totals,
+  currency,
 }: {
   rows: ScheduleRow[]
   totals: { principal: number; interest: number; payable: number }
+  currency: Currency
 }) {
   const preview = rows.slice(0, 3) // months 0, 1, 2
   return (
@@ -378,18 +465,18 @@ function RepaymentTable({
         {preview.map((r) => (
           <Box component="tr" key={r.month} sx={{ borderTop: '1px solid #F0F0F0' }}>
             <Td bold>{r.month}</Td>
-            <Td>{usd(r.principal)}</Td>
-            <Td>{usd(r.interest)}</Td>
-            <Td strong>{usd(r.payment)}</Td>
-            <Td>{usd(r.balance)}</Td>
+            <Td>{money(r.principal, currency)}</Td>
+            <Td>{money(r.interest, currency)}</Td>
+            <Td strong>{money(r.payment, currency)}</Td>
+            <Td>{money(r.balance, currency)}</Td>
           </Box>
         ))}
         {/* Total row */}
         <Box component="tr" sx={{ borderTop: '1px solid #F0F0F0' }}>
           <Td accent bold>សរុប</Td>
-          <Td accent>{usd(totals.principal)}</Td>
-          <Td accent>{usd(totals.interest)}</Td>
-          <Td accent>{usd(totals.payable)}</Td>
+          <Td accent>{money(totals.principal, currency)}</Td>
+          <Td accent>{money(totals.interest, currency)}</Td>
+          <Td accent>{money(totals.payable, currency)}</Td>
           <Td> </Td>
         </Box>
       </Box>

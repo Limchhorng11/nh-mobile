@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -59,12 +60,33 @@ export { ProductCard, PRODUCTS, MIGRATION }
 export type { Product }
 
 // ─── Discover — horizontal carousel of shortcuts + news under "All Loan" ─────
-type NewsItem = { tag: string; title: string; body: string; img?: string }
+type NewsItem = { tag: string; title: string; body: string; img?: string; detail?: string }
 
 const DISCOVER_NEWS: NewsItem[] = [
-  { tag: 'NEWS', title: 'Khmer New Year promotion', body: 'Lower micro-loan rates this season — apply by mid-April.', img: BANNERS.micro },
-  { tag: 'NEWS', title: 'Migrant worker support', body: 'Special rates for overseas workers and their families.', img: BANNERS.migrant },
-  { tag: 'TIPS', title: 'Build your credit score', body: 'Simple habits that help you qualify for a bigger loan.', img: BANNERS.housing },
+  {
+    tag: 'NEWS',
+    title: 'Khmer New Year promotion',
+    body: 'Lower micro-loan rates this season — apply by mid-April.',
+    img: BANNERS.micro,
+    detail:
+      'Celebrate Khmer New Year with reduced micro-loan rates across all branches. Apply before mid-April to lock in the seasonal rate and enjoy faster approval with fewer documents. Talk to our team to see how much you can save.',
+  },
+  {
+    tag: 'NEWS',
+    title: 'Migrant worker support',
+    body: 'Special rates for overseas workers and their families.',
+    img: BANNERS.migrant,
+    detail:
+      'NongHyup Finance offers dedicated loan packages for migrant workers and their families, with flexible repayment aligned to overseas income. Get help with guarantor setup and remittance-friendly schedules.',
+  },
+  {
+    tag: 'TIPS',
+    title: 'Build your credit score',
+    body: 'Simple habits that help you qualify for a bigger loan.',
+    img: BANNERS.housing,
+    detail:
+      'Paying on time, keeping balances low, and maintaining a steady income are the habits that build a strong credit profile. A better score unlocks larger limits and lower rates on your next loan.',
+  },
 ]
 
 const DISCOVER_CARD_W = 152
@@ -103,10 +125,11 @@ function CalculatorCard() {
   )
 }
 
-function NewsCard({ n }: { n: NewsItem }) {
+function NewsCard({ n, onClick }: { n: NewsItem; onClick?: () => void }) {
   return (
     <Box
       role="button"
+      onClick={onClick}
       sx={{
         flexShrink: 0,
         width: DISCOVER_CARD_W,
@@ -145,6 +168,7 @@ function NewsCard({ n }: { n: NewsItem }) {
 }
 
 function DiscoverSection() {
+  const [active, setActive] = useState<NewsItem | null>(null)
   return (
     <Box>
       <Typography sx={{ fontSize: 13, fontWeight: 800, color: MUTED, letterSpacing: '0.6px', mb: 1.5 }}>
@@ -165,10 +189,106 @@ function DiscoverSection() {
       >
         <CalculatorCard />
         {DISCOVER_NEWS.map((n) => (
-          <NewsCard key={n.title} n={n} />
+          <NewsCard key={n.title} n={n} onClick={() => setActive(n)} />
         ))}
       </Box>
+      <NewsSheet item={active} onClose={() => setActive(null)} />
     </Box>
+  )
+}
+
+// ─── News detail — slides up within the phone canvas (no portal) ─────────────
+function NewsSheet({ item, onClose }: { item: NewsItem | null; onClose: () => void }) {
+  const open = item !== null
+  return (
+    <>
+      {/* Backdrop */}
+      <Box
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 100,
+          bgcolor: 'rgba(11,15,26,0.45)',
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? 'auto' : 'none',
+          transition: 'opacity 0.25s ease',
+        }}
+      />
+      {/* Sheet */}
+      <Box
+        sx={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 101,
+          bgcolor: '#F5F5F5',
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          transform: open ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
+          maxHeight: '90%',
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '0 -8px 30px rgba(11,15,26,0.18)',
+        }}
+      >
+        {/* Drag handle */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.5, flexShrink: 0 }}>
+          <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: '#D6DBE2' }} />
+        </Box>
+        {/* Close */}
+        <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 1 }}>
+          <IconButton
+            onClick={onClose}
+            aria-label="Close"
+            sx={{ width: 40, height: 40, bgcolor: '#fff', boxShadow: '0 2px 8px rgba(11,15,26,0.12)', '&:hover': { bgcolor: '#fff' } }}
+          >
+            <Icon name="close" size={22} color="#6B7280" />
+          </IconButton>
+        </Box>
+
+        <Box sx={{ overflowY: 'auto', px: 3, pt: 2, pb: 3, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          {/* Headline */}
+          <Typography sx={{ fontSize: 30, fontWeight: 800, color: HEADING, lineHeight: 1.15, letterSpacing: '-0.5px', pr: 5 }}>
+            {item?.title}
+          </Typography>
+
+          {/* Hero banner */}
+          <Box sx={{ borderRadius: '14px', overflow: 'hidden', height: 200 }}>
+            <AssetImg
+              src={item?.img}
+              alt={item?.title}
+              sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              fallback={<Box sx={{ width: '100%', height: '100%', bgcolor: '#2B5BB3' }} />}
+            />
+          </Box>
+
+          {/* Body */}
+          <Typography sx={{ fontSize: 17, color: '#525866', lineHeight: 1.5 }}>
+            {item?.detail ?? item?.body}
+          </Typography>
+        </Box>
+
+        {/* Actions */}
+        <Box sx={{ flexShrink: 0, display: 'flex', gap: 1.5, px: 3, pt: 1, pb: '44px' }}>
+          <Box
+            role="button"
+            onClick={onClose}
+            sx={{ flex: 1, minHeight: 56, borderRadius: '12px', bgcolor: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', '&:active': { opacity: 0.7 } }}
+          >
+            <Typography sx={{ fontSize: 18, fontWeight: 600, color: HEADING }}>Explore</Typography>
+          </Box>
+          <Box
+            role="button"
+            sx={{ flex: 1, minHeight: 56, borderRadius: '12px', bgcolor: '#275CB2', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', '&:active': { opacity: 0.85 } }}
+          >
+            <Typography sx={{ fontSize: 18, fontWeight: 600, color: '#fff' }}>Call Now</Typography>
+          </Box>
+        </Box>
+      </Box>
+    </>
   )
 }
 

@@ -90,14 +90,27 @@ export default function SignUpScreen() {
             </Box>
           </Box>
 
-          {/* Sign in with QR */}
+          {/* Sign in with QR — secondary action, full-width tonal button */}
           <Box
             role="button"
             onClick={() => navigate('/qr-signin')}
-            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1, mt: 2.5, cursor: 'pointer' }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 1,
+              mt: 3,
+              minHeight: 56,
+              borderRadius: '14px',
+              bgcolor: '#EAF1FC',
+              border: `1.5px solid ${BLUE}`,
+              cursor: 'pointer',
+              transition: 'opacity 0.15s, background-color 0.15s',
+              '&:active': { bgcolor: '#DDE9FB', opacity: 0.9 },
+            }}
           >
             <Icon name="qrCode" size={22} color={BLUE} />
-            <Typography sx={{ fontSize: 15, fontWeight: 700, color: BLUE }}>Sign in with QR</Typography>
+            <Typography sx={{ fontSize: 16, fontWeight: 700, color: BLUE }}>Sign in with QR</Typography>
           </Box>
         </Box>
       </Box>

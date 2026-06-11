@@ -55,6 +55,11 @@ import {
   Banknote,
   CalendarClock,
   Layers,
+  Send,
+  Paperclip,
+  Mic,
+  Play,
+  Plus,
   type LucideProps,
 } from 'lucide-react'
 
@@ -127,6 +132,11 @@ export type IconName =
   | 'banknote'
   | 'calendarClock'
   | 'layers'
+  | 'send'
+  | 'paperclip'
+  | 'mic'
+  | 'play'
+  | 'plus'
 
 // ─── Custom filled tab-bar glyphs (brand exports, recolor via `color`) ───────
 const Filled = (path: string): ComponentType<LucideProps> =>
@@ -208,6 +218,11 @@ const REGISTRY: Record<IconName, { sf: string; cmp: ComponentType<LucideProps> }
   banknote:        { sf: 'banknote',                cmp: Banknote },
   calendarClock:   { sf: 'calendar.badge.clock',    cmp: CalendarClock },
   layers:          { sf: 'square.3.layers.3d',      cmp: Layers },
+  send:            { sf: 'paperplane.fill',          cmp: Send },
+  paperclip:       { sf: 'paperclip',                cmp: Paperclip },
+  mic:             { sf: 'mic.fill',                 cmp: Mic },
+  play:            { sf: 'play.fill',                cmp: Play },
+  plus:            { sf: 'plus',                     cmp: Plus },
 }
 
 export interface IconProps {

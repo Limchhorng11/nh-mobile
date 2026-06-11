@@ -241,6 +241,43 @@ export const SCREENS: FlowScreen[] = [
     samples: [{ v: '1', label: 'Sample 1' }],
     flows: ['Applicant', 'Borrower'],
   },
+  {
+    id: 'chat',
+    name: 'Conversations',
+    section: 'SUPPORT',
+    samples: [{ v: '1', label: 'Sample 1' }],
+  },
+  {
+    id: 'chat-thread',
+    name: 'Chat thread',
+    section: 'SUPPORT',
+    samples: [{ v: '1', label: 'Sample 1' }],
+  },
+  {
+    id: 'request-consult',
+    name: 'Request consultation',
+    section: 'SUPPORT',
+    samples: [{ v: '1', label: 'Sample 1' }],
+  },
+  {
+    id: 'consult-success',
+    name: 'Request received',
+    section: 'SUPPORT',
+    samples: [{ v: '1', label: 'Sample 1' }],
+  },
+  {
+    id: 'document-view',
+    name: 'Document viewer',
+    section: 'MY LOAN',
+    samples: [{ v: '1', label: 'Sample 1' }],
+    flows: ['Applicant', 'Borrower'],
+  },
+  {
+    id: 'announcement',
+    name: 'Announcement detail',
+    section: 'NOTIFICATIONS',
+    samples: [{ v: '1', label: 'Sample 1' }],
+  },
 ]
 
 export const DEFAULT_SCREEN = SCREENS[0]

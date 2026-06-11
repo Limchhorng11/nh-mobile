@@ -79,7 +79,7 @@ export function HomeTopBar({ secondIcon = 'bell' }: { secondIcon?: IconName } = 
           </Typography>
         </Box>
       </Box>
-      <IconButton size="small" sx={{ color: '#1A1A1A' }} aria-label="Messages">
+      <IconButton onClick={() => navigate('/chat')} size="small" sx={{ color: '#1A1A1A' }} aria-label="Messages">
         <Badge badgeContent={2} color="error" sx={{ '& .MuiBadge-badge': { fontSize: 9, height: 15, minWidth: 15 } }}>
           <Box component="img" src="/assets/brand/ico_chat.svg" alt="" sx={{ width: 22, height: 22, display: 'block' }} />
         </Badge>

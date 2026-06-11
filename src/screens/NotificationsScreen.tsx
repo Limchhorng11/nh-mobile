@@ -142,7 +142,7 @@ function ReminderFeed() {
         <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
           Your repayment for loan account 0019-84727 is overdue by 4 days. Please pay the overdue amount today to avoid additional charges.
         </Typography>
-        <ReminderActions onPay={() => navigate('/my-loan')} />
+        <ReminderActions onPay={() => navigate('/my-loan-detail?pay=1')} />
       </NotifCard>
 
       <DateLabel>15 MAY 2026</DateLabel>
@@ -152,7 +152,7 @@ function ReminderFeed() {
         <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
           Your repayment for loan account 0019-84727 is due in 3 days. Pay early to keep your account in good standing.
         </Typography>
-        <ReminderActions onPay={() => navigate('/my-loan')} />
+        <ReminderActions onPay={() => navigate('/my-loan-detail?pay=1')} />
       </NotifCard>
     </Box>
   )
@@ -181,6 +181,7 @@ function ReminderActions({ onPay }: { onPay: () => void }) {
 
 // ─── Transaction feed ────────────────────────────────────────────────────────
 function TransactionFeed() {
+  const [receiptOpen, setReceiptOpen] = useState(false)
   return (
     <Box>
       <DateLabel>15 MAY 2026</DateLabel>
@@ -193,12 +194,129 @@ function TransactionFeed() {
           </Typography>
           <Button
             variant="text"
+            onClick={() => setReceiptOpen(true)}
             sx={{ mt: 1.75, height: 44, borderRadius: '10px', px: 2.5, fontSize: 14, fontWeight: 700, color: HEADING, bgcolor: '#F2F4F7', '&:hover': { bgcolor: '#E7ECF2' } }}
           >
             View receipt
           </Button>
         </NotifCard>
       ))}
+      <ReceiptSheet open={receiptOpen} onClose={() => setReceiptOpen(false)} />
+    </Box>
+  )
+}
+
+// ─── Receipt sheet — opens from "View receipt"; full payment + transaction detail ─
+function ReceiptSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+  return (
+    <>
+      {/* Backdrop */}
+      <Box
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 100,
+          bgcolor: 'rgba(11,15,26,0.45)',
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? 'auto' : 'none',
+          transition: 'opacity 0.25s ease',
+        }}
+      />
+      {/* Sheet */}
+      <Box
+        sx={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 101,
+          bgcolor: '#F5F5F5',
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          transform: open ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
+          maxHeight: '92%',
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '0 -8px 30px rgba(11,15,26,0.18)',
+        }}
+      >
+        {/* Drag handle */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.5, flexShrink: 0 }}>
+          <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: '#D6DBE2' }} />
+        </Box>
+
+        {/* Scroll body */}
+        <Box sx={{ flex: 1, overflowY: 'auto', px: 3, pt: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Typography sx={{ fontSize: 30, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px' }}>Loan Detail</Typography>
+            <IconButton onClick={onClose} aria-label="Close" sx={{ bgcolor: '#fff', boxShadow: '0 1px 3px rgba(16,24,40,0.1)', '&:hover': { bgcolor: '#fff' } }}>
+              <Icon name="close" size={20} color={HEADING} />
+            </IconButton>
+          </Box>
+
+          {/* Amount paid card */}
+          <Box sx={{ bgcolor: '#1F7A33', borderRadius: '16px', py: 2.5, mt: 2, textAlign: 'center' }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.8px', color: 'rgba(255,255,255,0.85)' }}>AMOUNT PAID</Typography>
+            <Typography sx={{ fontSize: 40, fontWeight: 800, color: '#fff', lineHeight: 1.1, mt: 0.25 }}>$320.00</Typography>
+            <Typography sx={{ fontSize: 14, color: 'rgba(255,255,255,0.9)', mt: 0.25 }}>Installment 4 of 12</Typography>
+          </Box>
+
+          {/* Breakdown */}
+          <ReceiptSectionLabel>SMALL BUSINESS LOAN</ReceiptSectionLabel>
+          <Box sx={{ bgcolor: '#fff', borderRadius: '14px', px: 2, mt: 1 }}>
+            <ReceiptRow label="Principal" value="$300.00" bold />
+            <ReceiptRow label="Interest" value="$20.00" bold />
+            <ReceiptRow label="Late fee" value="—" />
+            <ReceiptRow label="Unpaid" value="—" />
+            <ReceiptRow label="Monthly" value="—" />
+            <ReceiptRow label="Total paid" value="$320.00" labelBold bold last />
+          </Box>
+
+          {/* Transaction */}
+          <ReceiptSectionLabel>TRANSACTION</ReceiptSectionLabel>
+          <Box sx={{ bgcolor: '#fff', borderRadius: '14px', px: 2, mt: 1, mb: 1 }}>
+            <ReceiptRow label="Sender" value="Sothea Mao (ACLEDA Bank) 000 0000 0000" bold align />
+            <ReceiptRow label="Reference" value="TXN-2026-0319-8842" bold />
+            <ReceiptRow label="Date" value="16 Mar 2026 · 12:22 PM" bold />
+            <ReceiptRow label="Channel" value="KHQR" bold last />
+          </Box>
+        </Box>
+
+        {/* Footer actions */}
+        <Box sx={{ flexShrink: 0, display: 'flex', gap: 1.5, px: 3, pt: 1.5, pb: '34px' }}>
+          <Button
+            variant="outlined"
+            startIcon={<Icon name="download" size={20} color={HEADING} />}
+            sx={{ flex: 1, height: 56, borderRadius: '14px', fontSize: 16, fontWeight: 700, color: HEADING, borderColor: '#E2E6EC', bgcolor: '#fff', '&:hover': { borderColor: '#D6DBE2', bgcolor: '#fff' } }}
+          >
+            Receipt
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<Icon name="send" size={20} color="#fff" />}
+            sx={{ flex: 1, height: 56, borderRadius: '14px', fontSize: 16, fontWeight: 700 }}
+          >
+            Share
+          </Button>
+        </Box>
+      </Box>
+    </>
+  )
+}
+
+function ReceiptSectionLabel({ children }: { children: string }) {
+  return (
+    <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: MUTED, mt: 2.5 }}>{children}</Typography>
+  )
+}
+
+function ReceiptRow({ label, value, bold, labelBold, last, align }: { label: string; value: string; bold?: boolean; labelBold?: boolean; last?: boolean; align?: boolean }) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: align ? 'flex-start' : 'center', justifyContent: 'space-between', gap: 2, py: 1.75, borderBottom: last ? 'none' : '1px solid #F0F0F0' }}>
+      <Typography sx={{ fontSize: 16, color: labelBold ? HEADING : '#5B6473', fontWeight: labelBold ? 800 : 400, flexShrink: 0 }}>{label}</Typography>
+      <Typography sx={{ fontSize: 16, fontWeight: bold ? 800 : 400, color: HEADING, textAlign: 'right' }}>{value}</Typography>
     </Box>
   )
 }
@@ -219,8 +337,8 @@ function EmptyTransactions() {
 }
 
 // ─── Announcements feed ──────────────────────────────────────────────────────
-type Announcement = { title: string; body: string; date: string }
-const ANNOUNCEMENTS: Announcement[] = [
+export type Announcement = { title: string; body: string; date: string }
+export const ANNOUNCEMENTS: Announcement[] = [
   {
     title: 'Khmer New Year promotion',
     body: 'Lower micro-loan rates this season — apply between 14 Apr and 31 May to qualify.',
@@ -234,10 +352,16 @@ const ANNOUNCEMENTS: Announcement[] = [
 ]
 
 function AnnouncementsFeed() {
+  const navigate = useNavigate()
   return (
     <Box sx={{ pt: 0.5 }}>
-      {ANNOUNCEMENTS.map((a) => (
-        <Box key={a.title} sx={{ bgcolor: '#fff', borderRadius: '14px', overflow: 'hidden', mb: 2 }}>
+      {ANNOUNCEMENTS.map((a, i) => (
+        <Box
+          key={a.title}
+          role="button"
+          onClick={() => navigate('/announcement?i=' + i)}
+          sx={{ bgcolor: '#fff', borderRadius: '14px', overflow: 'hidden', mb: 2, cursor: 'pointer', '&:active': { opacity: 0.95 } }}
+        >
           {/* Thumbnail */}
           <Box sx={{ height: 150, bgcolor: '#DCE9FB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Typography sx={{ fontSize: 17, fontWeight: 800, letterSpacing: '1px', color: BLUE }}>THUMBNAIL</Typography>

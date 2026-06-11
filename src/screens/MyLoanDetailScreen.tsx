@@ -26,7 +26,8 @@ export default function MyLoanDetailScreen() {
   // Sample 2 (?v=2) drops the segmented tabs and stacks every section in one scroll.
   const combined = (params.get('v') ?? '1') === '2'
   const [tab, setTab] = useState<Tab>('details')
-  const [payOpen, setPayOpen] = useState(false)
+  // Deep-link: arriving with ?pay=1 (e.g. from a payment reminder) opens the Pay Loan sheet.
+  const [payOpen, setPayOpen] = useState(params.get('pay') === '1')
 
   return (
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -92,6 +93,7 @@ function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => 
 
 // ─── DETAILS tab ─────────────────────────────────────────────────────────────
 function DetailsTab({ onPay }: { onPay: () => void }) {
+  const navigate = useNavigate()
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
       {/* Status row */}
@@ -161,7 +163,7 @@ function DetailsTab({ onPay }: { onPay: () => void }) {
         </Typography>
         <PaymentTable />
         <Typography sx={{ fontSize: 11, color: LABEL, textAlign: 'center', mt: 0.5 }}>
-          Showing 3 of 6 · <Box component="span" sx={{ color: ACCENT, fontWeight: 700 }}>Download</Box> for full view
+          Showing 3 of 6 · <Box component="span" role="button" onClick={() => navigate('/document-view?name=Actual%20Payment')} sx={{ color: ACCENT, fontWeight: 700, cursor: 'pointer' }}>Download</Box> for full view
         </Typography>
       </Box>
     </Box>
@@ -390,9 +392,13 @@ function ServiceRow({ icon, title, subtitle, divider, onClick }: { icon: 'pay' |
 }
 
 function DocTile({ label, kind }: { label: string; kind: 'schedule' | 'pdf' | 'image' }) {
+  const navigate = useNavigate()
+  const openDoc = () => navigate('/document-view?name=' + encodeURIComponent(label))
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
       <Box
+        role="button"
+        onClick={openDoc}
         sx={{
           position: 'relative',
           width: 83,
@@ -404,13 +410,14 @@ function DocTile({ label, kind }: { label: string; kind: 'schedule' | 'pdf' | 'i
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          cursor: 'pointer',
         }}
       >
         <DocThumb kind={kind} />
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
         <Typography sx={{ fontSize: 12, fontWeight: 500, color: VALUE, textAlign: 'center' }} noWrap>{label}</Typography>
-        <Typography sx={{ fontSize: 12, fontWeight: 500, color: ACCENT, cursor: 'pointer' }}>Preview</Typography>
+        <Typography role="button" onClick={openDoc} sx={{ fontSize: 12, fontWeight: 500, color: ACCENT, cursor: 'pointer' }}>Preview</Typography>
       </Box>
     </Box>
   )

@@ -40,6 +40,12 @@ const ProfileScreen    = lazy(() => import('../screens/profile/ProfileScreen'))
 const ProfileDocumentsScreen = lazy(() => import('../screens/profile/ProfileDocumentsScreen'))
 const ProfileEditScreen = lazy(() => import('../screens/profile/ProfileEditScreen'))
 const AllLoanScreen    = lazy(() => import('../screens/AllLoanScreen'))
+const ChatScreen       = lazy(() => import('../screens/ChatScreen'))
+const ChatThreadScreen = lazy(() => import('../screens/ChatThreadScreen'))
+const RequestConsultScreen = lazy(() => import('../screens/consult/RequestConsultScreen'))
+const ConsultSuccessScreen = lazy(() => import('../screens/consult/ConsultSuccessScreen'))
+const DocumentViewerScreen = lazy(() => import('../screens/DocumentViewerScreen'))
+const AnnouncementDetailScreen = lazy(() => import('../screens/AnnouncementDetailScreen'))
 // ─────────────────────────────────────────────────────────────────────────────
 
 function ScreenLoader() {
@@ -101,6 +107,12 @@ export default function AppRouter() {
         <Route path="/restructure-conditions" element={<RestructureConditionsScreen />} />
         <Route path="/restructure-consent" element={<RestructureConsentScreen />} />
         <Route path="/restructure-success" element={<RestructureSuccessScreen />} />
+        <Route path="/chat" element={<ChatScreen />} />
+        <Route path="/chat-thread" element={<ChatThreadScreen />} />
+        <Route path="/request-consult" element={<RequestConsultScreen />} />
+        <Route path="/consult-success" element={<ConsultSuccessScreen />} />
+        <Route path="/document-view" element={<DocumentViewerScreen />} />
+        <Route path="/announcement" element={<AnnouncementDetailScreen />} />
 
         {/* Catch-all: redirect unknown paths to home */}
         <Route path="*" element={<Navigate to="/home?v=1" replace />} />
