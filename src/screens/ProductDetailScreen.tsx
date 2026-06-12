@@ -140,6 +140,10 @@ export default function ProductDetailScreen() {
 
   return (
     <Box className="screen-enter" sx={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
+      {/* Status-bar fill — paints the reserved notch area in the hero blue so
+          it blends seamlessly into the banner image below. */}
+      <Box sx={{ position: 'absolute', top: '-47px', left: 0, right: 0, height: '47px', bgcolor: '#4279B3', zIndex: 1 }} />
+
       {/* ── Compact sticky header (appears on scroll) ─────────────────── */}
       <Box
         sx={{
