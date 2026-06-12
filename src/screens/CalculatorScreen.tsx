@@ -35,6 +35,10 @@ const LOAN_PRODUCTS: IconOption[] = [
 const MUTED = '#747A81'
 const LABEL = '#737373'
 
+// Evenly-spaced interior dots for the term slider (12 → 240 months).
+const TERM_MARKS = Array.from({ length: 7 }, (_, i) => ({ value: Math.round(12 + (228 * (i + 1)) / 8) }))
+const TERM_MARK_VALUES = new Set(TERM_MARKS.map((m) => m.value))
+
 type Currency = 'USD' | 'KHR'
 
 // Format a number in the selected currency. KHR shows whole riel (no decimals); USD shows cents.
@@ -135,6 +139,21 @@ export default function CalculatorScreen() {
   )
   const totalPrincipalPaid = rows.slice(1).reduce((s, r) => s + r.principal, 0)
 
+  // Buzz the phone (where supported) each time the term thumb lands on a dot.
+  const lastMarkRef = useRef<number | null>(null)
+  const handleTermChange = (_: Event, v: number | number[]) => {
+    const n = v as number
+    setTerm(n)
+    if (TERM_MARK_VALUES.has(n)) {
+      if (lastMarkRef.current !== n) {
+        navigator.vibrate?.(10)
+        lastMarkRef.current = n
+      }
+    } else {
+      lastMarkRef.current = null
+    }
+  }
+
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1 }}>
@@ -206,24 +225,48 @@ export default function CalculatorScreen() {
                 </Box>
                 <Slider
                   value={term}
-                  onChange={(_, v) => setTerm(v as number)}
+                  onChange={handleTermChange}
                   min={12}
                   max={240}
                   step={1}
+                  marks={TERM_MARKS}
+                  valueLabelDisplay="auto"
+                  valueLabelFormat={(v) => `${v}`}
                   aria-label="Loan term in months"
                   sx={{
-                    py: 1,
+                    py: 1.5,
                     color: BLUE,
-                    height: 4,
-                    '& .MuiSlider-rail': { bgcolor: 'rgba(12,65,154,0.12)', opacity: 1 },
-                    '& .MuiSlider-track': { border: 'none' },
+                    height: 20,
+                    '& .MuiSlider-rail': { bgcolor: '#E5E5E5', opacity: 1, borderRadius: '999px' },
+                    '& .MuiSlider-track': { border: 'none', borderRadius: '999px' },
+                    '& .MuiSlider-mark': {
+                      width: 4,
+                      height: 4,
+                      borderRadius: '50%',
+                      bgcolor: '#C7CDD6',
+                      opacity: 1,
+                      '&.MuiSlider-markActive': { bgcolor: 'rgba(255,255,255,0.65)' },
+                    },
                     '& .MuiSlider-thumb': {
-                      width: 14,
-                      height: 14,
+                      width: 36,
+                      height: 28,
+                      borderRadius: '999px',
                       bgcolor: '#fff',
-                      border: `2px solid ${BLUE}`,
-                      boxShadow: '0 1px 3px rgba(12,65,154,0.3)',
-                      '&:hover, &.Mui-focusVisible': { boxShadow: '0 0 0 6px rgba(0,82,204,0.16)' },
+                      border: 'none',
+                      boxShadow: '0 2px 6px rgba(16,24,40,0.24)',
+                      '&::before': { display: 'none' },
+                      '&:hover, &.Mui-focusVisible, &.Mui-active': { boxShadow: '0 3px 10px rgba(16,24,40,0.3)' },
+                    },
+                    '& .MuiSlider-valueLabel': {
+                      bgcolor: '#fff',
+                      color: '#0B0F1A',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      borderRadius: '999px',
+                      px: 1,
+                      py: 0.25,
+                      boxShadow: '0 4px 12px rgba(16,24,40,0.18)',
+                      '&::before': { display: 'none' },
                     },
                   }}
                 />
