@@ -74,11 +74,11 @@ export function HomeTopBar({ secondIcon = 'bell' }: { secondIcon?: IconName } = 
           sx={{ height: 26, width: 'auto', display: 'block', flex: 1, minWidth: 0, objectFit: 'contain', objectPosition: 'left', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
         />
       ) : (
-        /* Tap the profile (avatar + name) to open Settings. */
+        /* Tap the profile (avatar + name) to open the Profile screen. */
         <Box
-          onClick={() => navigate('/settings')}
+          onClick={() => navigate('/profile')}
           role="button"
-          aria-label="Open settings"
+          aria-label="Open profile"
           sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0, cursor: 'pointer', '&:active': { opacity: 0.6 } }}
         >
           <Box sx={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
