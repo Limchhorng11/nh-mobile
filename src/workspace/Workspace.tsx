@@ -293,8 +293,9 @@ export default function Workspace() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            py: { xs: 0, md: 3 },
-            gap: { xs: 0, md: 3 },
+            justifyContent: 'center',
+            py: 0,
+            gap: { xs: 0, md: 2 },
             minWidth: 0,
           }}
         >

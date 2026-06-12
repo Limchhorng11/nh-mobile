@@ -35,11 +35,7 @@ export default function MyLoanScreen() {
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1 }}>
         <HomeTopBar secondIcon="phone" />
-        <Box sx={{ px: 3, pb: 5, display: 'flex', flexDirection: 'column', gap: '24px', mt: 1 }}>
-          <Typography sx={{ fontSize: 26, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px' }}>
-            My Loans
-          </Typography>
-
+        <Box sx={{ px: 3, pb: 5, display: 'flex', flexDirection: 'column', gap: '24px', mt: '24px' }}>
           {isEmpty ? (
             <EmptyState
               label="No loans yet"
