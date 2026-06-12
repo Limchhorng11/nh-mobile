@@ -200,13 +200,13 @@ function ReviewTab() {
   return (
     <Box>
       <SectionLabel label="IN REVIEW (1)" />
-      <Card onClick={() => navigate('/my-loan-review')} sx={{ cursor: 'pointer' }}>
+      <Card onClick={() => navigate('/my-loan-review')} sx={{ cursor: 'pointer', p: '18px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A' }}>Small Business Loan</Typography>
           <StatusChip label="In review" color="#B7791F" bg="#FBEBC6" />
         </Box>
 
-        <Box sx={{ bgcolor: '#F4F6F9', border: '1px solid #ECEFF3', borderRadius: 2.5, px: 2, py: 1.5, mt: 2 }}>
+        <Box sx={{ bgcolor: '#F7F7F8', border: 'none', borderRadius: '10px', px: 2, py: 1.5, mt: 2 }}>
           <Typography sx={{ fontSize: 11, color: '#8A94A6', fontWeight: 600 }}>Requested amount</Typography>
           <Typography sx={{ fontSize: 19, fontWeight: 800, color: '#0B0F1A', mt: 0.25 }}>$4,500.00</Typography>
         </Box>
@@ -241,13 +241,13 @@ function CompleteTab() {
   return (
     <Box>
       <SectionLabel label="COMPLETED (1)" />
-      <Card onClick={() => navigate('/my-loan-complete')} sx={{ cursor: 'pointer' }}>
+      <Card onClick={() => navigate('/my-loan-complete')} sx={{ cursor: 'pointer', p: '18px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A' }}>Small Business Loan</Typography>
           <StatusChip label="Paid Off" color="#1FA85C" bg="#DCF5E6" />
         </Box>
 
-        <Box sx={{ bgcolor: '#F4F6F9', border: '1px solid #ECEFF3', borderRadius: 2.5, px: 2, py: 1.5, mt: 2 }}>
+        <Box sx={{ bgcolor: '#F7F7F8', border: 'none', borderRadius: '10px', px: 2, py: 1.5, mt: 2 }}>
           <Typography sx={{ fontSize: 11, color: '#8A94A6', fontWeight: 600 }}>Requested amount</Typography>
           <Typography sx={{ fontSize: 19, fontWeight: 800, color: '#0B0F1A', mt: 0.25 }}>$4,500.00</Typography>
         </Box>
