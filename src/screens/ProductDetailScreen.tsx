@@ -226,6 +226,7 @@ export default function ProductDetailScreen() {
                   <Box
                     role="button"
                     aria-label={`Preview ${d}`}
+                    onClick={() => navigate(`/document-preview?p=${encodeURIComponent(name)}&doc=${encodeURIComponent(d)}`)}
                     sx={{
                       flexShrink: 0,
                       display: 'flex',

@@ -29,6 +29,7 @@ const ConfirmPinScreen = lazy(() => import('../screens/visitor/ConfirmPinScreen'
 const AdvanceAccountScreen = lazy(() => import('../screens/AdvanceAccountScreen'))
 const CalculatorScreen  = lazy(() => import('../screens/CalculatorScreen'))
 const ProductDetailScreen = lazy(() => import('../screens/ProductDetailScreen'))
+const DocumentPreviewScreen = lazy(() => import('../screens/DocumentPreviewScreen'))
 const RestructureInfoScreen = lazy(() => import('../screens/restructure/RestructureInfoScreen'))
 const RestructureConditionsScreen = lazy(() => import('../screens/restructure/RestructureConditionsScreen'))
 const RestructureConsentScreen = lazy(() => import('../screens/restructure/RestructureConsentScreen'))
@@ -115,6 +116,7 @@ export default function AppRouter() {
         <Route path="/advance" element={<AdvanceAccountScreen />} />
         <Route path="/calculator" element={<CalculatorScreen />} />
         <Route path="/product-detail" element={<ProductDetailScreen />} />
+        <Route path="/document-preview" element={<DocumentPreviewScreen />} />
         <Route path="/restructure-info" element={<RestructureInfoScreen />} />
         <Route path="/restructure-conditions" element={<RestructureConditionsScreen />} />
         <Route path="/restructure-consent" element={<RestructureConsentScreen />} />
