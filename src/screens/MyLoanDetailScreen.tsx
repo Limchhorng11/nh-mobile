@@ -313,9 +313,9 @@ function OthersTab() {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
         <SectionLabel>Loan Service Requests</SectionLabel>
         <Box sx={{ bgcolor: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
-          <ServiceRow icon="pay" title="Payoff Request" subtitle="Notify NHFC of intent to fully settle" divider onClick={() => navigate('/early-payoff')} />
+          <ServiceRow icon="cash" title="Payoff Request" subtitle="Notify NHFC of intent to fully settle" divider onClick={() => navigate('/early-payoff')} />
           <ServiceRow
-            icon="arrowRight"
+            icon="restructure"
             title="Request Restructure"
             subtitle="Request temporary repayment support"
             onClick={() => navigate('/restructure-info')}
@@ -370,7 +370,7 @@ function SectionLabel({ children }: { children: ReactNode }) {
   )
 }
 
-function ServiceRow({ icon, title, subtitle, divider, onClick }: { icon: 'pay' | 'arrowRight'; title: string; subtitle: string; divider?: boolean; onClick?: () => void }) {
+function ServiceRow({ icon, title, subtitle, divider, onClick }: { icon: 'cash' | 'restructure'; title: string; subtitle: string; divider?: boolean; onClick?: () => void }) {
   return (
     <Box
       role="button"
@@ -379,7 +379,7 @@ function ServiceRow({ icon, title, subtitle, divider, onClick }: { icon: 'pay' |
         display: 'flex',
         alignItems: 'center',
         gap: 1.5,
-        px: 2,
+        px: '14px',
         py: '14px',
         cursor: 'pointer',
         borderBottom: divider ? '1px solid #F0F0F0' : 'none',

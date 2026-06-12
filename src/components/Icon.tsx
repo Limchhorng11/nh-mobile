@@ -69,6 +69,7 @@ import {
   Sun,
   Moon,
   Monitor,
+  RefreshCw,
   type LucideProps,
 } from 'lucide-react'
 
@@ -93,6 +94,7 @@ export type IconName =
   | 'chevronLeft'
   | 'chevronRight'
   | 'arrowRight'
+  | 'restructure'
   | 'calculator'
   | 'pay'
   | 'briefcase'
@@ -193,6 +195,7 @@ const REGISTRY: Record<IconName, { sf: string; cmp: ComponentType<LucideProps> }
   chevronLeft:     { sf: 'chevron.left',           cmp: ChevronLeft },
   chevronRight:    { sf: 'chevron.right',          cmp: ChevronRight },
   arrowRight:      { sf: 'arrow.right',            cmp: ArrowRight },
+  restructure:     { sf: 'arrow.trianglehead.2.clockwise', cmp: RefreshCw },
   calculator:      { sf: 'function',               cmp: Calculator },
   pay:             { sf: 'creditcard',             cmp: CreditCard },
   briefcase:       { sf: 'briefcase.fill',         cmp: Briefcase },
@@ -284,6 +287,7 @@ const BRAND: Partial<Record<IconName, string>> = {
   website:         'Website.svg',
   pin:             'PIN.svg',
   cash:            'ico_cash.svg',
+  restructure:     'restructure.svg',
 }
 
 export interface IconProps {
