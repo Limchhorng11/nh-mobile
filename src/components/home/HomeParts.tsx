@@ -267,7 +267,8 @@ export function MoreMenuBody({
           <Box sx={{ bgcolor: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
             <MoreRow icon="phone" label="Request a consultation" divider onClick={() => navigate('/request-consult')} />
             <MoreRow icon="blogs" label="Blogs & Education" divider onClick={() => navigate('/blogs')} />
-            <MoreRow icon="faq" label="FAQ" onClick={() => navigate('/faq')} />
+            <MoreRow icon="faq" label="FAQ" divider onClick={() => navigate('/faq')} />
+            <MoreRow icon="feedback" label="Feedback" onClick={() => navigate('/send-feedback')} />
           </Box>
         </Box>
 
