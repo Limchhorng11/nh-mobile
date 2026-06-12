@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import { Icon } from '../components/Icon'
+import { Flag } from '../components/Flag'
 
 const BLUE = '#0052CC'
 const MUTED = '#8A94A6'
@@ -31,7 +32,7 @@ export default function SignUpScreen() {
             role="button"
             sx={{ display: 'flex', alignItems: 'center', gap: 0.75, bgcolor: '#fff', borderRadius: 999, pl: 1.25, pr: 1, py: 0.5, cursor: 'pointer', boxShadow: '0 1px 3px rgba(16,24,40,0.06)' }}
           >
-            <Box component="span" sx={{ fontSize: 20, lineHeight: 1 }}>🇬🇧</Box>
+            <Flag code="gb" size={22} />
             <Icon name="chevronDown" size={16} color="#0B0F1A" />
           </Box>
         </Box>
@@ -49,9 +50,7 @@ export default function SignUpScreen() {
             role="button"
             sx={{ display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: '#fff', borderRadius: '14px', px: '16px', minHeight: 60, mt: 3.5, cursor: 'pointer' }}
           >
-            <Box sx={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, lineHeight: 1 }}>
-              🇰🇭
-            </Box>
+            <Flag code="kh" size={34} />
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: 1.2 }}>Country</Typography>
               <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A', lineHeight: 1.25 }}>Cambodia</Typography>

@@ -6,6 +6,7 @@ import IconButton from '@mui/material/IconButton'
 import Switch from '@mui/material/Switch'
 import Badge from '@mui/material/Badge'
 import { Icon, type IconName } from '../components/Icon'
+import { Flag, type FlagCode } from '../components/Flag'
 import { AssetImg, ILLUS } from '../components/home/media'
 import { AvatarArt } from '../components/home/illustrations'
 import { useFlow } from '../workspace/FlowContext'
@@ -18,10 +19,10 @@ const DANGER = '#E11D48'
 
 // Appearance picker options.
 type LangId = 'en' | 'km' | 'ko'
-const LANGUAGES: { id: LangId; label: string; flag: string }[] = [
-  { id: 'en', label: 'English', flag: '🇬🇧' },
-  { id: 'km', label: 'ខ្មែរ', flag: '🇰🇭' },
-  { id: 'ko', label: '한국어', flag: '🇰🇷' },
+const LANGUAGES: { id: LangId; label: string; flag: FlagCode }[] = [
+  { id: 'en', label: 'English', flag: 'gb' },
+  { id: 'km', label: 'ខ្មែរ', flag: 'kh' },
+  { id: 'ko', label: '한국어', flag: 'kr' },
 ]
 type ThemeId = 'System' | 'Light' | 'Dark'
 const THEMES: { id: ThemeId; icon: IconName }[] = [
@@ -163,7 +164,7 @@ function SelectRow({
   sub?: string
   divider?: boolean
   value: string
-  flag?: string
+  flag?: FlagCode
   onClick?: () => void
 }) {
   return (
@@ -175,7 +176,7 @@ function SelectRow({
       onClick={onClick ?? (() => {})}
       right={
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-          {flag && <Box component="span" sx={{ fontSize: 18, lineHeight: 1 }}>{flag}</Box>}
+          {flag && <Flag code={flag} size={20} />}
           <Typography sx={{ fontSize: 14.5, fontWeight: 700, color: HEADING }}>{value}</Typography>
           <Icon name="chevronsUpDown" size={18} color="#8A94A6" />
         </Box>
@@ -379,7 +380,7 @@ function PickerSheet({
 }: {
   open: boolean
   title: string
-  options: { value: string; label: string; flag?: string; icon?: IconName }[]
+  options: { value: string; label: string; flag?: FlagCode; icon?: IconName }[]
   selected: string
   onSelect: (v: string) => void
   onClose: () => void
@@ -411,7 +412,7 @@ function PickerSheet({
                 '&:active': { opacity: 0.85 },
               }}
             >
-              {opt.flag && <Box component="span" sx={{ fontSize: 22, lineHeight: 1 }}>{opt.flag}</Box>}
+              {opt.flag && <Flag code={opt.flag} size={24} />}
               {opt.icon && <Icon name={opt.icon} size={22} color="#1A1A1A" />}
               <Typography sx={{ flex: 1, fontSize: 16, fontWeight: 700, color: HEADING }}>{opt.label}</Typography>
               {active && <Icon name="checkCircle" size={22} color={BLUE} />}

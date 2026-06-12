@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480">
+  <rect width="640" height="480" fill="#fff"/>
+  <g transform="rotate(33.69 320 240)">
+    <circle cx="320" cy="240" r="100" fill="#cd2e3a"/>
+    <path fill="#0047a0" d="M320 140a100 100 0 0 1 0 200 50 50 0 0 1 0-100 50 50 0 0 0 0-100z"/>
+  </g>
+  <g fill="#000" transform="rotate(-56.31 320 240)">
+    <g transform="translate(320 80)">
+      <rect x="-50" y="-9" width="100" height="14"/>
+      <rect x="-50" y="11" width="100" height="14"/>
+      <rect x="-50" y="31" width="100" height="14"/>
+    </g>
+    <g transform="translate(320 400)">
+      <rect x="-50" y="-9" width="42" height="14"/><rect x="8" y="-9" width="42" height="14"/>
+      <rect x="-50" y="11" width="42" height="14"/><rect x="8" y="11" width="42" height="14"/>
+      <rect x="-50" y="31" width="42" height="14"/><rect x="8" y="31" width="42" height="14"/>
+    </g>
+  </g>
+  <g fill="#000" transform="rotate(56.31 320 240)">
+    <g transform="translate(320 80)">
+      <rect x="-50" y="-9" width="42" height="14"/><rect x="8" y="-9" width="42" height="14"/>
+      <rect x="-50" y="11" width="100" height="14"/>
+      <rect x="-50" y="31" width="42" height="14"/><rect x="8" y="31" width="42" height="14"/>
+    </g>
+    <g transform="translate(320 400)">
+      <rect x="-50" y="-9" width="100" height="14"/>
+      <rect x="-50" y="11" width="42" height="14"/><rect x="8" y="11" width="42" height="14"/>
+      <rect x="-50" y="31" width="100" height="14"/>
+    </g>
+  </g>
+</svg>

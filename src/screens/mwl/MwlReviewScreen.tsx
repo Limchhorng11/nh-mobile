@@ -4,6 +4,7 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { Icon } from '../../components/Icon'
+import { Flag } from '../../components/Flag'
 import { MwlHeader, BottomSheet, BLUE } from './MwlParts'
 
 const CUSTOMER = [
@@ -47,7 +48,11 @@ export default function MwlReviewScreen({ nonMwl = false }: { nonMwl?: boolean }
               <Typography sx={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.5px', color: '#fff' }}>$5,000</Typography>
               <Typography sx={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>.00</Typography>
             </Box>
-            <Typography sx={{ fontSize: 13, color: 'rgba(255,255,255,0.9)', mt: 0.5 }}>30 months 🇰🇷 Korea</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.5 }}>
+              <Typography sx={{ fontSize: 13, color: 'rgba(255,255,255,0.9)' }}>30 months</Typography>
+              <Flag code="kr" size={18} />
+              <Typography sx={{ fontSize: 13, color: 'rgba(255,255,255,0.9)' }}>Korea</Typography>
+            </Box>
           </Box>
 
           <Section title="CUSTOMER INFO" rows={CUSTOMER} onEdit={() => navigate(`${prefix}-about`)} />

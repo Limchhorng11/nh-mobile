@@ -4,13 +4,14 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import { Icon, IconName } from '../../components/Icon'
+import { Flag, type FlagCode } from '../../components/Flag'
 import { MwlHeader, MwlTitle, MwlFooter, GroupLabel, FieldCard, PhoneField, SelectField, BottomSheet, DiscardSheet, BLUE } from './MwlParts'
 import { AssetImg, asset } from '../../components/home/media'
 
-const DESTINATIONS = [
-  { id: 'korea', flag: '🇰🇷', name: 'Korea', sub: 'EPS · most active' },
-  { id: 'japan', flag: '🇯🇵', name: 'Japan', sub: 'SSW / Intern' },
-  { id: 'singapore', flag: '🇸🇬', name: 'Singapore', sub: 'Work Permit' },
+const DESTINATIONS: { id: string; flag: FlagCode; name: string; sub: string }[] = [
+  { id: 'korea', flag: 'kr', name: 'Korea', sub: 'EPS · most active' },
+  { id: 'japan', flag: 'jp', name: 'Japan', sub: 'SSW / Intern' },
+  { id: 'singapore', flag: 'sg', name: 'Singapore', sub: 'Work Permit' },
 ]
 
 const CITIES = ['Phnom Penh', 'Siem Reap', 'Battambang', 'Sihanoukville', 'Kandal']
@@ -70,7 +71,7 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
                         <Icon name="check" size={13} color="#fff" />
                       </Box>
                     )}
-                    <Typography sx={{ fontSize: 22, lineHeight: 1 }}>{d.flag}</Typography>
+                    <Flag code={d.flag} size={32} />
                     <Typography sx={{ fontSize: 14, fontWeight: 800, color: '#0B0F1A', mt: 0.75 }}>{d.name}</Typography>
                     <Typography sx={{ fontSize: 10.5, color: '#8A94A6', mt: 0.25, lineHeight: 1.3 }}>{d.sub}</Typography>
                   </Box>
