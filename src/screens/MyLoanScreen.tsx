@@ -82,7 +82,7 @@ function EmptyState({ label, hint }: { label: string; hint: string }) {
 // ─── Segmented pill: Active | In Review | Complete ───────────────────────────
 function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => void }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'stretch', height: 40, bgcolor: '#EBEBEC', borderRadius: 2.5, p: '4px', gap: 0.5 }}>
+    <Box sx={{ display: 'flex', alignItems: 'stretch', height: 40, bgcolor: '#EBEBEC', borderRadius: 999, p: '4px', gap: 0.5 }}>
       {TABS.map((t) => {
         const active = value === t.id
         return (
@@ -95,7 +95,7 @@ function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => 
               alignItems: 'center',
               justifyContent: 'center',
               textAlign: 'center',
-              borderRadius: 2,
+              borderRadius: 999,
               fontSize: 13,
               fontWeight: 700,
               cursor: 'pointer',

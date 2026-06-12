@@ -289,7 +289,7 @@ export function MoreMenuBody({
 // ─────────────────────────────────────────────────────────────────────────────
 export function CurrencyToggle({ value, onChange }: { value: 'USD' | 'KHR'; onChange: (c: 'USD' | 'KHR') => void }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'stretch', height: 40, bgcolor: '#EBEBEC', borderRadius: 2, p: '4px', gap: 0.5 }}>
+    <Box sx={{ display: 'flex', alignItems: 'stretch', height: 40, bgcolor: '#EBEBEC', borderRadius: 999, p: '4px', gap: 0.5 }}>
       {(['USD', 'KHR'] as const).map((c) => (
         <Box
           key={c}
@@ -300,7 +300,7 @@ export function CurrencyToggle({ value, onChange }: { value: 'USD' | 'KHR'; onCh
             alignItems: 'center',
             justifyContent: 'center',
             textAlign: 'center',
-            borderRadius: 1.5,
+            borderRadius: 999,
             fontSize: 13,
             fontWeight: 700,
             cursor: 'pointer',
