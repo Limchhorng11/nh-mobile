@@ -283,7 +283,7 @@ export default function Workspace() {
   return (
     <FlowProvider>
       <SampleProvider>
-      <Box sx={{ display: 'flex', minHeight: { xs: 'auto', md: '100vh' }, bgcolor: { xs: 'transparent', md: '#DDE0E5' } }}>
+      <Box sx={{ display: 'flex', minHeight: { xs: '100dvh', md: '100vh' }, bgcolor: { xs: 'transparent', md: '#DDE0E5' } }}>
         <Sidebar />
 
         {/* Main canvas area */}

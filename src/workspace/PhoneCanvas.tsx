@@ -18,7 +18,7 @@ export default function PhoneCanvas({ children }: PhoneCanvasProps) {
         inset: { xs: 0, md: 'auto' },
 
         width: { xs: '100%', md: PHONE_W },
-        height: { xs: '100%', md: `min(${PHONE_H}px, calc(100vh - 120px))` },
+        height: { xs: '100dvh', md: `min(${PHONE_H}px, calc(100dvh - 120px))` },
 
         bgcolor: 'background.default',
         overflow: 'hidden',
