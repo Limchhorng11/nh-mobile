@@ -148,8 +148,8 @@ function DetailsTab({ onPay }: { onPay: () => void }) {
           <Button
             variant="contained"
             onClick={onPay}
-            startIcon={<Icon name="pay" size={16} />}
-            sx={{ height: 38, borderRadius: '9px', px: 1.5, fontSize: 13, fontWeight: 500, bgcolor: ACCENT, '&:hover': { bgcolor: '#2B4F92' } }}
+            startIcon={<Icon name="cash" size={16} />}
+            sx={{ height: 38, borderRadius: '9px', p: '10px', fontSize: 13, fontWeight: 500, bgcolor: ACCENT, '&:hover': { bgcolor: '#2B4F92' } }}
           >
             Pay Now
           </Button>
@@ -247,7 +247,7 @@ function PaymentTable() {
                   fontSize: 10,
                   fontWeight: 600,
                   color: LABEL,
-                  textAlign: i === 0 ? 'center' : 'left',
+                  textAlign: i === 0 || i === PAY_HEAD.length - 1 ? 'center' : 'left',
                   px: i === 0 ? 0.5 : '8px',
                   py: '12px',
                   borderBottom: '1px solid #F0F0F0',
@@ -279,7 +279,7 @@ function PaymentTable() {
                   {row.other}
                 </Box>
                 <Box component="td" sx={{ px: '8px', py: '8px' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75 }}>
                     <Typography sx={{ fontSize: 12, fontWeight: 600, color: dim ? 'rgba(0,0,0,0.2)' : '#000' }}>{row.total}</Typography>
                     {row.badge && <StatusBadge text={row.badge.text} tone={row.badge.tone} />}
                   </Box>

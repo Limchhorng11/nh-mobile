@@ -113,10 +113,11 @@ export default function PayLoanSheet({ open, onClose }: { open: boolean; onClose
             fullWidth
             disabled={!selected}
             onClick={onClose}
-            endIcon={<Icon name="arrowRight" size={18} />}
+            startIcon={<Icon name="cash" size={18} />}
             sx={{
               height: 52,
               borderRadius: '14px',
+              p: '10px',
               fontSize: 16,
               fontWeight: 700,
               bgcolor: BLUE,

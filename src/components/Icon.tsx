@@ -149,6 +149,7 @@ export type IconName =
   | 'website'
   | 'pin'
   | 'gauge'
+  | 'cash'
 
 // ─── Custom filled tab-bar glyphs (brand exports, recolor via `color`) ───────
 const Filled = (path: string): ComponentType<LucideProps> =>
@@ -242,6 +243,7 @@ const REGISTRY: Record<IconName, { sf: string; cmp: ComponentType<LucideProps> }
   website:         { sf: 'globe',                     cmp: Globe },
   pin:             { sf: 'asterisk',                  cmp: Lock },
   gauge:           { sf: 'gauge',                      cmp: Gauge },
+  cash:            { sf: 'banknote',                   cmp: Banknote },
 }
 
 // ─── Brand glyph overrides ───────────────────────────────────────────────────
@@ -267,6 +269,7 @@ const BRAND: Partial<Record<IconName, string>> = {
   email:           'Email.svg',
   website:         'Website.svg',
   pin:             'PIN.svg',
+  cash:            'ico_cash.svg',
 }
 
 export interface IconProps {

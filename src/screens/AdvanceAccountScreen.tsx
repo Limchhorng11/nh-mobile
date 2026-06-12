@@ -118,8 +118,8 @@ export default function AdvanceAccountScreen() {
           variant="contained"
           fullWidth
           onClick={() => setTopUpOpen(false)}
-          endIcon={<Icon name="arrowRight" size={16} />}
-          sx={{ height: 56, borderRadius: '14px', fontSize: 17, fontWeight: 700 }}
+          startIcon={<Icon name="cash" size={16} />}
+          sx={{ height: 56, borderRadius: '14px', p: '10px', fontSize: 17, fontWeight: 700 }}
         >
           Pay Now
         </Button>

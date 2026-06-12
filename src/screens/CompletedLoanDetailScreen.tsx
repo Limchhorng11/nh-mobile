@@ -119,9 +119,23 @@ export default function CompletedLoanDetailScreen() {
                 <Typography sx={{ fontSize: 13, fontWeight: 600, color: VALUE }}>Mr. Pisey Sok</Typography>
                 <Typography sx={{ fontSize: 11, color: LABEL }}>Riverside Branch</Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Icon name="message" size={22} color="#0B0F1A" />
-                <Icon name="phone" size={22} color="#0B0F1A" />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Box
+                  role="button"
+                  aria-label="Chat with officer"
+                  onClick={() => navigate('/chat')}
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', transition: 'background-color 0.15s ease', '&:active': { bgcolor: 'rgba(0,0,0,0.06)' } }}
+                >
+                  <Icon name="message" size={22} color="#0B0F1A" />
+                </Box>
+                <Box
+                  component="a"
+                  href="tel:+855123456789"
+                  aria-label="Call officer"
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', transition: 'background-color 0.15s ease', '&:active': { bgcolor: 'rgba(0,0,0,0.06)' } }}
+                >
+                  <Icon name="phone" size={22} color="#0B0F1A" />
+                </Box>
               </Box>
             </Box>
           </Box>
@@ -187,6 +201,9 @@ const PAY_ROWS: PayRow[] = [
   { no: '4', date: '5/05/26', principal: '$39.46', other: '$5.53', total: '$44.99' },
 ]
 const PAY_HEAD = ['រ.ល', 'កាលបរិច្ឆេទ', 'ប្រាក់ដើម', 'ផ្សេងៗ', 'ប្រាក់សរុប']
+// Fixed column widths so the wide "Total" column (value + paid badge) has room;
+// the remaining width flows to the Total column (last, left undefined).
+const COL_WIDTH: (number | undefined)[] = [28, 56, 52, 44, undefined]
 
 function PaymentTable() {
   return (
@@ -204,10 +221,10 @@ function PaymentTable() {
                   fontWeight: 600,
                   color: LABEL,
                   textAlign: i === 0 ? 'center' : 'left',
-                  px: i === 0 ? 0.5 : '10px',
+                  px: i === 0 ? 0.5 : '6px',
                   py: '12px',
                   borderBottom: '1px solid #F0F0F0',
-                  width: i === 0 ? 32 : undefined,
+                  width: COL_WIDTH[i],
                 }}
               >
                 {h}
@@ -221,18 +238,18 @@ function PaymentTable() {
               <Box component="td" sx={{ textAlign: 'center', px: 0.5, py: '8px', fontSize: 12, fontWeight: 500, color: 'rgba(0,0,0,0.25)' }}>
                 {row.no}
               </Box>
-              <Box component="td" sx={{ px: '10px', py: '8px', fontSize: 12, fontWeight: 500, color: 'rgba(0,0,0,0.25)' }}>
+              <Box component="td" sx={{ px: '6px', py: '8px', fontSize: 12, fontWeight: 500, color: 'rgba(0,0,0,0.25)', whiteSpace: 'nowrap' }}>
                 {row.date}
               </Box>
-              <Box component="td" sx={{ px: '10px', py: '8px', fontSize: 12, fontWeight: 500, color: 'rgba(0,0,0,0.25)' }}>
+              <Box component="td" sx={{ px: '6px', py: '8px', fontSize: 12, fontWeight: 500, color: 'rgba(0,0,0,0.25)', whiteSpace: 'nowrap' }}>
                 {row.principal}
               </Box>
-              <Box component="td" sx={{ px: '10px', py: '8px', fontSize: 12, fontWeight: 500, color: 'rgba(0,0,0,0.25)' }}>
+              <Box component="td" sx={{ px: '6px', py: '8px', fontSize: 12, fontWeight: 500, color: 'rgba(0,0,0,0.25)', whiteSpace: 'nowrap' }}>
                 {row.other}
               </Box>
-              <Box component="td" sx={{ px: '10px', py: '8px' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 0.5 }}>
-                  <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.25)' }}>{row.total}</Typography>
+              <Box component="td" sx={{ px: '6px', py: '8px' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 0.75 }}>
+                  <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.25)', whiteSpace: 'nowrap' }}>{row.total}</Typography>
                   <StatusBadge text="បង់រួច" />
                 </Box>
               </Box>
@@ -263,6 +280,7 @@ function SectionLabel({ children }: { children: ReactNode }) {
 }
 
 function DocTile({ label, kind }: { label: string; kind: 'schedule' | 'pdf' | 'image' }) {
+  const navigate = useNavigate()
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
       <Box
@@ -283,7 +301,14 @@ function DocTile({ label, kind }: { label: string; kind: 'schedule' | 'pdf' | 'i
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
         <Typography sx={{ fontSize: 12, fontWeight: 500, color: VALUE, textAlign: 'center' }} noWrap>{label}</Typography>
-        <Typography sx={{ fontSize: 12, fontWeight: 500, color: ACCENT, cursor: 'pointer' }}>Preview</Typography>
+        <Typography
+          role="button"
+          aria-label={`Preview ${label}`}
+          onClick={() => navigate(`/document-view?name=${encodeURIComponent(label)}`)}
+          sx={{ fontSize: 12, fontWeight: 500, color: ACCENT, cursor: 'pointer' }}
+        >
+          Preview
+        </Typography>
       </Box>
     </Box>
   )

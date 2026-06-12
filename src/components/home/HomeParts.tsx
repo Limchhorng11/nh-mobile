@@ -129,7 +129,6 @@ function MoreTile({ icon, label, onClick }: { icon: IconName; label: string; onC
       aria-label={label}
       sx={{
         bgcolor: '#fff',
-        border: '1px solid #ECEFF3',
         borderRadius: '14px',
         p: 2,
         display: 'flex',
@@ -264,7 +263,7 @@ export function MoreMenuBody({
         {/* Services */}
         <Box>
           <MoreSectionLabel>SERVICES</MoreSectionLabel>
-          <Box sx={{ bgcolor: '#fff', borderRadius: '12px', border: '1px solid #ECEFF3', overflow: 'hidden' }}>
+          <Box sx={{ bgcolor: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
             <MoreRow icon="phone" label="Request a consultation" divider onClick={() => navigate('/request-consult')} />
             <MoreRow icon="blogs" label="Blogs & Education" divider onClick={() => navigate('/blogs')} />
             <MoreRow icon="faq" label="FAQ" onClick={() => navigate('/faq')} />
@@ -274,7 +273,7 @@ export function MoreMenuBody({
         {/* General */}
         <Box>
           <MoreSectionLabel>GENERAL</MoreSectionLabel>
-          <Box sx={{ bgcolor: '#fff', borderRadius: '12px', border: '1px solid #ECEFF3', overflow: 'hidden' }}>
+          <Box sx={{ bgcolor: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
             <MoreRow icon="appSettings" label="Settings" divider onClick={() => navigate('/settings')} />
             <MoreRow icon="appPolicy" label="App policy & terms" divider onClick={() => navigate('/terms-privacy')} />
             <MoreRow icon="aboutNhfc" label="About NHFC" onClick={() => navigate('/about')} />
