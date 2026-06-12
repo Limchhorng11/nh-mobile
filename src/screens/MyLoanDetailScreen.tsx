@@ -62,7 +62,7 @@ function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => 
     { id: 'others', label: 'Others' },
   ]
   return (
-    <Box sx={{ display: 'flex', alignItems: 'stretch', height: 40, bgcolor: '#EBEBEC', borderRadius: '24px', p: 0.5, gap: 0.5 }}>
+    <Box sx={{ display: 'flex', alignItems: 'stretch', height: 40, bgcolor: '#EBEBEC', borderRadius: '24px', p: '4px', gap: 0.5 }}>
       {TABS.map((t) => {
         const active = value === t.id
         return (
