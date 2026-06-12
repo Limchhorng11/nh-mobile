@@ -127,7 +127,7 @@ function ActiveTab({ onPay }: { onPay: () => void }) {
 
 function StatBox({ label, value }: { label: string; value: string }) {
   return (
-    <Box sx={{ flex: 1, bgcolor: '#F4F6F9', border: 'none', borderRadius: '10px', px: 2, py: 1.5 }}>
+    <Box sx={{ flex: 1, bgcolor: '#F7F7F8', border: 'none', borderRadius: '10px', px: 2, py: 1.5 }}>
       <Typography sx={{ fontSize: 11, color: '#8A94A6', fontWeight: 600 }}>{label}</Typography>
       <Typography sx={{ fontSize: 17, fontWeight: 800, color: '#0B0F1A', mt: 0.25 }}>{value}</Typography>
     </Box>
