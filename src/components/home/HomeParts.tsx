@@ -263,7 +263,7 @@ export function MoreMenuBody({
 
         {/* Services */}
         <Box>
-          <MoreSectionLabel>SERVICES</MoreSectionLabel>
+          <MoreSectionLabel>SUPPORT</MoreSectionLabel>
           <Box sx={{ bgcolor: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
             <MoreRow icon="phone" label="Request a consultation" divider onClick={() => navigate('/request-consult')} />
             <MoreRow icon="blogs" label="Blogs & Education" divider onClick={() => navigate('/blogs')} />
