@@ -251,6 +251,7 @@ const REGISTRY: Record<IconName, { sf: string; cmp: ComponentType<LucideProps> }
 // render those as a plain <img>.)
 const BRAND_DIR = '/assets/brand/'
 const BRAND: Partial<Record<IconName, string>> = {
+  message:         'ico_chat.svg',
   accountSecurity: 'Security.svg',
   appPolicy:       'AppPolicy.svg',
   faq:             'FAQ.svg',
