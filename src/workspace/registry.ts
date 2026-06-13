@@ -141,6 +141,20 @@ export const SCREENS: FlowScreen[] = [
     flows: ['Applicant', 'Borrower'],
   },
   {
+    id: 'early-payoff-pin',
+    name: 'Early Payoff · Enter PIN',
+    section: 'MY LOAN',
+    samples: [{ v: '1', label: 'Sample 1' }],
+    flows: ['Applicant', 'Borrower'],
+  },
+  {
+    id: 'early-payoff-success',
+    name: 'Early Payoff · Submitted',
+    section: 'MY LOAN',
+    samples: [{ v: '1', label: 'Sample 1' }],
+    flows: ['Applicant', 'Borrower'],
+  },
+  {
     id: 'advance',
     name: 'Advance Account',
     section: 'MY LOAN',

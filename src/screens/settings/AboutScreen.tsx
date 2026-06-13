@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import { Icon, type IconName } from '../../components/Icon'
+import { CollapsingHeader, CollapsingTitle, useCollapse } from '../../components/CollapsingHeader'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // About NHFC — mission, vision and contact info (opened from Settings).
@@ -27,16 +27,13 @@ const SOCIALS: { name: string; file: string }[] = [
 
 export default function AboutScreen() {
   const navigate = useNavigate()
+  const { collapse, onScroll } = useCollapse()
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
-      <Box className="scroll-content" sx={{ flex: 1 }}>
-        <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#F5F5F5', px: 3, pt: 3, pb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton onClick={() => navigate(-1)} aria-label="Back" sx={{ ml: -1, color: HEADING }}>
-            <Icon name="chevronLeft" size={26} color={HEADING} />
-          </IconButton>
-          <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px' }}>About</Typography>
-        </Box>
+      <Box className="scroll-content" sx={{ flex: 1 }} onScroll={onScroll}>
+        <CollapsingHeader title="About" collapse={collapse} onBack={() => navigate(-1)} />
+        <CollapsingTitle collapse={collapse}>{"About"}</CollapsingTitle>
 
         <Box sx={{ px: 3, pb: 5 }}>
           {/* Brand header */}

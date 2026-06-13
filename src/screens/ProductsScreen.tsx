@@ -244,7 +244,7 @@ function NewsSheet({ item, onClose }: { item: NewsItem | null; onClose: () => vo
         <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.5, flexShrink: 0 }}>
           <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: '#D6DBE2' }} />
         </Box>
-        {/* Close */}
+        {/* Close — floats top-right; the title sits below it, full width */}
         <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 1 }}>
           <IconButton
             onClick={onClose}
@@ -255,9 +255,9 @@ function NewsSheet({ item, onClose }: { item: NewsItem | null; onClose: () => vo
           </IconButton>
         </Box>
 
-        <Box sx={{ overflowY: 'auto', px: 3, pt: 2, pb: 3, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          {/* Headline */}
-          <Typography sx={{ fontSize: 30, fontWeight: 800, color: HEADING, lineHeight: 1.15, letterSpacing: '-0.5px', pr: 5 }}>
+        <Box sx={{ overflowY: 'auto', px: 3, pt: '56px', pb: 3, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          {/* Headline — left-aligned, full width, below the close button */}
+          <Typography sx={{ fontSize: 30, fontWeight: 800, color: HEADING, lineHeight: 1.15, letterSpacing: '-0.5px' }}>
             {item?.title}
           </Typography>
 
@@ -278,7 +278,7 @@ function NewsSheet({ item, onClose }: { item: NewsItem | null; onClose: () => vo
         </Box>
 
         {/* Actions */}
-        <Box sx={{ flexShrink: 0, display: 'flex', gap: 1.5, px: 3, pt: 1, pb: '44px' }}>
+        <Box sx={{ flexShrink: 0, display: 'flex', gap: 1.5, px: 3, pt: 1, pb: '54px' }}>
           <Box
             role="button"
             onClick={onClose}

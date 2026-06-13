@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import IconButton from '@mui/material/IconButton'
 import Slider from '@mui/material/Slider'
 import { Icon, type IconName } from '../components/Icon'
+import { CollapsingHeader, CollapsingTitle, useCollapse } from '../components/CollapsingHeader'
 import { FieldCard, BLUE } from './mwl/MwlParts'
 import { useFlow } from '../workspace/FlowContext'
 import { buildSchedule, money, type Currency, type ScheduleRow } from './loanCalc'
@@ -72,6 +72,9 @@ export default function CalculatorScreen() {
   // The rate is fixed per product; only the "None" option lets the user edit it.
   const rateEditable = loanProduct === 'None'
 
+  // Collapsing header: large title shrinks toward the back arrow on scroll.
+  const { collapse, onScroll } = useCollapse()
+
   // Amount ceiling + max term follow the selected loan product.
   const { maxAmount, maxMonths } = PRODUCT_LIMITS[loanProduct] ?? PRODUCT_LIMITS.None
   const { marks: termMarks, dotValues: termDotValues } = useMemo(() => termMarksFor(maxMonths), [maxMonths])
@@ -105,16 +108,9 @@ export default function CalculatorScreen() {
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
-      <Box className="scroll-content" sx={{ flex: 1 }}>
-        {/* Header */}
-        <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#F5F5F5', px: 3, pt: 3, pb: 1 }}>
-          <IconButton onClick={() => navigate(-1)} aria-label="Back" sx={{ ml: -1, color: '#0B0F1A' }}>
-            <Icon name="chevronLeft" size={26} color="#0B0F1A" />
-          </IconButton>
-        </Box>
-        <Typography sx={{ fontSize: 28, fontWeight: 800, color: '#000', letterSpacing: '-1px', px: 3, mt: 0.5, mb: 3 }}>
-          Loan calculator
-        </Typography>
+      <Box className="scroll-content" sx={{ flex: 1 }} onScroll={onScroll}>
+        <CollapsingHeader title="Loan calculator" collapse={collapse} onBack={() => navigate(-1)} />
+        <CollapsingTitle collapse={collapse}>Loan calculator</CollapsingTitle>
 
         <Box sx={{ px: 3, pb: '34px', display: 'flex', flexDirection: 'column', gap: 5 }}>
           {/* ─── Inputs ───────────────────────────────────────────────────── */}

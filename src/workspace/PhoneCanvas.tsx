@@ -145,7 +145,6 @@ export default function PhoneCanvas({ children }: PhoneCanvasProps) {
           width: FAB_SIZE,
           height: FAB_SIZE,
           borderRadius: '50%',
-          bgcolor: 'primary.main',
           color: '#fff',
           display: 'flex',
           alignItems: 'center',
@@ -153,9 +152,29 @@ export default function PhoneCanvas({ children }: PhoneCanvasProps) {
           cursor: dragging ? 'grabbing' : 'grab',
           touchAction: 'none',
           userSelect: 'none',
+          // ── Liquid glass: translucent brand tint over a blurred backdrop ──
+          overflow: 'hidden',
+          background:
+            'linear-gradient(135deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.05) 42%, rgba(39,92,178,0.18) 100%), rgba(39,92,178,0.42)',
+          backdropFilter: 'blur(14px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(14px) saturate(180%)',
+          border: '1px solid rgba(255,255,255,0.45)',
           boxShadow: dragging
-            ? '0 12px 28px rgba(39,92,178,0.5)'
-            : '0 6px 18px rgba(39,92,178,0.4)',
+            ? '0 14px 34px rgba(39,92,178,0.45), inset 0 1px 1px rgba(255,255,255,0.7), inset 0 -3px 8px rgba(39,92,178,0.30)'
+            : '0 8px 22px rgba(39,92,178,0.32), inset 0 1px 1px rgba(255,255,255,0.6), inset 0 -3px 8px rgba(39,92,178,0.25)',
+          '& svg': { filter: 'drop-shadow(0 1px 2px rgba(11,15,26,0.35))' },
+          // Top specular sheen
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 3,
+            left: '14%',
+            right: '14%',
+            height: '38%',
+            borderRadius: '50%',
+            background: 'linear-gradient(to bottom, rgba(255,255,255,0.75), rgba(255,255,255,0))',
+            pointerEvents: 'none',
+          },
           // Smooth settle when released / clamped; instant tracking while dragging.
           transition: dragging
             ? 'none'

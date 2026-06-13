@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import Switch from '@mui/material/Switch'
 import { Icon, type IconName } from '../../components/Icon'
+import { useCollapse, CollapsingHeader, CollapsingTitle } from '../../components/CollapsingHeader'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // App settings — notification preferences (opened from Settings).
@@ -47,19 +47,16 @@ function ToggleRow({
 
 export default function AppSettingsScreen() {
   const navigate = useNavigate()
+  const { collapse, onScroll } = useCollapse()
   const [paymentReminders, setPaymentReminders] = useState(true)
   const [promotions, setPromotions] = useState(true)
   const [chatNotifs, setChatNotifs] = useState(false)
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
-      <Box className="scroll-content" sx={{ flex: 1 }}>
-        <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#F5F5F5', px: 3, pt: 3, pb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton onClick={() => navigate(-1)} aria-label="Back" sx={{ ml: -1, color: HEADING }}>
-            <Icon name="chevronLeft" size={26} color={HEADING} />
-          </IconButton>
-          <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px' }}>App settings</Typography>
-        </Box>
+      <Box className="scroll-content" sx={{ flex: 1 }} onScroll={onScroll}>
+        <CollapsingHeader title="App settings" collapse={collapse} onBack={() => navigate(-1)} />
+        <CollapsingTitle collapse={collapse}>{"App settings"}</CollapsingTitle>
 
         <Box sx={{ px: 3, pb: 4 }}>
           <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.7px', color: '#9AA3B2', px: 0.5, py: 1 }}>

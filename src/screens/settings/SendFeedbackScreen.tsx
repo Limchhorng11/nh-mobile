@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import { Icon } from '../../components/Icon'
+import { useCollapse, CollapsingHeader, CollapsingTitle } from '../../components/CollapsingHeader'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Send feedback — category + message + follow-up consent (from Settings).
@@ -23,21 +24,24 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 export default function SendFeedbackScreen() {
   const navigate = useNavigate()
+  const { collapse, onScroll } = useCollapse()
   const [message, setMessage] = useState('')
   const [contactMe, setContactMe] = useState(false)
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
-      <Box className="scroll-content" sx={{ flex: 1 }}>
-        <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#F5F5F5', px: 3, pt: 3, pb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton onClick={() => navigate(-1)} aria-label="Back" sx={{ ml: -1, color: HEADING }}>
-            <Icon name="chevronLeft" size={26} color={HEADING} />
-          </IconButton>
-          <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px', flex: 1 }}>Send feedback</Typography>
-          <IconButton onClick={() => navigate('/feedback-history')} aria-label="Feedback history" sx={{ color: HEADING }}>
-            <Icon name="clock" size={24} color={HEADING} />
-          </IconButton>
-        </Box>
+      <Box className="scroll-content" sx={{ flex: 1 }} onScroll={onScroll}>
+        <CollapsingHeader
+          title="Send feedback"
+          collapse={collapse}
+          onBack={() => navigate(-1)}
+          right={
+            <IconButton onClick={() => navigate('/feedback-history')} aria-label="Feedback history" sx={{ color: HEADING }}>
+              <Icon name="clock" size={24} color={HEADING} />
+            </IconButton>
+          }
+        />
+        <CollapsingTitle collapse={collapse}>{"Send feedback"}</CollapsingTitle>
 
         <Box sx={{ px: 3, pb: 4, pt: 1 }}>
           {/* Category */}

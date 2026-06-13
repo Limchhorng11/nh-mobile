@@ -38,6 +38,8 @@ const SettingsScreen   = lazy(() => import('../screens/SettingsScreen'))
 const NotificationsScreen = lazy(() => import('../screens/NotificationsScreen'))
 const CreditScoreScreen = lazy(() => import('../screens/CreditScoreScreen'))
 const EarlyPayoffScreen = lazy(() => import('../screens/EarlyPayoffScreen'))
+const EarlyPayoffPinScreen = lazy(() => import('../screens/EarlyPayoffPinScreen'))
+const EarlyPayoffSuccessScreen = lazy(() => import('../screens/EarlyPayoffSuccessScreen'))
 const ProfileScreen    = lazy(() => import('../screens/profile/ProfileScreen'))
 const ProfileDocumentsScreen = lazy(() => import('../screens/profile/ProfileDocumentsScreen'))
 const ProfileEditScreen = lazy(() => import('../screens/profile/ProfileEditScreen'))
@@ -104,6 +106,8 @@ export default function AppRouter() {
         <Route path="/notifications" element={<NotificationsScreen />} />
         <Route path="/credit-score" element={<CreditScoreScreen />} />
         <Route path="/early-payoff" element={<EarlyPayoffScreen />} />
+        <Route path="/early-payoff-pin" element={<EarlyPayoffPinScreen />} />
+        <Route path="/early-payoff-success" element={<EarlyPayoffSuccessScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
         <Route path="/profile-documents" element={<ProfileDocumentsScreen />} />
         <Route path="/profile-edit" element={<ProfileEditScreen />} />

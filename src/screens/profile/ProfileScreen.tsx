@@ -2,8 +2,8 @@ import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import { Icon } from '../../components/Icon'
+import { CollapsingHeader, CollapsingTitle, useCollapse } from '../../components/CollapsingHeader'
 import { FieldCard } from '../mwl/MwlParts'
 import { AssetImg, ILLUS } from '../../components/home/media'
 import { AvatarArt } from '../../components/home/illustrations'
@@ -115,20 +115,14 @@ function IdentityCard() {
 
 export default function ProfileScreen() {
   const navigate = useNavigate()
+  const { collapse, onScroll } = useCollapse()
   const [empOpen, setEmpOpen] = useState(true)
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
-      <Box className="scroll-content" sx={{ flex: 1 }}>
-        {/* Header */}
-        <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#F5F5F5', px: 3, pt: 3, pb: 1 }}>
-          <IconButton onClick={() => navigate(-1)} aria-label="Back" sx={{ ml: -1, color: HEADING }}>
-            <Icon name="chevronLeft" size={26} color={HEADING} />
-          </IconButton>
-          <Typography sx={{ fontSize: 30, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', mt: 0.5 }}>
-            Profile
-          </Typography>
-        </Box>
+      <Box className="scroll-content" sx={{ flex: 1 }} onScroll={onScroll}>
+        <CollapsingHeader title="Profile" collapse={collapse} onBack={() => navigate(-1)} />
+        <CollapsingTitle collapse={collapse} fontSize={30}>Profile</CollapsingTitle>
 
         <Box sx={{ px: 3, pt: 1.5, pb: '44px', display: 'flex', flexDirection: 'column', gap: 2 }}>
           <IdentityCard />

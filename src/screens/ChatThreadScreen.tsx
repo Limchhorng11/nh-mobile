@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -12,6 +13,7 @@ const HEADING = '#0B0F1A'
 const MUTED = '#8A94A6'
 const BLUE = '#275CB2'
 const GREEN = '#1FA85C'
+const DANGER = '#E11D48'
 
 type Msg =
   | { kind: 'text'; from: 'me' | 'them'; text: string; time: string }
@@ -29,6 +31,7 @@ const MESSAGES: Msg[] = [
 
 export default function ChatThreadScreen() {
   const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -49,9 +52,53 @@ export default function ChatThreadScreen() {
             </Box>
             <Typography sx={{ fontSize: 13, color: MUTED, lineHeight: 1.2 }}>Customer Support</Typography>
           </Box>
-          <IconButton aria-label="Delete conversation" sx={{ color: HEADING }}>
-            <Icon name="trash" size={22} color={HEADING} />
-          </IconButton>
+          <Box sx={{ position: 'relative', flexShrink: 0 }}>
+            <IconButton
+              aria-label="More options"
+              aria-haspopup="true"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((v) => !v)}
+              sx={{ color: HEADING }}
+            >
+              <Icon name="dotsVertical" size={22} color={HEADING} />
+            </IconButton>
+
+            {menuOpen && (
+              <>
+                {/* Click-away layer */}
+                <Box onClick={() => setMenuOpen(false)} sx={{ position: 'fixed', inset: 0, zIndex: 40 }} />
+                {/* Dropdown */}
+                <Box
+                  role="menu"
+                  sx={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: 4,
+                    mt: 0.5,
+                    zIndex: 50,
+                    minWidth: 196,
+                    bgcolor: '#fff',
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 28px rgba(16,24,40,0.18), 0 0 0 1px rgba(16,24,40,0.05)',
+                    overflow: 'hidden',
+                    py: 0.5,
+                    transformOrigin: 'top right',
+                    animation: 'menuIn 0.14s ease',
+                    '@keyframes menuIn': { from: { opacity: 0, transform: 'scale(0.96) translateY(-4px)' }, to: { opacity: 1, transform: 'scale(1) translateY(0)' } },
+                  }}
+                >
+                  <Box
+                    role="menuitem"
+                    onClick={() => { setMenuOpen(false); navigate('/chat') }}
+                    sx={{ display: 'flex', alignItems: 'center', gap: 1.25, px: 1.75, py: 1.25, cursor: 'pointer', '&:hover': { bgcolor: '#FFF5F6' }, '&:active': { bgcolor: '#FBE7EB' } }}
+                  >
+                    <Icon name="trash" size={20} color={DANGER} />
+                    <Typography sx={{ fontSize: 14.5, fontWeight: 700, color: DANGER }}>Delete conversation</Typography>
+                  </Box>
+                </Box>
+              </>
+            )}
+          </Box>
         </Box>
       </Box>
 

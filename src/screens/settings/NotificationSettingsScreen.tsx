@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import Switch from '@mui/material/Switch'
 import { Icon, type IconName } from '../../components/Icon'
+import { useCollapse, CollapsingHeader, CollapsingTitle } from '../../components/CollapsingHeader'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Notification Settings — toggles for the kinds of push the user receives.
@@ -13,17 +13,6 @@ import { Icon, type IconName } from '../../components/Icon'
 const HEADING = '#0B0F1A'
 const MUTED = '#8A94A6'
 const BLUE = '#275CB2'
-
-function ScreenHeader({ title, onBack }: { title: string; onBack: () => void }) {
-  return (
-    <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#F5F5F5', px: 3, pt: 3, pb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-      <IconButton onClick={onBack} aria-label="Back" sx={{ ml: -1, color: HEADING }}>
-        <Icon name="chevronLeft" size={26} color={HEADING} />
-      </IconButton>
-      <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px' }}>{title}</Typography>
-    </Box>
-  )
-}
 
 function Card({ children }: { children: React.ReactNode }) {
   return <Box sx={{ bgcolor: '#fff', borderRadius: '12px', overflow: 'hidden' }}>{children}</Box>
@@ -98,6 +87,7 @@ function ToggleRow({
 
 export default function NotificationSettingsScreen() {
   const navigate = useNavigate()
+  const { collapse, onScroll } = useCollapse()
   const [paymentReminders, setPaymentReminders] = useState(false)
   const [promotions, setPromotions] = useState(true)
   const [chatNotifs, setChatNotifs] = useState(false)
@@ -112,8 +102,9 @@ export default function NotificationSettingsScreen() {
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
-      <Box className="scroll-content" sx={{ flex: 1 }}>
-        <ScreenHeader title="Notifications" onBack={() => navigate(-1)} />
+      <Box className="scroll-content" sx={{ flex: 1 }} onScroll={onScroll}>
+        <CollapsingHeader title="Notifications" collapse={collapse} onBack={() => navigate(-1)} />
+        <CollapsingTitle collapse={collapse}>{"Notifications"}</CollapsingTitle>
 
         <Box sx={{ px: 3, pt: '24px', pb: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Card>

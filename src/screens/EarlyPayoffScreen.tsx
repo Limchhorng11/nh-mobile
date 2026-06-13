@@ -88,7 +88,7 @@ export default function EarlyPayoffScreen() {
         <Button
           variant="contained"
           fullWidth
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/early-payoff-pin')}
           sx={{ height: 48, borderRadius: '12px', fontSize: 14, fontWeight: 700, bgcolor: BLUE }}
         >
           Request payoff letter

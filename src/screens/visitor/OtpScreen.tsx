@@ -43,7 +43,7 @@ export default function OtpScreen() {
 
           {/* OTP cells (tap to focus hidden input) */}
           <Box sx={{ position: 'relative', mt: 3.5 }} onClick={() => inputRef.current?.focus()}>
-            <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center' }}>
               {cells.map((i) => {
                 const active = i === code.length
                 const filled = i < code.length

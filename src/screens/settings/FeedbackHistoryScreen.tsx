@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import { Icon } from '../../components/Icon'
+import { useCollapse, CollapsingHeader, CollapsingTitle } from '../../components/CollapsingHeader'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Feedback History — past submissions and support replies (from Send feedback).
@@ -41,16 +41,13 @@ const ENTRIES: Entry[] = [
 
 export default function FeedbackHistoryScreen() {
   const navigate = useNavigate()
+  const { collapse, onScroll } = useCollapse()
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
-      <Box className="scroll-content" sx={{ flex: 1 }}>
-        <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#F5F5F5', px: 3, pt: 3, pb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px', flex: 1 }}>Feedback history</Typography>
-          <IconButton onClick={() => navigate(-1)} aria-label="Close" sx={{ mr: -1, color: HEADING }}>
-            <Icon name="close" size={24} color={HEADING} />
-          </IconButton>
-        </Box>
+      <Box className="scroll-content" sx={{ flex: 1 }} onScroll={onScroll}>
+        <CollapsingHeader title="Feedback history" collapse={collapse} onBack={() => navigate(-1)} />
+        <CollapsingTitle collapse={collapse}>{"Feedback history"}</CollapsingTitle>
 
         <Box sx={{ px: 3, pb: 5, pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
           {ENTRIES.map((e) => (

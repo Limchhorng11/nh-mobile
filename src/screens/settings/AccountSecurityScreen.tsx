@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import Switch from '@mui/material/Switch'
 import { Icon, type IconName } from '../../components/Icon'
+import { CollapsingHeader, CollapsingTitle, useCollapse } from '../../components/CollapsingHeader'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Account Security — sign-in methods + active sessions (opened from Settings).
@@ -14,17 +14,6 @@ const MUTED = '#8A94A6'
 const BLUE = '#275CB2'
 const DANGER = '#E11D48'
 const GREEN = '#1FA85C'
-
-function ScreenHeader({ title, onBack }: { title: string; onBack: () => void }) {
-  return (
-    <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#F5F5F5', px: 3, pt: 3, pb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-      <IconButton onClick={onBack} aria-label="Back" sx={{ ml: -1, color: HEADING }}>
-        <Icon name="chevronLeft" size={26} color={HEADING} />
-      </IconButton>
-      <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px' }}>{title}</Typography>
-    </Box>
-  )
-}
 
 function SectionLabel({ children }: { children: string }) {
   return (
@@ -119,12 +108,14 @@ const SESSIONS: Session[] = [
 
 export default function AccountSecurityScreen() {
   const navigate = useNavigate()
+  const { collapse, onScroll } = useCollapse()
   const [faceId, setFaceId] = useState(true)
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
-      <Box className="scroll-content" sx={{ flex: 1 }}>
-        <ScreenHeader title="Account security" onBack={() => navigate(-1)} />
+      <Box className="scroll-content" sx={{ flex: 1 }} onScroll={onScroll}>
+        <CollapsingHeader title="Account security" collapse={collapse} onBack={() => navigate(-1)} />
+        <CollapsingTitle collapse={collapse}>{"Account security"}</CollapsingTitle>
 
         <Box sx={{ px: 3, pb: 4 }}>
           {/* Sign-in methods */}

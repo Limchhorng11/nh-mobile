@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import { Icon, type IconName } from '../components/Icon'
+import { CollapsingHeader, CollapsingTitle, useCollapse } from '../components/CollapsingHeader'
 import { useFlow } from '../workspace/FlowContext'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -60,6 +60,7 @@ const HISTORY = [
 
 export default function CreditScoreScreen() {
   const navigate = useNavigate()
+  const { collapse, onScroll } = useCollapse()
   const { flow } = useFlow()
   const band = bandFor(SCORE)
   const delta = HISTORY[0].score - HISTORY[1].score
@@ -69,14 +70,9 @@ export default function CreditScoreScreen() {
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
-      <Box className="scroll-content" sx={{ flex: 1, pb: '44px' }}>
-        {/* Header */}
-        <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#F5F5F5', px: 3, pt: 3, pb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton onClick={() => navigate(-1)} aria-label="Back" sx={{ ml: -1, color: HEADING }}>
-            <Icon name="chevronLeft" size={26} color={HEADING} />
-          </IconButton>
-          <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px' }}>Credit Score</Typography>
-        </Box>
+      <Box className="scroll-content" sx={{ flex: 1, pb: '44px' }} onScroll={onScroll}>
+        <CollapsingHeader title="Credit Score" collapse={collapse} onBack={() => navigate(-1)} />
+        <CollapsingTitle collapse={collapse}>{"Credit Score"}</CollapsingTitle>
 
         {noScore ? (
           <EmptyState onApply={() => navigate('/products')} />
