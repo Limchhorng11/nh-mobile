@@ -6,7 +6,7 @@ import Button from '@mui/material/Button'
 import Slider from '@mui/material/Slider'
 import { Icon, type IconName } from '../components/Icon'
 import { CollapsingHeader, CollapsingTitle, useCollapse } from '../components/CollapsingHeader'
-import { FieldCard, BLUE } from './mwl/MwlParts'
+import { FieldCard, BottomSheet, BLUE } from './mwl/MwlParts'
 import { useFlow } from '../workspace/FlowContext'
 import { buildSchedule, money, type Currency, type ScheduleRow } from './loanCalc'
 
@@ -106,6 +106,8 @@ export default function CalculatorScreen() {
     }
   }
 
+  const [downloadOpen, setDownloadOpen] = useState(false)
+
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1 }} onScroll={onScroll}>
@@ -120,7 +122,7 @@ export default function CalculatorScreen() {
             {/* Amount */}
             <Box sx={{ bgcolor: '#fff', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.5 }}>
               <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: '16px' }}>
-                {currency === 'KHR' ? 'Amount 400K ~ 1,200M' : `Amount $${MIN_AMOUNT.toLocaleString('en-US')} ~ $${maxAmount.toLocaleString('en-US')}`}
+                {currency === 'KHR' ? 'Amount ៛400K ~ ៛1,200M' : `Amount $${MIN_AMOUNT.toLocaleString('en-US')} ~ $${maxAmount.toLocaleString('en-US')}`}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flex: 1, minWidth: 0 }}>
@@ -178,7 +180,7 @@ export default function CalculatorScreen() {
                   step={null}
                   marks={termMarks}
                   valueLabelDisplay="auto"
-                  valueLabelFormat={(v) => `${v}`}
+                  valueLabelFormat={(v) => termUnit === 'Year' ? `${Math.round(v / 12)}y` : `${v}m`}
                   aria-label="Loan term in months"
                   sx={{
                     py: 1.5,
@@ -229,9 +231,19 @@ export default function CalculatorScreen() {
               <Box sx={{ width: 171, flexShrink: 0, bgcolor: '#fff', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.5 }}>
                 <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: '16px' }}>Loan term</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#000' }}>
-                    {termUnit === 'Month' ? term : Math.round(term / 12)}
-                  </Typography>
+                  <Box
+                    component="input"
+                    type="text"
+                    inputMode="numeric"
+                    value={termUnit === 'Month' ? term : Math.round(term / 12)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const n = parseInt(e.target.value.replace(/\D/g, '') || '0', 10)
+                      const months = termUnit === 'Year' ? n * 12 : n
+                      setTerm(Math.min(Math.max(months, MIN_MONTHS), maxMonths))
+                    }}
+                    aria-label="Loan term"
+                    sx={{ width: 0, flex: 1, minWidth: 0, border: 'none', outline: 'none', bgcolor: 'transparent', p: 0, fontSize: 16, fontWeight: 600, color: '#000', fontFamily: 'inherit' }}
+                  />
                   <Box
                     role="button"
                     aria-label="Toggle term unit"
@@ -318,7 +330,7 @@ export default function CalculatorScreen() {
                 />
               </Box>
               <Typography sx={{ fontSize: 14, color: LABEL, textAlign: 'center', py: 1.5 }}>
-                Showing 3 of {term} · <Box component="span" sx={{ color: BLUE, fontWeight: 700 }}>Download</Box> for full view
+                Showing 3 of {term} · <Box component="span" onClick={() => setDownloadOpen(true)} sx={{ color: BLUE, fontWeight: 700, cursor: 'pointer' }}>Download</Box> for full view
               </Typography>
             </Box>
           </Box>
@@ -336,6 +348,16 @@ export default function CalculatorScreen() {
           Apply this loan
         </Button>
       </Box>
+
+      {/* Download preview sheet */}
+      <DownloadSheet
+        open={downloadOpen}
+        onClose={() => setDownloadOpen(false)}
+        rows={rows}
+        totals={{ principal: totalPrincipalPaid, interest: totalInterest, payable: totalPayable }}
+        currency={currency}
+        term={term}
+      />
     </Box>
   )
 }
@@ -396,8 +418,7 @@ function IconSelect({
                   alignItems: 'center',
                   gap: 1.5,
                   px: 2,
-                  py: 1.5,
-                  borderTop: i > 0 ? '1px solid #F1F4F8' : 'none',
+                  minHeight: 56,
                   bgcolor: active ? '#F4F8FF' : '#fff',
                   cursor: 'pointer',
                 }}
@@ -507,5 +528,72 @@ function Td({ children, strong = false, accent = false, bold = false }: { childr
     >
       {children}
     </Box>
+  )
+}
+
+// ─── Download preview sheet ───────────────────────────────────────────────────
+function DownloadSheet({
+  open,
+  onClose,
+  rows,
+  totals,
+  currency,
+  term,
+}: {
+  open: boolean
+  onClose: () => void
+  rows: ScheduleRow[]
+  totals: { principal: number; interest: number; payable: number }
+  currency: Currency
+  term: number
+}) {
+  const previewRows = rows.slice(0, Math.min(rows.length, 6))
+  const handleSave = () => {
+    const headers = ['Month', 'Principal', 'Interest', 'Payment', 'Balance']
+    const csvRows = rows.map((r) => [r.month, r.principal.toFixed(2), r.interest.toFixed(2), r.payment.toFixed(2), r.balance.toFixed(2)].join(','))
+    const csv = [headers.join(','), ...csvRows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'repayment-table.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+    onClose()
+  }
+
+  return (
+    <BottomSheet open={open} onClose={onClose}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.3px' }}>
+          Repayment Table
+        </Typography>
+        <Typography sx={{ fontSize: 13.5, color: '#8A94A6' }}>
+          {term} months · {currency} · preview of first {previewRows.length - 1} installments
+        </Typography>
+      </Box>
+      <Box sx={{ bgcolor: '#fff', borderRadius: '10px', overflow: 'hidden', border: '1px solid #F0F0F0' }}>
+        <RepaymentTable rows={previewRows} totals={totals} currency={currency} />
+      </Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={handleSave}
+          startIcon={<Icon name="download" size={18} color="#fff" />}
+          sx={{ height: 52, borderRadius: '14px', fontSize: 16, fontWeight: 700 }}
+        >
+          Save as CSV
+        </Button>
+        <Button
+          variant="text"
+          fullWidth
+          onClick={onClose}
+          sx={{ height: 44, fontSize: 15, fontWeight: 600, color: '#8A94A6' }}
+        >
+          Cancel
+        </Button>
+      </Box>
+    </BottomSheet>
   )
 }

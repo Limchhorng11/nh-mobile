@@ -20,7 +20,7 @@ export default function RequestConsultScreen() {
       <Box className="scroll-content" sx={{ flex: 1 }}>
         {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, pt: 3, pb: 1 }}>
-          <IconButton onClick={() => navigate(-1)} aria-label="Back" sx={{ color: HEADING }}>
+          <IconButton onClick={() => navigate('/more')} aria-label="Back" sx={{ color: HEADING }}>
             <Icon name="chevronLeft" size={26} color={HEADING} />
           </IconButton>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

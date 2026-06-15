@@ -18,6 +18,25 @@ const LANGUAGES: { id: LangId; label: string; flag: FlagCode }[] = [
   { id: 'ko', label: '한국어', flag: 'kr' },
 ]
 
+type Country = { name: string; code: string; flag: FlagCode }
+const COUNTRIES: Country[] = [
+  { name: 'Cambodia', code: '+855', flag: 'kh' },
+  { name: 'South Korea', code: '+82', flag: 'kr' },
+  { name: 'Thailand', code: '+66', flag: 'th' },
+  { name: 'Vietnam', code: '+84', flag: 'vn' },
+  { name: 'Japan', code: '+81', flag: 'jp' },
+  { name: 'China', code: '+86', flag: 'cn' },
+  { name: 'Singapore', code: '+65', flag: 'sg' },
+  { name: 'Malaysia', code: '+60', flag: 'my' },
+  { name: 'Indonesia', code: '+62', flag: 'id' },
+  { name: 'Philippines', code: '+63', flag: 'ph' },
+  { name: 'Myanmar', code: '+95', flag: 'mm' },
+  { name: 'Laos', code: '+856', flag: 'la' },
+  { name: 'United States', code: '+1', flag: 'us' },
+  { name: 'United Kingdom', code: '+44', flag: 'gb' },
+  { name: 'Australia', code: '+61', flag: 'au' },
+]
+
 // Carry an optional post-signup destination (e.g. an apply-loan screen) forward.
 function nextSuffix(next: string | null) {
   return next ? '?next=' + encodeURIComponent(next) : ''
@@ -30,7 +49,15 @@ export default function SignUpScreen() {
   const next = params.get('next')
   const [language, setLanguage] = useState<LangId>('en')
   const [langOpen, setLangOpen] = useState(false)
+  const [countrySheetOpen, setCountrySheetOpen] = useState(false)
+  const [countrySearch, setCountrySearch] = useState('')
+  const [selectedCountry, setSelectedCountry] = useState<Country>(COUNTRIES[0])
   const activeLang = LANGUAGES.find((l) => l.id === language) ?? LANGUAGES[0]
+
+  const filteredCountries = COUNTRIES.filter((c) =>
+    c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+    c.code.includes(countrySearch)
+  )
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -116,21 +143,31 @@ export default function SignUpScreen() {
           {/* Country selector */}
           <Box
             role="button"
+            onClick={() => setCountrySheetOpen(true)}
             sx={{ display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: '#fff', borderRadius: '14px', px: '16px', minHeight: 60, mt: 3.5, cursor: 'pointer' }}
           >
-            <Flag code="kh" size={34} />
+            <Flag code={selectedCountry.flag} size={34} />
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: 1.2 }}>Country</Typography>
-              <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A', lineHeight: 1.25 }}>Cambodia</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A', lineHeight: 1.25 }}>{selectedCountry.name}</Typography>
             </Box>
             <Icon name="chevronDown" size={20} color="#0B0F1A" />
           </Box>
 
           {/* Code + Phone Number */}
           <Box sx={{ display: 'flex', gap: 1.5, mt: 2 }}>
-            <Box sx={{ bgcolor: '#fff', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', flexShrink: 0, minWidth: 104 }}>
+            <Box sx={{ bgcolor: '#fff', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', flexShrink: 0, width: 94 }}>
               <FieldLabel label="Code" />
-              <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A', mt: 0.25 }}>+855</Typography>
+              <Box
+                component="input"
+                type="tel"
+                inputMode="tel"
+                value={selectedCountry.code}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setSelectedCountry((c) => ({ ...c, code: e.target.value }))
+                }}
+                sx={{ mt: 0.25, width: '100%', border: 'none', outline: 'none', bgcolor: 'transparent', fontSize: 16, fontWeight: 700, color: '#0B0F1A', fontFamily: 'inherit', p: 0 }}
+              />
             </Box>
             <Box sx={{ bgcolor: '#fff', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, minWidth: 0 }}>
               <FieldLabel label="Phone Number" />
@@ -187,6 +224,72 @@ export default function SignUpScreen() {
           Send code
         </Button>
       </Box>
+
+      {/* Country picker sheet */}
+      <>
+        <Box
+          onClick={() => { setCountrySheetOpen(false); setCountrySearch('') }}
+          sx={{
+            position: 'absolute', inset: 0, zIndex: 100,
+            bgcolor: 'rgba(11,15,26,0.45)',
+            opacity: countrySheetOpen ? 1 : 0,
+            pointerEvents: countrySheetOpen ? 'auto' : 'none',
+            transition: 'opacity 0.25s ease',
+          }}
+        />
+        <Box sx={{
+          position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 101,
+          bgcolor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
+          transform: countrySheetOpen ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s cubic-bezier(0.32,0.72,0,1)',
+          maxHeight: '80%', display: 'flex', flexDirection: 'column',
+          boxShadow: '0 -8px 30px rgba(11,15,26,0.18)',
+        }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1.25, pb: 0.5, flexShrink: 0 }}>
+            <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: '#D6DBE2' }} />
+          </Box>
+          <Typography sx={{ fontSize: 18, fontWeight: 800, color: HEADING, px: 3, pb: 1.5, flexShrink: 0 }}>Select Country</Typography>
+          <Box sx={{ px: 3, pb: 1.5, flexShrink: 0 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: '#ECEEF1', borderRadius: '12px', px: '14px', height: 44 }}>
+              <Icon name="search" size={18} color={MUTED} />
+              <Box
+                component="input"
+                placeholder="Search country or code"
+                value={countrySearch}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCountrySearch(e.target.value)}
+                sx={{ flex: 1, border: 'none', outline: 'none', bgcolor: 'transparent', fontSize: 15, color: HEADING, fontFamily: 'inherit', '::placeholder': { color: MUTED } }}
+              />
+            </Box>
+          </Box>
+          <Box sx={{ overflowY: 'auto', pb: '48px' }}>
+            {filteredCountries.map((c) => {
+              const active = c.name === selectedCountry.name
+              return (
+                <Box
+                  key={c.name}
+                  role="button"
+                  onClick={() => { setSelectedCountry(c); setCountrySheetOpen(false); setCountrySearch('') }}
+                  sx={{
+                    display: 'flex', alignItems: 'center', gap: 1.5,
+                    px: 3, minHeight: 60,
+                    bgcolor: active ? '#F4F8FF' : '#fff',
+                    cursor: 'pointer',
+                    '&:active': { bgcolor: '#EEF3FC' },
+                  }}
+                >
+                  <Flag code={c.flag} size={30} />
+                  <Typography sx={{ flex: 1, fontSize: 16, fontWeight: active ? 700 : 500, color: HEADING }}>{c.name}</Typography>
+                  <Typography sx={{ fontSize: 15, fontWeight: 600, color: MUTED }}>{c.code}</Typography>
+                  {active && <Icon name="checkCircle" size={20} color={BLUE} />}
+                </Box>
+              )
+            })}
+            {filteredCountries.length === 0 && (
+              <Typography sx={{ textAlign: 'center', py: 5, fontSize: 15, color: MUTED }}>No results</Typography>
+            )}
+          </Box>
+        </Box>
+      </>
     </Box>
   )
 }

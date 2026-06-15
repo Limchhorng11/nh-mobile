@@ -247,7 +247,12 @@ export default function ProductDetailScreen() {
           {/* Calculate / Request Consult */}
           <Box sx={{ display: 'flex', gap: 1, width: '100%' }}>
             <ToolButton icon="calculator" label="Calculate" onClick={() => navigate('/calculator?v=1')} sx={{ width: 132, flexShrink: 0 }} />
-            <ToolButton icon="clock" label="Request Consult" onClick={() => navigate('/request-consult')} sx={{ flex: 1 }} />
+            <ToolButton
+              icon="clock"
+              label="Request Consult"
+              onClick={() => navigate(flow === 'Visitor' ? '/sign-up?next=' + encodeURIComponent('/request-consult') : '/request-consult')}
+              sx={{ flex: 1 }}
+            />
           </Box>
 
           {/* Spec cards */}

@@ -40,6 +40,7 @@ export default function MyLoanScreen() {
             <EmptyState
               label="No loans yet"
               hint="Apply for a loan from the Products tab and it will appear here."
+              showApplyButtons
             />
           ) : (
             <>
@@ -64,7 +65,12 @@ export default function MyLoanScreen() {
 }
 
 // ─── Empty state — shown for Applicants on the Active / Complete tabs ─────────
-function EmptyState({ label, hint }: { label: string; hint: string }) {
+function EmptyState({ label, hint, showApplyButtons }: { label: string; hint: string; showApplyButtons?: boolean }) {
+  const navigate = useNavigate()
+  const { flow } = useFlow()
+  const isVisitor = flow === 'Visitor'
+  const goNonMwl = () => navigate(isVisitor ? '/sign-up?next=' + encodeURIComponent('/nonmwl-about') : '/nonmwl-about')
+  const goMwl = () => navigate(isVisitor ? '/sign-up?next=' + encodeURIComponent('/mwl-about') : '/mwl-about')
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 6, px: 2 }}>
       <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: '#EEF1F5', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
@@ -72,6 +78,26 @@ function EmptyState({ label, hint }: { label: string; hint: string }) {
       </Box>
       <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A' }}>{label}</Typography>
       <Typography sx={{ fontSize: 13, color: '#8A94A6', mt: 0.75, maxWidth: 240, lineHeight: 1.5 }}>{hint}</Typography>
+      {showApplyButtons && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 3, width: '100%', maxWidth: 280 }}>
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={goNonMwl}
+            sx={{ height: 48, borderRadius: '12px', fontSize: 14, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' } }}
+          >
+            Apply Non-MWL Loan
+          </Button>
+          <Button
+            variant="outlined"
+            fullWidth
+            onClick={goMwl}
+            sx={{ height: 48, borderRadius: '12px', fontSize: 14, fontWeight: 700, color: BLUE, borderColor: BLUE }}
+          >
+            Apply MWL (Migrant Worker)
+          </Button>
+        </Box>
+      )}
     </Box>
   )
 }

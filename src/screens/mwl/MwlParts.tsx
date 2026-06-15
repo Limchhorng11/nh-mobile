@@ -197,8 +197,7 @@ export function SelectField({
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   px: 2,
-                  py: 1.5,
-                  borderTop: i > 0 ? '1px solid #F1F4F8' : 'none',
+                  minHeight: 56,
                   bgcolor: active ? '#F4F8FF' : '#fff',
                   cursor: 'pointer',
                 }}

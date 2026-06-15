@@ -4,7 +4,8 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Slider from '@mui/material/Slider'
 import { Icon } from '../../components/Icon'
-import { MwlHeader, MwlTitle, MwlFooter, GroupLabel, SelectField, BLUE } from './MwlParts'
+import { MwlHeader, MwlTitle, MwlFooter, GroupLabel, SelectField, BottomSheet, BLUE } from './MwlParts'
+import Button from '@mui/material/Button'
 import { buildSchedule, money, type Currency, type ScheduleRow } from '../loanCalc'
 
 const TABLE_HEAD = ['ចំនួនខែ', 'ប្រាក់ដើម', 'ការប្រាក់', 'ប្រាក់សរុបត្រូវបង់', 'សមតុល្យប្រាក់ដើម']
@@ -37,7 +38,8 @@ const TERM_DOT_SET = new Set(TERM_DOTS)
 export default function MwlLoanScreen({ nonMwl = false }: { nonMwl?: boolean } = {}) {
   const navigate = useNavigate()
   const prefix = nonMwl ? '/nonmwl' : '/mwl'
-  const [showTable, setShowTable] = useState(true)
+  const [showTable, setShowTable] = useState(false)
+  const [downloadOpen, setDownloadOpen] = useState(false)
   const [amount, setAmount] = useState(5000)
   const [months, setMonths] = useState(12)
   const [currency, setCurrency] = useState<Currency>('USD')
@@ -74,7 +76,9 @@ export default function MwlLoanScreen({ nonMwl = false }: { nonMwl?: boolean } =
           {/* Amount */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
             <GroupLabel>
-              REQUEST AMOUNT ${MIN_AMOUNT.toLocaleString('en-US')} – ${MAX_AMOUNT.toLocaleString('en-US')}
+              {currency === 'KHR'
+                ? 'REQUEST AMOUNT ៛400K – ៛59,500K'
+                : `REQUEST AMOUNT $${MIN_AMOUNT.toLocaleString('en-US')} – $${MAX_AMOUNT.toLocaleString('en-US')}`}
             </GroupLabel>
             <Box sx={{ bgcolor: '#fff', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.5 }}>
               <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: '16px' }}>Amount</Typography>
@@ -243,7 +247,7 @@ export default function MwlLoanScreen({ nonMwl = false }: { nonMwl?: boolean } =
               />
             </Box>
             <Typography sx={{ fontSize: 14, color: LABEL, textAlign: 'center', py: 1.5 }}>
-              Showing 3 of {months} · <Box component="span" sx={{ color: BLUE, fontWeight: 700 }}>Download</Box> for full view
+              Showing 3 of {months} · <Box component="span" onClick={() => setDownloadOpen(true)} sx={{ color: BLUE, fontWeight: 700, cursor: 'pointer' }}>Download</Box> for full view
             </Typography>
           </Box>
           </>
@@ -252,7 +256,83 @@ export default function MwlLoanScreen({ nonMwl = false }: { nonMwl?: boolean } =
       </Box>
 
       <MwlFooter onPrev={() => navigate(`${prefix}-about`)} onNext={() => navigate(nonMwl ? '/nonmwl-review' : '/mwl-guarantor')} />
+
+      {/* Download preview sheet */}
+      <DownloadSheet
+        open={downloadOpen}
+        onClose={() => setDownloadOpen(false)}
+        rows={rows}
+        totals={{ principal: totalPrincipalPaid, interest: totalInterest, payable: totalPayable }}
+        currency={currency}
+        months={months}
+      />
     </Box>
+  )
+}
+
+// ─── Download preview sheet ───────────────────────────────────────────────────
+function DownloadSheet({
+  open,
+  onClose,
+  rows,
+  totals,
+  currency,
+  months,
+}: {
+  open: boolean
+  onClose: () => void
+  rows: ScheduleRow[]
+  totals: { principal: number; interest: number; payable: number }
+  currency: Currency
+  months: number
+}) {
+  const previewRows = rows.slice(0, Math.min(rows.length, 6))
+  const handleSave = () => {
+    const headers = ['Month', 'Principal', 'Interest', 'Payment', 'Balance']
+    const csvRows = rows.map((r) => [r.month, r.principal.toFixed(2), r.interest.toFixed(2), r.payment.toFixed(2), r.balance.toFixed(2)].join(','))
+    const csv = [headers.join(','), ...csvRows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'repayment-table.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+    onClose()
+  }
+
+  return (
+    <BottomSheet open={open} onClose={onClose}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.3px' }}>
+          Repayment Table
+        </Typography>
+        <Typography sx={{ fontSize: 13.5, color: '#8A94A6' }}>
+          {months} months · {currency} · preview of first {previewRows.length - 1} installments
+        </Typography>
+      </Box>
+      <Box sx={{ bgcolor: '#fff', borderRadius: '10px', overflow: 'hidden', border: '1px solid #F0F0F0' }}>
+        <RepaymentTable rows={previewRows} totals={totals} currency={currency} />
+      </Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={handleSave}
+          sx={{ height: 52, borderRadius: '14px', fontSize: 16, fontWeight: 700 }}
+        >
+          Save as CSV
+        </Button>
+        <Button
+          variant="text"
+          fullWidth
+          onClick={onClose}
+          sx={{ height: 44, fontSize: 15, fontWeight: 600, color: '#8A94A6' }}
+        >
+          Cancel
+        </Button>
+      </Box>
+    </BottomSheet>
   )
 }
 

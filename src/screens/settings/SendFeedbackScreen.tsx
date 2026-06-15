@@ -34,7 +34,7 @@ export default function SendFeedbackScreen() {
         <CollapsingHeader
           title="Send feedback"
           collapse={collapse}
-          onBack={() => navigate(-1)}
+          onBack={() => navigate('/more')}
           right={
             <IconButton onClick={() => navigate('/feedback-history')} aria-label="Feedback history" sx={{ color: HEADING }}>
               <Icon name="clock" size={24} color={HEADING} />

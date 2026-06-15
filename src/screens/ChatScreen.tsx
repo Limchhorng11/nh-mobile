@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
+import Button from '@mui/material/Button'
 import { Icon } from '../components/Icon'
 import CallSheet from '../components/CallSheet'
+import { useFlow } from '../workspace/FlowContext'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Chat — conversation list (inbox). Opened from the chat icon in the home header.
@@ -70,10 +72,13 @@ type Tab = 'all' | 'unread'
 
 export default function ChatScreen() {
   const navigate = useNavigate()
+  const { flow } = useFlow()
   const [tab, setTab] = useState<Tab>('all')
   const [callOpen, setCallOpen] = useState(false)
-  const unreadCount = CONVERSATIONS.filter((c) => c.unread > 0).length
-  const list = tab === 'all' ? CONVERSATIONS : CONVERSATIONS.filter((c) => c.unread > 0)
+  const isVisitor = flow === 'Visitor'
+  const conversations = isVisitor ? [] : CONVERSATIONS
+  const unreadCount = conversations.filter((c) => c.unread > 0).length
+  const list = tab === 'all' ? conversations : conversations.filter((c) => c.unread > 0)
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -112,11 +117,30 @@ export default function ChatScreen() {
           </Box>
         </Box>
 
-        {/* Conversation rows */}
+        {/* Conversation rows or empty state */}
         <Box sx={{ px: 3, pb: 5 }}>
-          {list.map((c) => (
-            <ConversationRow key={c.id} c={c} onClick={() => navigate('/chat-thread')} />
-          ))}
+          {list.length > 0 ? (
+            list.map((c) => (
+              <ConversationRow key={c.id} c={c} onClick={() => navigate('/chat-thread')} />
+            ))
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', pt: 8, px: 2 }}>
+              <Box sx={{ width: 72, height: 72, borderRadius: '50%', bgcolor: '#EEF1F5', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2.5 }}>
+                <Icon name="message" size={32} color="#B4BCC9" />
+              </Box>
+              <Typography sx={{ fontSize: 17, fontWeight: 700, color: '#0B0F1A' }}>No conversations yet</Typography>
+              <Typography sx={{ fontSize: 13.5, color: MUTED, mt: 0.75, maxWidth: 240, lineHeight: 1.5 }}>
+                Start a conversation with our support team to get help with your loan.
+              </Typography>
+              <Button
+                variant="contained"
+                onClick={() => navigate('/chat-new')}
+                sx={{ mt: 3, height: 48, borderRadius: '12px', px: 3, fontSize: 14, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' } }}
+              >
+                Start a conversation
+              </Button>
+            </Box>
+          )}
         </Box>
       </Box>
 

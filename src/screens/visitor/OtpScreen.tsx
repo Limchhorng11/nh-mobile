@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -10,14 +10,28 @@ import { Flag } from '../../components/Flag'
 const BLUE = '#275CB2'
 const MUTED = '#8A94A6'
 
+const COUNTDOWN_SECONDS = 42
+
 export default function OtpScreen() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const nextSuffix = params.get('next') ? '?next=' + encodeURIComponent(params.get('next')!) : ''
   const [code, setCode] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+  const [secondsLeft, setSecondsLeft] = useState(COUNTDOWN_SECONDS)
 
   const cells = [0, 1, 2, 3]
+
+  useEffect(() => {
+    if (secondsLeft <= 0) return
+    const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000)
+    return () => clearTimeout(t)
+  }, [secondsLeft])
+
+  const resendLabel =
+    secondsLeft > 0
+      ? `Resend in 0:${String(secondsLeft).padStart(2, '0')}`
+      : 'Resend Code'
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -67,7 +81,14 @@ export default function OtpScreen() {
           </Box>
 
           <Typography sx={{ fontSize: 14, color: MUTED, textAlign: 'center', mt: 3 }}>
-            Didn't receive a code? <Box component="span" sx={{ color: BLUE, fontWeight: 700 }}>Resend in 0:42</Box>
+            Didn't receive a code?{' '}
+            <Box
+              component="span"
+              onClick={secondsLeft === 0 ? () => setSecondsLeft(COUNTDOWN_SECONDS) : undefined}
+              sx={{ color: BLUE, fontWeight: 700, cursor: secondsLeft === 0 ? 'pointer' : 'default' }}
+            >
+              {resendLabel}
+            </Box>
           </Typography>
         </Box>
       </Box>

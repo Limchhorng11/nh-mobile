@@ -284,9 +284,9 @@ export function MoreMenuBody({
         <Box>
           <MoreSectionLabel>SUPPORT</MoreSectionLabel>
           <Box sx={{ bgcolor: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
-            <MoreRow icon="phone" label="Request a consultation" divider onClick={() => navigate('/request-consult')} />
+            <MoreRow icon="phone" label="Request a consultation" divider onClick={() => navigate(isVisitor ? '/sign-up?next=' + encodeURIComponent('/request-consult') : '/request-consult')} />
             <MoreRow icon="blogs" label="Blogs & Education" divider onClick={() => navigate('/blogs')} />
-            <MoreRow icon="feedback" label="Feedback" divider onClick={() => navigate('/send-feedback')} />
+            <MoreRow icon="feedback" label="Feedback" divider onClick={() => navigate(isVisitor ? '/sign-up?next=' + encodeURIComponent('/send-feedback') : '/send-feedback')} />
             <MoreRow icon="calculator" label="Calculator" divider onClick={() => navigate('/calculator')} />
             <MoreRow icon="findBranch" label="Find a Branch" divider onClick={() => navigate('/branch-locator')} />
             <MoreRow icon="gauge" label="Credit Score" onClick={() => navigate(isVisitor ? '/sign-up?next=' + encodeURIComponent('/credit-score') : '/credit-score')} />
