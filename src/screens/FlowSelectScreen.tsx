@@ -144,11 +144,12 @@ export default function FlowSelectScreen() {
 function formatBuildTime(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleString('en-GB', {
+  return d.toLocaleString('en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
-    hour: '2-digit',
+    hour: 'numeric',
     minute: '2-digit',
+    hour12: true,
   })
 }

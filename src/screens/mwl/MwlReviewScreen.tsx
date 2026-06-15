@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -31,22 +31,56 @@ export default function MwlReviewScreen({ nonMwl = false }: { nonMwl?: boolean }
   const navigate = useNavigate()
   const prefix = nonMwl ? '/nonmwl' : '/mwl'
   const [signOpen, setSignOpen] = useState(false)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const drawing = useRef(false)
+
+  const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const rect = canvasRef.current!.getBoundingClientRect()
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top }
+  }
+
+  const onPointerDown = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current; if (!canvas) return
+    canvas.setPointerCapture(e.pointerId)
+    drawing.current = true
+    const ctx = canvas.getContext('2d')!
+    const { x, y } = getPos(e)
+    ctx.beginPath(); ctx.moveTo(x, y)
+  }, [])
+
+  const onPointerMove = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!drawing.current || !canvasRef.current) return
+    const ctx = canvasRef.current.getContext('2d')!
+    ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#0B0F1A'
+    const { x, y } = getPos(e)
+    ctx.lineTo(x, y); ctx.stroke()
+  }, [])
+
+  const onPointerUp = useCallback(() => { drawing.current = false }, [])
+
+  const clearCanvas = useCallback(() => {
+    const canvas = canvasRef.current; if (!canvas) return
+    canvas.getContext('2d')!.clearRect(0, 0, canvas.width, canvas.height)
+  }, [])
+
+  useEffect(() => {
+    if (!signOpen) clearCanvas()
+  }, [signOpen, clearCanvas])
 
   return (
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1 }}>
-        <MwlHeader onBack={() => navigate(nonMwl ? '/nonmwl-loan' : '/mwl-guarantor')} kebab />
+        <MwlHeader onBack={() => navigate(nonMwl ? '/nonmwl-loan' : '/mwl-guarantor')} />
         <Typography sx={{ fontSize: 24, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', px: 3, mt: 0.5, mb: 1.5 }}>
           Review your application
         </Typography>
 
-        <Box sx={{ px: 3, pb: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ px: 3, pb: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
           {/* Loan request hero */}
-          <Box sx={{ background: `linear-gradient(135deg, ${BLUE} 0%, #003C99 100%)`, borderRadius: '14px', px: 2.5, py: 2, color: '#fff' }}>
+          <Box sx={{ background: `linear-gradient(135deg, ${BLUE} 0%, #003C99 100%)`, borderRadius: '14px', p: '18px', color: '#fff', display: 'flex', flexDirection: 'column', gap: '-4px' }}>
             <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', color: 'rgba(255,255,255,0.85)' }}>LOAN REQUEST</Typography>
             <Box sx={{ display: 'flex', alignItems: 'baseline', mt: 0.5 }}>
               <Typography sx={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.5px', color: '#fff' }}>$5,000</Typography>
-              <Typography sx={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>.00</Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.5 }}>
               <Typography sx={{ fontSize: 13, color: 'rgba(255,255,255,0.9)' }}>30 months</Typography>
@@ -78,6 +112,7 @@ export default function MwlReviewScreen({ nonMwl = false }: { nonMwl?: boolean }
             component="button"
             type="button"
             aria-label="Clear signature"
+            onClick={clearCanvas}
             sx={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -98,7 +133,19 @@ export default function MwlReviewScreen({ nonMwl = false }: { nonMwl?: boolean }
             Clear
           </Box>
         </Box>
-        <Box sx={{ bgcolor: '#ECECEC', borderRadius: '14px', height: 250 }} />
+        <Box sx={{ bgcolor: '#ECECEC', borderRadius: '14px', overflow: 'hidden', height: 250, touchAction: 'none' }}>
+          <Box
+            component="canvas"
+            ref={canvasRef}
+            width={600}
+            height={250}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerLeave={onPointerUp}
+            sx={{ display: 'block', width: '100%', height: '100%', cursor: 'crosshair' }}
+          />
+        </Box>
         <Button
           variant="contained"
           fullWidth
