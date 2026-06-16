@@ -321,7 +321,7 @@ function ProductsTopBar() {
         alt="NongHyup Finance (Cambodia) Plc"
         role="button"
         aria-label="Settings"
-        onClick={() => navigate('/settings')}
+        onClick={() => navigate('/sign-up')}
         sx={{ height: 26, width: 'auto', display: 'block', flex: 1, minWidth: 0, objectFit: 'contain', objectPosition: 'left', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
       />
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
