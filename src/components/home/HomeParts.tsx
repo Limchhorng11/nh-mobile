@@ -527,8 +527,8 @@ export function AdvanceCard({ amount = '$320.00' }: { amount?: string } = {}) {
   const navigate = useNavigate()
   return (
     <Card sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer' }} onClick={() => navigate('/advance')}>
-      <Box sx={{ width: 44, height: 44, borderRadius: '12px', bgcolor: '#EEF3FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <Icon name="clock" size={22} color={BLUE} />
+      <Box sx={{ width: 44, height: 44, borderRadius: '12px', bgcolor: '#EBEBEC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <Icon name="cash" size={22} color="#0B0F1A" />
       </Box>
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A', lineHeight: 1.2 }}>Advance</Typography>

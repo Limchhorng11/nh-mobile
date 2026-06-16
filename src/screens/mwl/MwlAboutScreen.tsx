@@ -34,6 +34,10 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
   const { sample: globalSample } = useSample()
   const prefix = nonMwl ? '/nonmwl' : '/mwl'
   const [discardOpen, setDiscardOpen] = useState(false)
+  const [firstName, setFirstName] = useState('Mao')
+  const [lastName, setLastName] = useState('Sothea')
+  const [phoneCode, setPhoneCode] = useState('+855')
+  const [phone, setPhone] = useState('017 666 036')
   const [dest, setDest] = useState('korea')
   const [city, setCity] = useState('Phnom Penh')
   const [occupation, setOccupation] = useState('Garment worker')
@@ -75,9 +79,8 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
                         <Icon name="check" size={13} color="#fff" />
                       </Box>
                     )}
-                    <Flag code={d.flag} size={32} />
+                    <Flag code={d.flag} size={32} rect />
                     <Typography sx={{ fontSize: 14, fontWeight: 800, color: '#0B0F1A', mt: 0.75 }}>{d.name}</Typography>
-                    <Typography sx={{ fontSize: 10.5, color: '#8A94A6', mt: 0.25, lineHeight: 1.3 }}>{d.sub}</Typography>
                   </Box>
                 )
               })}
@@ -90,10 +93,10 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
             <GroupLabel>YOUR INFO</GroupLabel>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <FieldCard label="First name" required value="Mao" />
-                <FieldCard label="Last name" required value="Sothea" />
+                <FieldCard label="First name" required value={firstName} onChange={setFirstName} />
+                <FieldCard label="Last name" required value={lastName} onChange={setLastName} />
               </Box>
-              <PhoneField label="Mobile number" number="017 666 036" />
+              <PhoneField label="Mobile number" code={phoneCode} number={phone} onNumberChange={setPhone} onCodeChange={setPhoneCode} />
               <SelectField label="City" required options={CITIES} value={city} onChange={setCity} />
               <SelectField label="Current occupation" required options={OCCUPATIONS} value={occupation} onChange={setOccupation} />
               <SelectField label="Status" required options={STATUSES} value={status} onChange={setStatus} />

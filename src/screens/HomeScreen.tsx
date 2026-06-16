@@ -44,7 +44,7 @@ export default function HomeScreen({ loggedIn = false }: { loggedIn?: boolean } 
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1 }}>
         {loggedIn || flow !== 'Visitor' ? <HomeTopBar /> : <VisitorTopBar />}
-        <Box sx={{ px: 3, pb: 5, display: 'flex', flexDirection: 'column', gap: 4, mt: 1 }}>
+        <Box sx={{ px: 3, pb: 5, display: 'flex', flexDirection: 'column', gap: 4, mt: 3 }}>
           {!loggedIn && flow === 'Applicant' && <ApplicationProgress />}
           {!loggedIn && flow === 'Borrower' && (
             <>

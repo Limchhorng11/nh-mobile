@@ -98,7 +98,7 @@ function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => 
 function DetailsTab({ onPay }: { onPay: () => void }) {
   const navigate = useNavigate()
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Status row */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <Box sx={{ bgcolor: '#E6EEF8', borderRadius: '999px', px: '9px', py: '3px' }}>
@@ -138,7 +138,7 @@ function DetailsTab({ onPay }: { onPay: () => void }) {
       </Box>
 
       {/* Next payment due card */}
-      <Box sx={{ bgcolor: '#fff', borderRadius: '12px', p: 2, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+      <Box sx={{ bgcolor: '#fff', borderRadius: '12px', p: 3, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <Icon name="clock" size={16} color="#000" />
           <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#000' }}>Next payment due</Typography>

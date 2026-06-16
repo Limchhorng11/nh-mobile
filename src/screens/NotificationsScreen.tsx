@@ -22,9 +22,9 @@ const AMBER = '#C47F11'
 type Filter = 'all' | 'reminder' | 'transaction' | 'announcements'
 
 const FILTERS: { id: Filter; label: string; dot?: boolean }[] = [
-  { id: 'all', label: 'All', dot: true },
+  { id: 'all', label: 'All' },
   { id: 'reminder', label: 'Reminder' },
-  { id: 'transaction', label: 'Transaction', dot: true },
+  { id: 'transaction', label: 'Transaction' },
   { id: 'announcements', label: 'Announcements' },
 ]
 
@@ -32,6 +32,7 @@ export default function NotificationsScreen() {
   const navigate = useNavigate()
   const { flow } = useFlow()
   const [filter, setFilter] = useState<Filter>('all')
+  const [scrolled, setScrolled] = useState(false)
 
   // Only borrowers have a loan → transaction history.
   const hasTransactions = flow === 'Borrower'
@@ -40,29 +41,46 @@ export default function NotificationsScreen() {
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
-      <Box className="scroll-content" sx={{ flex: 1 }}>
+      <Box
+        className="scroll-content"
+        sx={{ flex: 1 }}
+        onScroll={(e: React.UIEvent<HTMLDivElement>) => setScrolled(e.currentTarget.scrollTop > 50)}
+      >
         {/* Header */}
         <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#F5F5F5', px: 3, pt: 3, pb: 1 }}>
-          <IconButton onClick={() => navigate(-1)} aria-label="Back" sx={{ ml: -1, color: HEADING }}>
-            <Icon name="chevronLeft" size={26} color={HEADING} />
-          </IconButton>
-          <Typography sx={{ fontSize: 30, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', mt: 0.5 }}>
-            Notifications
-          </Typography>
+          {/* Back row — compact title fades in when scrolled */}
+          <Box sx={{ display: 'flex', alignItems: 'center', height: 40 }}>
+            <IconButton onClick={() => navigate(-1)} aria-label="Back" sx={{ ml: -1, color: HEADING }}>
+              <Icon name="chevronLeft" size={26} color={HEADING} />
+            </IconButton>
+            <Typography sx={{ fontSize: 17, fontWeight: 700, color: HEADING, ml: 0.5, opacity: scrolled ? 1 : 0, transition: 'opacity 0.22s ease' }}>
+              Notifications
+            </Typography>
+          </Box>
+
+          {/* Large title — collapses on scroll */}
+          <Box sx={{ maxHeight: scrolled ? 0 : 56, opacity: scrolled ? 0 : 1, overflow: 'hidden', transition: 'max-height 0.25s ease, opacity 0.2s ease' }}>
+            <Typography sx={{ fontSize: 30, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', mt: 0.5 }}>
+              Notifications
+            </Typography>
+          </Box>
 
           {/* Filter — scrollable so 4 pills fit */}
           <Box
             sx={{
               display: 'flex',
-              gap: '4px',
-              mt: 2,
+              alignItems: 'stretch',
+              height: 40,
+              gap: 0.5,
+              mt: scrolled ? 1 : 2,
               mb: 1,
               p: '4px',
-              bgcolor: '#EEF1F5',
-              borderRadius: '999px',
+              bgcolor: '#EBEBEC',
+              borderRadius: 999,
               overflowX: 'auto',
               '&::-webkit-scrollbar': { display: 'none' },
               scrollbarWidth: 'none',
+              transition: 'margin-top 0.25s ease',
             }}
           >
             {FILTERS.map((f) => (
@@ -99,16 +117,15 @@ function FilterPill({ label, active, dot, onClick }: { label: string; active: bo
         alignItems: 'center',
         justifyContent: 'center',
         gap: 0.625,
-        height: 34,
         px: '14px',
-        borderRadius: '999px',
+        borderRadius: 999,
         cursor: 'pointer',
         bgcolor: active ? '#fff' : 'transparent',
-        boxShadow: active ? '0 1px 4px rgba(16,24,40,0.12)' : 'none',
+        boxShadow: active ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
         transition: 'all 0.15s',
       }}
     >
-      <Typography sx={{ fontSize: 13, fontWeight: 700, color: active ? HEADING : MUTED, whiteSpace: 'nowrap' }}>
+      <Typography sx={{ fontSize: 13, fontWeight: 700, color: active ? '#0B0F1A' : '#71717A', whiteSpace: 'nowrap' }}>
         {label}
       </Typography>
       {dot && <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: DANGER }} />}
@@ -134,22 +151,24 @@ function CardHead({
   icon, badge, badgeColor, badgeBg, iconBg, iconColor, time,
 }: {
   icon: 'alert' | 'clock' | 'checkCircle'
-  badge: string
-  badgeColor: string
-  badgeBg: string
+  badge?: string
+  badgeColor?: string
+  badgeBg?: string
   iconBg?: string
   iconColor?: string
   time: string
 }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
       <Box sx={{ width: 38, height: 38, borderRadius: '10px', bgcolor: iconBg ?? '#F2F4F7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         <Icon name={icon} size={20} color={iconColor ?? HEADING} />
       </Box>
       <Box sx={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-        <Box sx={{ bgcolor: badgeBg, borderRadius: '999px', px: 1, py: '3px' }}>
-          <Typography sx={{ fontSize: 12, fontWeight: 700, color: badgeColor }}>{badge}</Typography>
-        </Box>
+        {badge && badgeBg && badgeColor ? (
+          <Box sx={{ bgcolor: badgeBg, borderRadius: '999px', px: 1, py: '3px' }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: badgeColor }}>{badge}</Typography>
+          </Box>
+        ) : <Box />}
         <Typography sx={{ fontSize: 13, color: MUTED, flexShrink: 0 }}>{time}</Typography>
       </Box>
     </Box>
@@ -169,9 +188,6 @@ function AllFeed() {
       <NotifCard>
         <CardHead
           icon="checkCircle"
-          badge="Loan Approved"
-          badgeColor={GREEN}
-          badgeBg="#E3F7EC"
           iconBg="#E3F7EC"
           iconColor={GREEN}
           time="10:30AM"
@@ -193,11 +209,8 @@ function AllFeed() {
       <NotifCard>
         <CardHead
           icon="checkCircle"
-          badge="Restructure Approved"
-          badgeColor={BLUE}
-          badgeBg="#EEF3FC"
-          iconBg="#EEF3FC"
-          iconColor={BLUE}
+          iconBg="#E3F7EC"
+          iconColor={GREEN}
           time="09:15AM"
         />
         <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Loan restructure approved</Typography>
@@ -215,7 +228,7 @@ function AllFeed() {
 
       {/* Overdue reminder */}
       <NotifCard>
-        <CardHead icon="alert" badge="4 Days Late" badgeColor={DANGER} badgeBg="#FDE7EC" iconBg="#FDE7EC" iconColor={DANGER} time="08:00PM" />
+        <CardHead icon="alert" iconBg="#FDE7EC" iconColor={DANGER} time="08:00PM" />
         <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Payment overdue · $176.55</Typography>
         <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
           Your repayment for loan account 0019-84727 is overdue by 4 days. Please pay the overdue amount today to avoid additional charges.
@@ -229,9 +242,6 @@ function AllFeed() {
       <NotifCard>
         <CardHead
           icon="clock"
-          badge="Submitted"
-          badgeColor={AMBER}
-          badgeBg="#FFF5E6"
           iconBg="#FFF5E6"
           iconColor={AMBER}
           time="02:00PM"
@@ -246,9 +256,6 @@ function AllFeed() {
       <NotifCard>
         <CardHead
           icon="alert"
-          badge="Loan Rejected"
-          badgeColor={DANGER}
-          badgeBg="#FDE7EC"
           iconBg="#FDE7EC"
           iconColor={DANGER}
           time="11:00AM"
@@ -261,7 +268,7 @@ function AllFeed() {
           variant="text"
           onClick={() => navigate('/request-consult')}
           startIcon={<Icon name="phone" size={18} color={HEADING} />}
-          sx={{ mt: 1.75, height: 44, borderRadius: '10px', px: 2, fontSize: 14, fontWeight: 700, color: HEADING, bgcolor: '#F2F4F7', '&:hover': { bgcolor: '#E7ECF2' } }}
+          sx={{ mt: 1.75, height: 44, borderRadius: '10px', px: 3, fontSize: 14, fontWeight: 700, color: HEADING, bgcolor: '#F2F4F7', '&:hover': { bgcolor: '#E7ECF2' } }}
         >
           Contact Us
         </Button>
@@ -271,9 +278,6 @@ function AllFeed() {
       <NotifCard>
         <CardHead
           icon="checkCircle"
-          badge="Fully Paid Off"
-          badgeColor={GREEN}
-          badgeBg="#E3F7EC"
           iconBg="#E3F7EC"
           iconColor={GREEN}
           time="08:00AM"
@@ -293,7 +297,7 @@ function AllFeed() {
 
       {/* Upcoming due reminder */}
       <NotifCard>
-        <CardHead icon="clock" badge="Due in 3 days" badgeColor={HEADING} badgeBg="#EEF1F5" time="11:32AM" />
+        <CardHead icon="clock" time="11:32AM" />
         <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Repayment · $176.55</Typography>
         <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
           Your repayment for loan account 0019-84727 is due in 3 days. Pay early to keep your account in good standing.
@@ -304,7 +308,7 @@ function AllFeed() {
       {/* Payment receipts */}
       {[0, 1].map((i) => (
         <NotifCard key={i}>
-          <CardHead icon="checkCircle" badge="Payment Receipt" badgeColor={GREEN} badgeBg="#E3F7EC" iconBg="#E3F7EC" iconColor={GREEN} time="08:00PM" />
+          <CardHead icon="checkCircle" iconBg="#E3F7EC" iconColor={GREEN} time="08:00PM" />
           <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Payment received · $176.55</Typography>
           <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
             Thank you for your repayment to account 0042-59001. If the amount or date is incorrect, contact 017 666 036.
@@ -333,7 +337,7 @@ function ReminderFeed() {
     <Box>
       <DateLabel>TODAY</DateLabel>
       <NotifCard>
-        <CardHead icon="alert" badge="4 Days Late" badgeColor={DANGER} badgeBg="#FDE7EC" iconBg="#FDE7EC" iconColor={DANGER} time="08:00PM" />
+        <CardHead icon="alert" iconBg="#FDE7EC" iconColor={DANGER} time="08:00PM" />
         <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Payment overdue · $176.55</Typography>
         <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
           Your repayment for loan account 0019-84727 is overdue by 4 days. Please pay the overdue amount today to avoid additional charges.
@@ -343,7 +347,7 @@ function ReminderFeed() {
 
       <DateLabel>15 MAY 2026</DateLabel>
       <NotifCard>
-        <CardHead icon="clock" badge="Due in 3 days" badgeColor={HEADING} badgeBg="#EEF1F5" time="11:32AM" />
+        <CardHead icon="clock" time="11:32AM" />
         <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Repayment · $176.55</Typography>
         <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
           Your repayment for loan account 0019-84727 is due in 3 days. Pay early to keep your account in good standing.
@@ -370,7 +374,7 @@ function ReminderActions({ onPay, onCall }: { onPay: () => void; onCall: () => v
         variant="text"
         onClick={onCall}
         startIcon={<Icon name="phone" size={18} color={HEADING} />}
-        sx={{ height: 44, borderRadius: '10px', px: 2, fontSize: 14, fontWeight: 700, color: HEADING, bgcolor: '#F2F4F7', '&:hover': { bgcolor: '#E7ECF2' } }}
+        sx={{ height: 44, borderRadius: '10px', px: 3, fontSize: 14, fontWeight: 700, color: HEADING, bgcolor: '#F2F4F7', '&:hover': { bgcolor: '#E7ECF2' } }}
       >
         Call
       </Button>
@@ -386,7 +390,7 @@ function TransactionFeed() {
       <DateLabel>15 MAY 2026</DateLabel>
       {[0, 1].map((i) => (
         <NotifCard key={i}>
-          <CardHead icon="checkCircle" badge="Payment Receipt" badgeColor={GREEN} badgeBg="#E3F7EC" iconBg="#E3F7EC" iconColor={GREEN} time="08:00PM" />
+          <CardHead icon="checkCircle" iconBg="#E3F7EC" iconColor={GREEN} time="08:00PM" />
           <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Payment received · $176.55</Typography>
           <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
             Thank you for your repayment to account 0042-59001. If the amount or date is incorrect, contact 017 666 036.
