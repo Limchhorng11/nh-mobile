@@ -27,7 +27,7 @@ export default function RestructureConditionsScreen() {
   const [grace, setGrace] = useState('3 months')
   const [tenure, setTenure] = useState('12 months')
   const [method, setMethod] = useState('Mix (Grace Period)')
-  const [showTable, setShowTable] = useState(true)
+  const [showTable, setShowTable] = useState(false)
 
   return (
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
