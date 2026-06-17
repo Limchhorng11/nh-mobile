@@ -162,6 +162,7 @@ export type IconName =
   | 'monitor'
   | 'smartphone'
   | 'redo'
+  | 'telegram'
 
 // ─── Custom filled tab-bar glyphs (brand exports, recolor via `color`) ───────
 const Filled = (path: string): ComponentType<LucideProps> =>
@@ -181,8 +182,12 @@ const GridGlyph = Filled('M4.62646 11.3071C3.1499 11.3071 2.42188 10.5894 2.4218
 
 const MyLoanGlyph = Filled('M6.39551 3.24121C6.45703 2.44141 6.94922 2.00195 7.81055 2.00195H16.1338C17.0039 2.00195 17.4961 2.44141 17.5576 3.24121H6.39551ZM4.62012 5.86035C4.73438 4.99902 5.18262 4.49805 6.1582 4.49805H17.7949C18.7617 4.49805 19.21 4.99902 19.333 5.86035H4.62012ZM5.60449 22.252C3.65332 22.252 2.625 21.2324 2.625 19.2988V10.2549C2.625 8.32129 3.65332 7.30176 5.60449 7.30176H18.3398C20.2822 7.30176 21.3193 8.33008 21.3193 10.2549V19.2988C21.3193 21.2236 20.2822 22.252 18.3398 22.252H5.60449ZM5.77148 20.3008H7.01953C7.81055 18.6309 9.71777 17.5059 11.9766 17.5059C14.2354 17.5059 16.1514 18.6309 16.9336 20.3008H18.1729C18.9375 20.3008 19.3594 19.9053 19.3594 19.0967V10.457C19.3594 9.64844 18.9375 9.26172 18.1729 9.26172H5.77148C4.99805 9.26172 4.58496 9.64844 4.58496 10.457V19.0967C4.58496 19.9053 4.99805 20.3008 5.77148 20.3008ZM11.9766 16.293C10.4561 16.2842 9.27832 15.0098 9.26953 13.3398C9.26953 11.7578 10.4648 10.4395 11.9766 10.4395C13.4971 10.4395 14.6836 11.7578 14.6836 13.3398C14.6836 15.0098 13.5059 16.3105 11.9766 16.293Z')
 
+// Telegram paper-plane glyph (brand mark, recolored via `color`).
+const TelegramGlyph = Filled('M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.27 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z')
+
 // Maps a semantic name → its SF Symbol (for the eventual export) → Lucide stand-in.
 const REGISTRY: Record<IconName, { sf: string; cmp: ComponentType<LucideProps> }> = {
+  telegram:        { sf: 'paperplane.fill',        cmp: TelegramGlyph },
   home:            { sf: 'house.fill',            cmp: HomeGlyph },
   products:        { sf: 'wallet.fill',           cmp: StackGlyph },
   myLoan:          { sf: 'creditcard.fill',       cmp: MyLoanGlyph },

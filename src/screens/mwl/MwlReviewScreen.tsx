@@ -41,12 +41,14 @@ export default function MwlReviewScreen({ nonMwl = false }: { nonMwl?: boolean }
   const currencyCode = (params.get('currency') ?? 'Dollar') === 'Riel' ? 'KHR' : 'USD'
   const sym = currencyCode === 'KHR' ? '៛' : '$'
   const amountStr = params.get('amount') ?? '5,000'
-  // Estimate: constant monthly payment at 0.75%/mo over a 24-month default tenure.
+  // Estimate: constant monthly payment at 0.75%/mo over the chosen tenure.
   const principal = parseFloat(amountStr.replace(/[^0-9.]/g, '')) || 0
   const RATE = 0.0075
-  const N = 24
+  const N = parseInt(params.get('tenure') ?? '24', 10) || 24
   const estMonthly = principal > 0 ? (principal * RATE * Math.pow(1 + RATE, N)) / (Math.pow(1 + RATE, N) - 1) : 0
   const estMonthlyStr = sym + estMonthly.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const years = N / 12
+  const tenureLabel = `${N} months${Number.isInteger(years) ? ` · ${years} yr${years > 1 ? 's' : ''}` : ''}`
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const drawing = useRef(false)
 
@@ -103,7 +105,7 @@ export default function MwlReviewScreen({ nonMwl = false }: { nonMwl?: boolean }
                 <Row label="Currency" value={currencyCode} divider />
                 <Row label="Requested Amount" value={`${sym}${amountStr}`} divider />
                 <Row label="Interest Rate" value="0.75% / mo" divider />
-                <Row label="Loan Tenure" value="24 months · 2 yrs" divider />
+                <Row label="Loan Tenure" value={tenureLabel} divider />
                 <Row label="Est. Monthly" value={estMonthlyStr} divider={false} accent />
               </Box>
               <Typography sx={{ fontSize: 12, color: '#8A94A6', mt: 1, px: 0.5 }}>

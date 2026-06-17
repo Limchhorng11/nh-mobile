@@ -19,22 +19,30 @@ const ACCENT = '#345EAC'
 const BLUE = '#275CB2'
 const KH = `'Noto Sans Khmer', sans-serif`
 
-type Step = { title: string; sub: string; state: 'done' | 'current' | 'pending' }
+type Chip = { label: string; color: string; bg: string }
+type Step = { title: string; sub: string; state: 'done' | 'current' | 'pending'; desc?: string; chips?: Chip[] }
 const TIMELINE: Step[] = [
-  { title: 'Submitted', sub: '19 May, 14:22', state: 'done' },
-  { title: 'Documents reviewed', sub: '20 May, 09:14', state: 'done' },
-  { title: 'Credit assessment', sub: 'In progress · CBC + LOS check', state: 'current' },
-  { title: 'Final approval decision', sub: 'Pending', state: 'pending' },
-  { title: 'Disbursement', sub: 'Pending', state: 'pending' },
+  { title: 'Application Received', sub: 'Completed · 1 Jun 2026', state: 'done' },
+  { title: 'Guarantor Consent', sub: 'Completed · 1 Jun 2026', state: 'done' },
+  {
+    title: 'Assessment',
+    sub: 'In progress · Est. 1–2 business days',
+    state: 'current',
+    desc: 'Our team reviews your application, including the credit bureau report.',
+  },
+  {
+    title: 'Decision',
+    sub: 'Pending assessment',
+    state: 'pending',
+    chips: [
+      { label: 'Approved', color: '#1FA85C', bg: '#DCF5E6' },
+      { label: 'Rejected', color: '#E11D48', bg: '#FDE7EC' },
+      { label: 'Cancelled', color: '#C47F11', bg: '#FBEBC6' },
+    ],
+    desc: 'The outcome will be confirmed here.',
+  },
+  { title: 'Disbursement', sub: 'Released after approval', state: 'pending' },
 ]
-
-const EST_HEAD = ['ចំនួនខែ', 'ប្រាក់ដើម', 'ការប្រាក់', 'ប្រាក់សរុបត្រូវបង់', 'សមតុល្យប្រាក់ដើម']
-const EST_ROWS = [
-  ['0', '$0.00', '$0.00', '$0.00', '$500.00'],
-  ['1', '$38.99', '$6.00', '$44.99', '$461.01'],
-  ['2', '$39.46', '$5.53', '$44.99', '$421.56'],
-]
-const EST_TOTAL = ['សរុប', '$500.00', '$39.85', '$539.85', '']
 
 export default function MyLoanReviewDetailScreen() {
   const navigate = useNavigate()
@@ -104,84 +112,6 @@ export default function MyLoanReviewDetailScreen() {
             </Box>
           </Box>
 
-          {/* Payment estimate */}
-          <Box>
-            <SectionLabel>Payment Estimate</SectionLabel>
-            <Box sx={{ bgcolor: '#fff', borderRadius: '12px', overflow: 'hidden', mt: 1.25 }}>
-              <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
-                <Box component="thead">
-                  <Box component="tr">
-                    {EST_HEAD.map((h, i) => (
-                      <Box
-                        component="th"
-                        key={h}
-                        sx={{
-                          fontFamily: KH,
-                          fontSize: 9.5,
-                          fontWeight: 600,
-                          color: LABEL,
-                          textAlign: i === 0 ? 'center' : 'right',
-                          verticalAlign: 'top',
-                          px: '6px',
-                          py: '12px',
-                          lineHeight: 1.3,
-                          width: i === 0 ? 34 : undefined,
-                          borderBottom: '1px solid #F0F0F0',
-                        }}
-                      >
-                        {h}
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-                <Box component="tbody">
-                  {EST_ROWS.map((row) => (
-                    <Box component="tr" key={row[0]} sx={{ borderBottom: '1px solid #F4F4F4' }}>
-                      {row.map((cell, ci) => (
-                        <Box
-                          component="td"
-                          key={ci}
-                          sx={{
-                            fontSize: 11.5,
-                            fontWeight: ci === 3 ? 700 : 500,
-                            color: ci === 0 ? LABEL : ci === 3 ? HEADING : '#3A4256',
-                            textAlign: ci === 0 ? 'center' : 'right',
-                            px: '6px',
-                            py: '12px',
-                          }}
-                        >
-                          {cell}
-                        </Box>
-                      ))}
-                    </Box>
-                  ))}
-                  <Box component="tr" sx={{ bgcolor: '#FAFBFC' }}>
-                    {EST_TOTAL.map((cell, ci) => (
-                      <Box
-                        component="td"
-                        key={ci}
-                        sx={{
-                          fontFamily: ci === 0 ? KH : 'inherit',
-                          fontSize: ci === 0 ? 11 : 11.5,
-                          fontWeight: 700,
-                          color: BLUE,
-                          textAlign: ci === 0 ? 'center' : 'right',
-                          px: '6px',
-                          py: '12px',
-                        }}
-                      >
-                        {cell}
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-            <Typography sx={{ fontSize: 11, color: LABEL, textAlign: 'center', mt: 1.25 }}>
-              Showing 3 of 6 · <Box component="span" sx={{ color: ACCENT, fontWeight: 700 }}>Download</Box> for full view
-            </Typography>
-          </Box>
-
           {/* My officer — not shown for a Staff Loan review */}
           {!isStaff && (
           <Box>
@@ -207,6 +137,9 @@ export default function MyLoanReviewDetailScreen() {
                 </Box>
                 <Box role="button" aria-label="Call" onClick={() => setCallOpen(true)} sx={{ display: 'flex', cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
                   <Icon name="phone" size={22} color="#0B0F1A" />
+                </Box>
+                <Box role="button" aria-label="Telegram" onClick={() => window.open('https://t.me/', '_blank')} sx={{ display: 'flex', cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
+                  <Icon name="telegram" size={22} color="#229ED9" />
                 </Box>
               </Box>
             </Box>
@@ -305,11 +238,23 @@ function TimelineRow({ step, last }: { step: Step; last: boolean }) {
         {!last && <Box sx={{ width: 2, flex: 1, minHeight: 28, bgcolor: done ? BLUE : '#E2E6EC', my: '2px' }} />}
       </Box>
       {/* Text */}
-      <Box sx={{ pb: last ? 0 : 2 }}>
+      <Box sx={{ pb: last ? 0 : 2, minWidth: 0 }}>
         <Typography sx={{ fontSize: 16, fontWeight: 700, color: step.state === 'pending' ? '#9AA3B2' : HEADING, lineHeight: 1.2 }}>
           {step.title}
         </Typography>
         <Typography sx={{ fontSize: 13, color: LABEL, mt: 0.25 }}>{step.sub}</Typography>
+        {step.desc && (
+          <Typography sx={{ fontSize: 12.5, color: '#8A94A6', mt: 0.5, lineHeight: 1.45 }}>{step.desc}</Typography>
+        )}
+        {step.chips && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 0.75 }}>
+            {step.chips.map((c) => (
+              <Box key={c.label} sx={{ bgcolor: c.bg, borderRadius: '999px', px: 1, py: '2px' }}>
+                <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: c.color }}>{c.label}</Typography>
+              </Box>
+            ))}
+          </Box>
+        )}
       </Box>
     </Box>
   )

@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -8,7 +8,7 @@ import { Icon, type IconName } from '../components/Icon'
 import { CollapsingHeader, CollapsingTitle, useCollapse } from '../components/CollapsingHeader'
 import { FieldCard, BottomSheet, BLUE } from './mwl/MwlParts'
 import { useFlow } from '../workspace/FlowContext'
-import { buildSchedule, money, type Currency, type ScheduleRow } from './loanCalc'
+import { buildSchedule, money, termStopsForProduct, type Currency, type ScheduleRow } from './loanCalc'
 
 type IconOption = { name: string; icon: IconName }
 
@@ -36,54 +36,62 @@ const LOAN_PRODUCTS: IconOption[] = [
 const MUTED = '#747A81'
 const LABEL = '#737373'
 
-// Per-product limits: amount ceiling and the maximum loan term (months).
+// Per-product amount ceiling. The term range comes from termStopsForProduct().
 const MIN_AMOUNT = 100
-const MIN_MONTHS = 12
-const PRODUCT_LIMITS: Record<string, { maxAmount: number; maxMonths: number }> = {
-  'Micro Loan': { maxAmount: 3000, maxMonths: 48 },
-  'Small Biz Loan': { maxAmount: 30000, maxMonths: 96 },
-  'Small & Medium Enterprise Loan': { maxAmount: 100000, maxMonths: 120 },
-  'Housing Loan': { maxAmount: 300000, maxMonths: 240 },
-  'Migrant Worker Loan': { maxAmount: 15000, maxMonths: 240 },
-  None: { maxAmount: 300000, maxMonths: 240 },
+const PRODUCT_MAX_AMOUNT: Record<string, number> = {
+  'Micro Loan': 3000,
+  'Small Biz Loan': 30000,
+  'Small & Medium Enterprise Loan': 100000,
+  'Housing Loan': 300000,
+  'Migrant Worker Loan': 15000,
+  None: 300000,
 }
 
-// Build the term-slider snap stops for a given max term: 7 evenly-spaced
-// interior dots plus the two endpoints (kept reachable, hidden via CSS).
-function termMarksFor(maxMonths: number) {
-  const span = maxMonths - MIN_MONTHS
-  const dots = Array.from({ length: 7 }, (_, i) => Math.round(MIN_MONTHS + (span * (i + 1)) / 8))
-  return {
-    marks: [MIN_MONTHS, ...dots, maxMonths].map((value) => ({ value })),
-    dotValues: new Set(dots),
-  }
+// Fixed monthly interest per product (the "None" option lets the user edit it).
+const PRODUCT_RATE: Record<string, number> = {
+  'Micro Loan': 1.2,
+  'Small Biz Loan': 1.1,
+  'Small & Medium Enterprise Loan': 1.0,
+  'Housing Loan': 0.75,
+  'Migrant Worker Loan': 1.04,
 }
 
 export default function CalculatorScreen() {
   const navigate = useNavigate()
   const { flow } = useFlow()
+  const [params] = useSearchParams()
+  // Opened from a product → the calculator is locked to that product. Opened
+  // independently (Discover / Tools) → the product dropdown is free.
+  const lockedProduct = params.get('product')
   const [amount, setAmount] = useState(1000)
   const [term, setTerm] = useState(12)
   const [repaymentMethod, setRepaymentMethod] = useState(REPAYMENT_METHODS[0].name)
-  const [loanProduct, setLoanProduct] = useState('None')
+  const [loanProduct, setLoanProduct] = useState(lockedProduct ?? 'None')
   const [currency, setCurrency] = useState<Currency>('USD')
   const [termUnit, setTermUnit] = useState<'Month' | 'Year'>('Month')
-  const [monthlyInterest, setMonthlyInterest] = useState(1.04)
-  // The rate is fixed per product; only the "None" option lets the user edit it.
+  const [monthlyInterest, setMonthlyInterest] = useState(PRODUCT_RATE[lockedProduct ?? ''] ?? 1.04)
+  // The rate is fixed per product; only the free "None" option lets the user edit it.
   const rateEditable = loanProduct === 'None'
+
+  // A specific product fixes its monthly interest rate.
+  useEffect(() => {
+    if (loanProduct !== 'None') setMonthlyInterest(PRODUCT_RATE[loanProduct] ?? 1.04)
+  }, [loanProduct])
 
   // Collapsing header: large title shrinks toward the back arrow on scroll.
   const { collapse, onScroll } = useCollapse()
 
-  // Amount ceiling + max term follow the selected loan product.
-  const { maxAmount, maxMonths } = PRODUCT_LIMITS[loanProduct] ?? PRODUCT_LIMITS.None
-  const { marks: termMarks, dotValues: termDotValues } = useMemo(() => termMarksFor(maxMonths), [maxMonths])
+  // Amount ceiling + term range follow the selected loan product.
+  const maxAmount = PRODUCT_MAX_AMOUNT[loanProduct] ?? PRODUCT_MAX_AMOUNT.None
+  const termStops = termStopsForProduct(loanProduct)
+  const minMonths = termStops[0]
+  const maxMonths = termStops[termStops.length - 1]
 
   // When the product changes, clamp the amount and term to the new limits.
   useEffect(() => {
     setAmount((a) => Math.min(a, maxAmount))
-    setTerm((t) => Math.min(Math.max(t, MIN_MONTHS), maxMonths))
-  }, [maxAmount, maxMonths])
+    setTerm((t) => Math.min(Math.max(t, minMonths), maxMonths))
+  }, [maxAmount, minMonths, maxMonths])
 
   const { payment, totalPayable, totalInterest, rows } = useMemo(
     () => buildSchedule(amount, term, Number.isNaN(monthlyInterest) ? 0 : monthlyInterest, repaymentMethod),
@@ -91,18 +99,14 @@ export default function CalculatorScreen() {
   )
   const totalPrincipalPaid = rows.slice(1).reduce((s, r) => s + r.principal, 0)
 
-  // Buzz the phone (where supported) each time the term thumb lands on a dot.
+  // Buzz the phone (where supported) as the term thumb moves.
   const lastMarkRef = useRef<number | null>(null)
   const handleTermChange = (_: Event, v: number | number[]) => {
     const n = v as number
     setTerm(n)
-    if (termDotValues.has(n)) {
-      if (lastMarkRef.current !== n) {
-        navigator.vibrate?.(10)
-        lastMarkRef.current = n
-      }
-    } else {
-      lastMarkRef.current = null
+    if (lastMarkRef.current !== n) {
+      navigator.vibrate?.(10)
+      lastMarkRef.current = n
     }
   }
 
@@ -116,7 +120,7 @@ export default function CalculatorScreen() {
         <Box sx={{ px: 3, pb: '34px', display: 'flex', flexDirection: 'column', gap: 5 }}>
           {/* ─── Inputs ───────────────────────────────────────────────────── */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <IconSelect label="Loan product" options={LOAN_PRODUCTS} value={loanProduct} onChange={setLoanProduct} />
+            <IconSelect label="Loan product" options={LOAN_PRODUCTS} value={loanProduct} onChange={setLoanProduct} locked={!!lockedProduct} />
 
             {/* Amount */}
             <Box sx={{ bgcolor: '#fff', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.5 }}>
@@ -168,16 +172,15 @@ export default function CalculatorScreen() {
               <SectionLabel>Payment estimate</SectionLabel>
               <Box sx={{ bgcolor: '#fff', borderRadius: '12px', p: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#525252' }}>{termUnit === 'Year' ? '1 year' : `${MIN_MONTHS} months`}</Typography>
+                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#525252' }}>{termUnit === 'Year' ? `${Math.max(1, Math.round(minMonths / 12))} year` : `${minMonths} months`}</Typography>
                   <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#525252' }}>{termUnit === 'Year' ? `${Math.round(maxMonths / 12)} years` : `${maxMonths} months`}</Typography>
                 </Box>
                 <Slider
                   value={term}
                   onChange={handleTermChange}
-                  min={MIN_MONTHS}
+                  min={minMonths}
                   max={maxMonths}
-                  step={null}
-                  marks={termMarks}
+                  step={1}
                   valueLabelDisplay="auto"
                   valueLabelFormat={(v) => termUnit === 'Year' ? `${Math.round(v / 12)}y` : `${v}m`}
                   aria-label="Loan term in months"
@@ -187,18 +190,6 @@ export default function CalculatorScreen() {
                     height: 20,
                     '& .MuiSlider-rail': { bgcolor: '#E5E5E5', opacity: 1, borderRadius: '999px' },
                     '& .MuiSlider-track': { border: 'none', borderRadius: '999px' },
-                    '& .MuiSlider-mark': {
-                      width: 4,
-                      height: 4,
-                      borderRadius: '50%',
-                      bgcolor: '#C7CDD6',
-                      opacity: 1,
-                      '&.MuiSlider-markActive': { bgcolor: 'rgba(255,255,255,0.65)' },
-                    },
-                    // Hide the two endpoint dots — only the 7 interior dots show.
-                    [`& .MuiSlider-mark[data-index="0"], & .MuiSlider-mark[data-index="${termMarks.length - 1}"]`]: {
-                      display: 'none',
-                    },
                     '& .MuiSlider-thumb': {
                       width: 36,
                       height: 28,
@@ -238,7 +229,7 @@ export default function CalculatorScreen() {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const n = parseInt(e.target.value.replace(/\D/g, '') || '0', 10)
                       const months = termUnit === 'Year' ? n * 12 : n
-                      setTerm(Math.min(Math.max(months, MIN_MONTHS), maxMonths))
+                      setTerm(Math.min(Math.max(months, minMonths), maxMonths))
                     }}
                     aria-label="Loan term"
                     sx={{ width: 0, flex: 1, minWidth: 0, border: 'none', outline: 'none', bgcolor: 'transparent', p: 0, fontSize: 16, fontWeight: 600, color: '#000', fontFamily: 'inherit' }}
@@ -358,17 +349,21 @@ function IconSelect({
   options,
   value,
   onChange,
+  locked = false,
 }: {
   label: string
   options: IconOption[]
   value: string
   onChange: (v: string) => void
+  /** When locked, the field is fixed to its value (no dropdown). */
+  locked?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const current = options.find((o) => o.name === value)
 
   useEffect(() => {
-    if (!open) return
+    if (!open || locked) return
     const onDown = (e: MouseEvent | TouchEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }
@@ -385,14 +380,18 @@ function IconSelect({
       <FieldCard
         label={label}
         value={value}
-        onClick={() => setOpen((v) => !v)}
+        onClick={locked ? undefined : () => setOpen((v) => !v)}
         trailing={
-          <Box sx={{ display: 'flex', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
-            <Icon name="chevronDown" size={18} color={MUTED} />
-          </Box>
+          locked ? (
+            <Icon name={current?.icon ?? 'minusCircle'} size={20} color={BLUE} />
+          ) : (
+            <Box sx={{ display: 'flex', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+              <Icon name="chevronDown" size={18} color={MUTED} />
+            </Box>
+          )
         }
       />
-      {open && (
+      {open && !locked && (
         <Box sx={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 30, bgcolor: '#fff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 6px 20px rgba(11,15,26,0.12)' }}>
           {options.map((p, i) => {
             const active = p.name === value

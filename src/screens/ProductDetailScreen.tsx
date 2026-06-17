@@ -260,7 +260,23 @@ export default function ProductDetailScreen() {
 
           {/* Calculate / Request Consult */}
           <Box sx={{ display: 'flex', gap: 1, width: '100%' }}>
-            <ToolButton icon="calculator" label="Calculate" onClick={() => navigate('/calculator?v=1')} sx={{ width: 132, flexShrink: 0 }} />
+            <ToolButton
+              icon="calculator"
+              label="Calculate"
+              onClick={() =>
+                navigate(
+                  '/calculator?product=' +
+                    encodeURIComponent(
+                      name === 'SME Loan'
+                        ? 'Small & Medium Enterprise Loan'
+                        : name === 'Migration Worker Loan'
+                          ? 'Migrant Worker Loan'
+                          : name,
+                    ),
+                )
+              }
+              sx={{ width: 132, flexShrink: 0 }}
+            />
             <ToolButton
               icon="clock"
               label="Request Consult"

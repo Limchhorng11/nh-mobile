@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -6,8 +6,9 @@ import Button from '@mui/material/Button'
 import { Icon, IconName } from '../../components/Icon'
 import { Flag, type FlagCode } from '../../components/Flag'
 import { MwlHeader, MwlTitle, MwlFooter, GroupLabel, FieldCard, PhoneField, SelectField, BottomSheet, DiscardSheet, BLUE } from './MwlParts'
+import Slider from '@mui/material/Slider'
 import { AssetImg, asset } from '../../components/home/media'
-import { buildSchedule, money, type Currency } from '../loanCalc'
+import { buildSchedule, money, termStopsForProduct, type Currency } from '../loanCalc'
 
 const DESTINATIONS: { id: string; flag: FlagCode; name: string; sub: string }[] = [
   { id: 'korea', flag: 'kr', name: 'Korea', sub: 'EPS · most active' },
@@ -20,6 +21,13 @@ const OCCUPATIONS = ['Garment worker', 'Construction worker', 'Farmer', 'Driver'
 const STATUSES = ['Single', 'Married', 'Divorced', 'Widowed']
 const BRANCHES = ['Chroy Changvar', 'Phnom Penh Main', 'Toul Kork', 'Sen Sok', 'Siem Reap', 'Battambang', 'Sihanoukville']
 const CURRENCIES = ['Dollar', 'Riel']
+// Small circular currency-symbol badge shown beside each currency option.
+const currencyBadge = (symbol: string): ReactNode => (
+  <Box sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: '#EEF3FC', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+    <Typography sx={{ fontSize: 14, fontWeight: 800, color: '#275CB2', lineHeight: 1 }}>{symbol}</Typography>
+  </Box>
+)
+const CURRENCY_ICONS: Record<string, ReactNode> = { Dollar: currencyBadge('$'), Riel: currencyBadge('៛') }
 
 type DocId = 'nid' | 'selfie' | 'family'
 const DOCS: { id: DocId; label: string; sample: string; img: string; canShare?: boolean }[] = [
@@ -33,6 +41,8 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
   const [params] = useSearchParams()
   const prefix = nonMwl ? '/nonmwl' : '/mwl'
   const product = params.get('product') ?? 'Small Business Loan'
+  // Term stops depend on the selected product (snap-to-preset slider).
+  const termStops = termStopsForProduct(product)
   const [discardOpen, setDiscardOpen] = useState(false)
   const [firstName, setFirstName] = useState('Mao')
   const [lastName, setLastName] = useState('Sothea')
@@ -45,15 +55,26 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
   const [branch, setBranch] = useState('Chroy Changvar')
   const [currency, setCurrency] = useState('Dollar')
   const [amount, setAmount] = useState('5,000')
+  const [months, setMonths] = useState(() => (termStops.includes(24) ? 24 : termStops[0]))
   const [showTable, setShowTable] = useState(false)
   const [sample, setSample] = useState<DocId | null>(null)
   const activeSample = DOCS.find((d) => d.id === sample) ?? null
 
-  // Payment table — constant monthly repayment at 0.75%/mo over a 24-month tenure.
+  // Switching currency converts the amount at 1 USD = 4,000 KHR.
+  const RIEL_PER_USD = 4000
+  const changeCurrency = (next: string) => {
+    if (next === currency) return
+    const n = parseFloat(amount.replace(/[^0-9.]/g, '')) || 0
+    const converted =
+      currency === 'Dollar' && next === 'Riel' ? n * RIEL_PER_USD : currency === 'Riel' && next === 'Dollar' ? n / RIEL_PER_USD : n
+    setCurrency(next)
+    setAmount(Math.round(converted).toLocaleString('en-US'))
+  }
+
+  // Payment table — constant monthly repayment at 0.75%/mo over the chosen term.
   const cur: Currency = currency === 'Riel' ? 'KHR' : 'USD'
   const principal = parseFloat(amount.replace(/[^0-9.]/g, '')) || 0
-  const TENURE = 24
-  const { payment, totalPayable, totalInterest, rows } = buildSchedule(principal, TENURE, 0.75, 'Constant')
+  const { payment, totalPayable, totalInterest, rows } = buildSchedule(principal, months, 0.75, 'Constant')
 
   // Download the full repayment schedule as a CSV.
   const downloadCsv = () => {
@@ -81,6 +102,7 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
       branch,
       currency,
       amount,
+      tenure: String(months),
     })
     navigate(`/nonmwl-review?${qs.toString()}`)
   }
@@ -137,7 +159,7 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
               </Box>
               <PhoneField label="Mobile number" code={phoneCode} number={phone} onNumberChange={setPhone} onCodeChange={setPhoneCode} />
               <SelectField label="Select Branch" required options={BRANCHES} value={branch} onChange={setBranch} />
-              <SelectField label="Currency" required options={CURRENCIES} value={currency} onChange={setCurrency} />
+              <SelectField label="Currency" required options={CURRENCIES} value={currency} onChange={changeCurrency} icons={CURRENCY_ICONS} />
             </Box>
           </Box>
 
@@ -168,9 +190,44 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
 
               {showTable && (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1.5 }}>
+                  {/* Term — snap-to-stop slider (range depends on the product) */}
+                  <Box sx={{ bgcolor: '#fff', borderRadius: '14px', p: '16px' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Typography sx={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.6px', color: '#737373', textTransform: 'uppercase' }}>Loan term</Typography>
+                      <Typography sx={{ fontSize: 15, fontWeight: 700, color: '#0B0F1A' }}>{months} months</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+                      <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>{termStops[0]} months</Typography>
+                      <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>{termStops[termStops.length - 1]} months</Typography>
+                    </Box>
+                    <Box sx={{ px: 0.5 }}>
+                      <Slider
+                        value={months}
+                        onChange={(_, v) => setMonths(v as number)}
+                        step={1}
+                        min={termStops[0]}
+                        max={termStops[termStops.length - 1]}
+                        aria-label="Loan term in months"
+                        valueLabelDisplay="auto"
+                        valueLabelFormat={(v) => `${v}m`}
+                        sx={{
+                          mt: 0.5,
+                          color: BLUE,
+                          height: 6,
+                          '& .MuiSlider-rail': { bgcolor: '#E7ECF2', opacity: 1 },
+                          '& .MuiSlider-thumb': { width: 20, height: 20, boxShadow: '0 0 0 4px rgba(39,92,178,0.15)' },
+                        }}
+                      />
+                    </Box>
+                  </Box>
                   {/* Monthly payment summary */}
                   <Box sx={{ bgcolor: '#fff', borderRadius: '14px', p: '18px' }}>
-                    <Typography sx={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.6px', color: '#737373', textTransform: 'uppercase' }}>Monthly payment</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Typography sx={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.6px', color: '#737373', textTransform: 'uppercase' }}>Monthly payment</Typography>
+                      <Box sx={{ bgcolor: '#EEF3FC', borderRadius: '999px', px: 1.25, py: '3px' }}>
+                        <Typography sx={{ fontSize: 12, fontWeight: 700, color: BLUE }}>0.75% / mo</Typography>
+                      </Box>
+                    </Box>
                     <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.75, mt: 0.5 }}>
                       <Typography sx={{ fontSize: 30, fontWeight: 800, color: '#000', letterSpacing: '-0.5px', lineHeight: 1 }}>{money(payment, cur)}</Typography>
                       <Typography sx={{ fontSize: 13, fontWeight: 500, color: '#000', mb: '2px' }}>/ month</Typography>
@@ -210,7 +267,7 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
                     </Box>
                   </Box>
                   <Typography sx={{ fontSize: 11.5, color: '#8A94A6', textAlign: 'center' }}>
-                    Showing 3 of {TENURE} · 0.75%/mo ·{' '}
+                    Showing 3 of {months} · 0.75%/mo ·{' '}
                     <Box component="span" role="button" onClick={downloadCsv} sx={{ color: BLUE, fontWeight: 700, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
                       Download
                     </Box>{' '}

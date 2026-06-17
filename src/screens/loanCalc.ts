@@ -15,6 +15,24 @@ export const money = (n: number, currency: Currency = 'USD') =>
 
 export type ScheduleRow = { month: number; principal: number; interest: number; payment: number; balance: number }
 
+// Preset term stops (months) the term slider snaps to — varies per loan product.
+// 24 is a stop in every range so it stays a safe default.
+export function termStopsForProduct(product?: string): number[] {
+  switch (product) {
+    case 'Micro Loan':
+      return [6, 12, 24, 36, 48]
+    case 'Small Biz Loan':
+      return [6, 12, 24, 48, 72, 96]
+    case 'SME Loan':
+    case 'Small & Medium Enterprise Loan':
+      return [6, 12, 24, 48, 84, 120]
+    case 'Housing Loan':
+      return [12, 24, 60, 120, 240, 360]
+    default: // None / Migration Worker Loan
+      return [6, 12, 24, 36, 60, 120, 180, 240, 360]
+  }
+}
+
 // Build the full repayment schedule for the chosen method. Each method shapes the
 // principal/interest split differently, so the headline payment and totals follow.
 export function buildSchedule(amount: number, months: number, monthlyRatePct: number, method: string) {

@@ -156,12 +156,15 @@ export function SelectField({
   options,
   value,
   onChange,
+  icons,
 }: {
   label: string
   required?: boolean
   options: string[]
   value: string
   onChange: (v: string) => void
+  /** Optional leading icon/adornment per option (e.g. a currency symbol). */
+  icons?: Record<string, ReactNode>
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -184,7 +187,7 @@ export function SelectField({
       <FieldCard
         label={label}
         required={required}
-        value={value}
+        value={icons ? <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>{icons[value]}{value}</Box> : value}
         onClick={() => setOpen((v) => !v)}
         trailing={
           <Box sx={{ display: 'flex', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
@@ -213,7 +216,10 @@ export function SelectField({
                   cursor: 'pointer',
                 }}
               >
-                <Typography sx={{ fontSize: 16, fontWeight: active ? 700 : 500, color: active ? BLUE : '#0B0F1A' }}>{o}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+                  {icons?.[o]}
+                  <Typography sx={{ fontSize: 16, fontWeight: active ? 700 : 500, color: active ? BLUE : '#0B0F1A' }}>{o}</Typography>
+                </Box>
                 {active && <Icon name="check" size={18} color={BLUE} />}
               </Box>
             )

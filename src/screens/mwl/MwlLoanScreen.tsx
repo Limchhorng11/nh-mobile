@@ -1,12 +1,12 @@
 import { useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Slider from '@mui/material/Slider'
 import { Icon } from '../../components/Icon'
 import { MwlHeader, MwlTitle, MwlFooter, GroupLabel, SelectField, BottomSheet, BLUE } from './MwlParts'
 import Button from '@mui/material/Button'
-import { buildSchedule, money, type Currency, type ScheduleRow } from '../loanCalc'
+import { buildSchedule, money, termStopsForProduct, type Currency, type ScheduleRow } from '../loanCalc'
 
 const TABLE_HEAD = ['ចំនួនខែ', 'ប្រាក់ដើម', 'ការប្រាក់', 'ប្រាក់សរុបត្រូវបង់', 'សមតុល្យប្រាក់ដើម']
 
@@ -17,8 +17,6 @@ const LABEL = '#737373'
 // Migration / Non-MWL loan request limits and fixed rate.
 const MIN_AMOUNT = 100
 const MAX_AMOUNT = 15000
-const MIN_MONTHS = 12
-const MAX_MONTHS = 240
 const MONTHLY_RATE = 1.04 // % — fixed for this product
 
 const REPAYMENT_METHODS = ['Equal monthly payment', 'Declining balance', 'Balloon payment']
@@ -29,19 +27,18 @@ const METHOD_KEY: Record<string, string> = {
   'Balloon payment': 'Ballon',
 }
 
-// Term-slider snap stops: 7 evenly-spaced interior dots plus the two endpoints.
-const TERM_SPAN = MAX_MONTHS - MIN_MONTHS
-const TERM_DOTS = Array.from({ length: 7 }, (_, i) => Math.round(MIN_MONTHS + (TERM_SPAN * (i + 1)) / 8))
-const TERM_MARKS = [MIN_MONTHS, ...TERM_DOTS, MAX_MONTHS].map((value) => ({ value }))
-const TERM_DOT_SET = new Set(TERM_DOTS)
-
 export default function MwlLoanScreen({ nonMwl = false }: { nonMwl?: boolean } = {}) {
   const navigate = useNavigate()
+  const [params] = useSearchParams()
   const prefix = nonMwl ? '/nonmwl' : '/mwl'
+  // Term-slider stops depend on the loan product (MWL → "None" default range).
+  const termStops = termStopsForProduct(params.get('product') ?? undefined)
+  const MIN_MONTHS = termStops[0]
+  const MAX_MONTHS = termStops[termStops.length - 1]
   const [showTable, setShowTable] = useState(false)
   const [downloadOpen, setDownloadOpen] = useState(false)
   const [amount, setAmount] = useState(5000)
-  const [months, setMonths] = useState(12)
+  const [months, setMonths] = useState(() => (termStops.includes(24) ? 24 : termStops[0]))
   const [currency, setCurrency] = useState<Currency>('USD')
   const [method, setMethod] = useState(REPAYMENT_METHODS[0])
 
@@ -51,18 +48,14 @@ export default function MwlLoanScreen({ nonMwl = false }: { nonMwl?: boolean } =
   )
   const totalPrincipalPaid = rows.slice(1).reduce((s, r) => s + r.principal, 0)
 
-  // Buzz the phone (where supported) each time the term thumb lands on a dot.
+  // Buzz the phone (where supported) each time the term thumb snaps to a stop.
   const lastMarkRef = useRef<number | null>(null)
   const handleTermChange = (_: Event, v: number | number[]) => {
     const n = v as number
     setMonths(n)
-    if (TERM_DOT_SET.has(n)) {
-      if (lastMarkRef.current !== n) {
-        navigator.vibrate?.(10)
-        lastMarkRef.current = n
-      }
-    } else {
-      lastMarkRef.current = null
+    if (lastMarkRef.current !== n) {
+      navigator.vibrate?.(10)
+      lastMarkRef.current = n
     }
   }
 
@@ -148,8 +141,7 @@ export default function MwlLoanScreen({ nonMwl = false }: { nonMwl?: boolean } =
                 value={months}
                 min={MIN_MONTHS}
                 max={MAX_MONTHS}
-                step={null}
-                marks={TERM_MARKS}
+                step={1}
                 onChange={handleTermChange}
                 valueLabelDisplay="auto"
                 valueLabelFormat={(v) => `${v}`}
@@ -160,17 +152,6 @@ export default function MwlLoanScreen({ nonMwl = false }: { nonMwl?: boolean } =
                   height: 20,
                   '& .MuiSlider-rail': { bgcolor: '#E5E5E5', opacity: 1, borderRadius: '999px' },
                   '& .MuiSlider-track': { border: 'none', borderRadius: '999px' },
-                  '& .MuiSlider-mark': {
-                    width: 4,
-                    height: 4,
-                    borderRadius: '50%',
-                    bgcolor: '#C7CDD6',
-                    opacity: 1,
-                    '&.MuiSlider-markActive': { bgcolor: 'rgba(255,255,255,0.65)' },
-                  },
-                  [`& .MuiSlider-mark[data-index="0"], & .MuiSlider-mark[data-index="${TERM_MARKS.length - 1}"]`]: {
-                    display: 'none',
-                  },
                   '& .MuiSlider-thumb': {
                     width: 36,
                     height: 28,
