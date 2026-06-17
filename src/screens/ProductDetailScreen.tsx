@@ -26,6 +26,7 @@ const HERO_BY_NAME: Record<string, string> = {
   'Small Biz Loan': BANNERS.smallS1,
   'Housing Loan': BANNERS.housingS1,
   'Migration Worker Loan': BANNERS.mwlS1,
+  'Staff Loan': BANNERS.staffLoan,
 }
 
 const USES = [
@@ -40,6 +41,13 @@ const KEY_FEATURES: [string, string][] = [
   ['Interest', '1.2% (negotiable)'],
   ['Loan term', 'Up to 120 months'],
   ['Repayment', 'Periodic principal + interest'],
+]
+
+// Staff Loan has its own headline terms.
+const STAFF_FEATURES: [string, string][] = [
+  ['Loan size', 'Up to 2× salary'],
+  ['Interest', '1.0%'],
+  ['Repayment', 'Constant'],
 ]
 
 const ELIGIBILITY: [string, string][] = [
@@ -117,10 +125,12 @@ export default function ProductDetailScreen() {
   const { flow } = useFlow()
   const name = params.get('p') ?? 'SME Loan'
   const hero = HERO_BY_NAME[name] ?? BANNERS.smeS1
-  // Only the Migration Worker Loan uses the MWL apply flow; the other four
-  // products (Micro / Small Biz / Housing / SME) apply via the Non-MWL flow.
-  const isMwl = name === 'Migration Worker Loan'
-  const applyPath = isMwl ? '/mwl-about' : '/nonmwl-about'
+  const isStaff = name === 'Staff Loan'
+  const features = isStaff ? STAFF_FEATURES : KEY_FEATURES
+  // Apply flow per product: Migration Worker Loan → MWL (multi-step); Staff Loan
+  // → the single-screen staff form; everything else → the Non-MWL flow.
+  const applyPath =
+    name === 'Migration Worker Loan' ? '/mwl-about' : name === 'Staff Loan' ? '/staff-loan' : '/nonmwl-about'
   // Visitors must sign up first; the apply destination is carried via `?next=`
   // so they land on the application after completing sign-up.
   const onApply = () =>
@@ -259,7 +269,7 @@ export default function ProductDetailScreen() {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
               <SectionLabel>Key features</SectionLabel>
-              <SpecCard rows={KEY_FEATURES} />
+              <SpecCard rows={features} />
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
               <SectionLabel>Eligibility</SectionLabel>
@@ -267,7 +277,8 @@ export default function ProductDetailScreen() {
             </Box>
           </Box>
 
-          {/* Required documents */}
+          {/* Required documents — hidden for the Staff Loan */}
+          {!isStaff && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <SectionLabel>Required Documents</SectionLabel>
             <Box sx={{ bgcolor: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
@@ -307,6 +318,7 @@ export default function ProductDetailScreen() {
               ))}
             </Box>
           </Box>
+          )}
         </Box>
       </Box>
 

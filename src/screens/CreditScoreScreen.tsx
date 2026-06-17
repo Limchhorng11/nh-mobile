@@ -64,9 +64,9 @@ export default function CreditScoreScreen() {
   const { flow } = useFlow()
   const band = bandFor(SCORE)
   const delta = HISTORY[0].score - HISTORY[1].score
-  // A credit score is built from repayment history. New Users (no loans) and
-  // Applicants (loan still in review) haven't built one yet — show an empty state.
-  const noScore = flow === 'New User' || flow === 'Applicant'
+  // A credit score is built from repayment history. Only Borrowers (with active
+  // loans) have one; Visitors and Applicants haven't — show an empty state.
+  const noScore = flow !== 'Borrower'
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -148,7 +148,7 @@ export default function CreditScoreScreen() {
   )
 }
 
-// ─── Empty state — no score yet (New User / Applicant) ───────────────────────
+// ─── Empty state — no score yet (Visitor / Applicant) ────────────────────────
 function EmptyState({ onApply }: { onApply: () => void }) {
   return (
     <Box sx={{ px: 3, pt: 1, display: 'flex', flexDirection: 'column' }}>

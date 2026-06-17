@@ -37,14 +37,11 @@ export default function AllLoanScreen() {
         <CollapsingTitle collapse={collapse}>{"All Loan"}</CollapsingTitle>
 
         <Box sx={{ px: 3, pb: '44px' }}>
+          {/* Two columns × three rows — all six products in one grid. */}
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
-            {PRODUCTS.map((p) => (
+            {[...PRODUCTS, MIGRATION].map((p) => (
               <ProductCard key={p.name} p={p} height={152} />
             ))}
-          </Box>
-
-          <Box sx={{ mt: 1.5 }}>
-            <ProductCard p={MIGRATION} height={170} />
           </Box>
         </Box>
       </Box>

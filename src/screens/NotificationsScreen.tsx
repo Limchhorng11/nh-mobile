@@ -36,7 +36,7 @@ export default function NotificationsScreen() {
 
   // Only borrowers have a loan → transaction history.
   const hasTransactions = flow === 'Borrower'
-  // Visitors and New Users have no loan or application yet → no payment reminders.
+  // Visitors have no loan or application yet → no payment reminders.
   const hasReminders = flow === 'Applicant' || flow === 'Borrower'
 
   return (

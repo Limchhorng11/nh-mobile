@@ -18,7 +18,6 @@ import { AssetImg, BANNERS, ILLUS, DISCOVER } from './media'
 import { Icon, type IconName } from '../Icon'
 import { ProductScene, AvatarArt, PromoScene } from './illustrations'
 import { useFlow } from '../../workspace/FlowContext'
-import { useSample } from '../../workspace/SampleContext'
 import { SettingsSections } from '../../screens/SettingsScreen'
 import CallSheet from '../CallSheet'
 
@@ -53,7 +52,6 @@ export function SectionLabel({ label, action, onAction }: { label: string; actio
 export function HomeTopBar({ secondIcon = 'bell' }: { secondIcon?: IconName } = {}) {
   const navigate = useNavigate()
   const { flow } = useFlow()
-  const { sample } = useSample()
   // Visitors aren't signed in, so there's no profile to show — display the
   // NongHyup brand logo instead (matching the visitor Home tab). Chat is
   // gated behind sign-up for visitors.
@@ -86,7 +84,7 @@ export function HomeTopBar({ secondIcon = 'bell' }: { secondIcon?: IconName } = 
       ) : (
         /* Tap the profile (avatar + name) to open the Profile screen. */
         <Box
-          onClick={() => navigate(sample === '2' ? '/settings' : '/profile')}
+          onClick={() => navigate('/profile')}
           role="button"
           aria-label="Open profile"
           sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0, cursor: 'pointer', '&:active': { opacity: 0.6 } }}
@@ -284,7 +282,7 @@ export function MoreMenuBody({
       {/* Menu */}
       <Box sx={{ flex: 1, px: 3, pt: '24px', pb: 4, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
         {/* Account entry — sign-up prompt for visitors only. Signed-in flows
-            (New User / Applicant / Borrower) reach their profile elsewhere. */}
+            (Applicant / Borrower) reach their profile elsewhere. */}
         {isVisitor && (
           <Box
             role="button"
@@ -796,50 +794,33 @@ const POPULAR_PRODUCTS: { name: string; amount: string; rate: string; img: strin
 
 export function ProductScroller() {
   const navigate = useNavigate()
-  const { sample } = useSample()
   return (
     <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 1, mx: -0.5, px: 0.5 }} className="scroll-content">
       {POPULAR_PRODUCTS.map(({ name, amount, rate, img, kind }) => (
-        sample === '2' ? (
-          <Box
-            key={name}
-            role="button"
-            onClick={() => navigate(`/product-detail?p=${encodeURIComponent(name)}`)}
-            sx={{ width: 150, height: 150, flexShrink: 0, borderRadius: '12px', overflow: 'hidden', cursor: 'pointer', '&:active': { opacity: 0.85 } }}
-          >
+        <Box
+          key={name}
+          role="button"
+          onClick={() => navigate(`/product-detail?p=${encodeURIComponent(name)}`)}
+          sx={{ width: 158, flexShrink: 0, borderRadius: '12px', overflow: 'hidden', bgcolor: '#fff', border: '1px solid #ECEFF3', cursor: 'pointer', '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.12s' }}
+        >
+          <Box sx={{ position: 'relative', height: 106 }}>
             <AssetImg
               src={img}
               alt={name}
               sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
               fallback={<ProductScene kind={kind} />}
             />
-          </Box>
-        ) : (
-          <Box
-            key={name}
-            role="button"
-            onClick={() => navigate(`/product-detail?p=${encodeURIComponent(name)}`)}
-            sx={{ width: 158, flexShrink: 0, borderRadius: '12px', overflow: 'hidden', bgcolor: '#fff', border: '1px solid #ECEFF3', cursor: 'pointer', '&:active': { transform: 'scale(0.98)' }, transition: 'transform 0.12s' }}
-          >
-            <Box sx={{ position: 'relative', height: 106 }}>
-              <AssetImg
-                src={img}
-                alt={name}
-                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                fallback={<ProductScene kind={kind} />}
-              />
-              <Box sx={{ position: 'absolute', top: 8, right: 8, bgcolor: 'rgba(255,255,255,0.92)', borderRadius: '8px', px: 0.75, py: 0.25 }}>
-                <Typography sx={{ fontSize: 11, fontWeight: 800, color: '#0B0F1A' }}>{rate}</Typography>
-              </Box>
-            </Box>
-            <Box sx={{ px: 1.25, py: 1.25 }}>
-              <Typography sx={{ fontSize: 13, fontWeight: 700, color: '#0B0F1A' }} noWrap>{name}</Typography>
-              <Box sx={{ display: 'inline-flex', mt: 0.75, px: 1.25, py: '4px', bgcolor: '#F4F6F9', border: '1px solid #E7ECF2', borderRadius: '8px' }}>
-                <Typography sx={{ fontSize: 11, color: '#8A94A6' }}>{amount}</Typography>
-              </Box>
+            <Box sx={{ position: 'absolute', top: 8, right: 8, bgcolor: 'rgba(255,255,255,0.92)', borderRadius: '8px', px: 0.75, py: 0.25 }}>
+              <Typography sx={{ fontSize: 11, fontWeight: 800, color: '#0B0F1A' }}>{rate}</Typography>
             </Box>
           </Box>
-        )
+          <Box sx={{ px: 1.25, py: 1.25 }}>
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: '#0B0F1A' }} noWrap>{name}</Typography>
+            <Box sx={{ display: 'inline-flex', mt: 0.75, px: 1.25, py: '4px', bgcolor: '#F4F6F9', border: '1px solid #E7ECF2', borderRadius: '8px' }}>
+              <Typography sx={{ fontSize: 11, color: '#8A94A6' }}>{amount}</Typography>
+            </Box>
+          </Box>
+        </Box>
       ))}
     </Box>
   )

@@ -9,8 +9,6 @@ import { Flag, type FlagCode } from '../components/Flag'
 import { AssetImg, ILLUS } from '../components/home/media'
 import { AvatarArt } from '../components/home/illustrations'
 import { useFlow } from '../workspace/FlowContext'
-import { useSample } from '../workspace/SampleContext'
-import { MoreMenuBody } from '../components/home/HomeParts'
 import { BottomSheet } from './mwl/MwlParts'
 
 const HEADING = '#0B0F1A'
@@ -214,16 +212,7 @@ export function SettingsSections() {
 export default function SettingsScreen() {
   const navigate = useNavigate()
   const { flow } = useFlow()
-  const { sample } = useSample()
   const isVisitor = flow === 'Visitor'
-
-  if (sample === '2') {
-    return (
-      <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
-        <MoreMenuBody greeting={false} onBack={() => navigate(-1)} />
-      </Box>
-    )
-  }
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>

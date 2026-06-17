@@ -3,16 +3,15 @@ import { createContext, useContext, useState, ReactNode } from 'react'
 // ─────────────────────────────────────────────────────────────────────────────
 // User-flow context — defines which kind of user the prototype represents.
 //   • Visitor   → browsing, not signed in, no loans yet
-//   • New User  → signed in, but hasn't applied — no loans or applications yet
 //   • Applicant → has applied, watching their application progress
 //   • Borrower  → has active loans
 //
-// Drives the sidebar menu, the in-app bottom nav, and the Home dashboard state.
+// Drives the sidebar menu and the in-app bottom nav.
 // Persisted to localStorage so it survives the preview's full-page reloads.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type UserFlow = 'Visitor' | 'New User' | 'Applicant' | 'Borrower'
-export const USER_FLOWS: UserFlow[] = ['Visitor', 'New User', 'Applicant', 'Borrower']
+export type UserFlow = 'Visitor' | 'Applicant' | 'Borrower'
+export const USER_FLOWS: UserFlow[] = ['Visitor', 'Applicant', 'Borrower']
 
 const STORAGE_KEY = 'weloan-user-flow'
 

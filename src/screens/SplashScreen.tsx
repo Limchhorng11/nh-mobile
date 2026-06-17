@@ -9,8 +9,8 @@ export default function SplashScreen() {
   const navigate = useNavigate()
   const home = useHomePath()
 
-  // Auto-advance after a 1.5s brand hold. Sample 2 keeps the nav-less Home;
-  // Sample 1 opens on the flow's default tab (Visitor → Products, others → My Loan).
+  // Auto-advance after a 1.5s brand hold to the flow's default tab
+  // (Visitor → Products, others → My Loan).
   useEffect(() => {
     const t = setTimeout(() => navigate(home), 1500)
     return () => clearTimeout(t)

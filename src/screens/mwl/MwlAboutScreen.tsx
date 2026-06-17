@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useFlow } from '../../workspace/FlowContext'
-import { useSample } from '../../workspace/SampleContext'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -30,8 +28,6 @@ const DOCS: { id: DocId; label: string; sample: string; img: string; canShare?: 
 
 export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } = {}) {
   const navigate = useNavigate()
-  const { flow } = useFlow()
-  const { sample: globalSample } = useSample()
   const prefix = nonMwl ? '/nonmwl' : '/mwl'
   const [discardOpen, setDiscardOpen] = useState(false)
   const [firstName, setFirstName] = useState('Mao')
@@ -49,7 +45,7 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
   return (
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1 }}>
-        <MwlHeader onBack={() => globalSample === '2' && flow === 'New User' ? navigate('/home') : setDiscardOpen(true)} step={1} totalSteps={nonMwl ? 2 : 3} />
+        <MwlHeader onBack={() => setDiscardOpen(true)} step={1} totalSteps={nonMwl ? 2 : 3} />
         <MwlTitle>Tell us about you</MwlTitle>
 
         <Box sx={{ px: 3, pb: 3, pt: '24px', display: 'flex', flexDirection: 'column', gap: 2.5 }}>

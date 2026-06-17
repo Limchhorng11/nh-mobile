@@ -1,9 +1,11 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { Icon, IconName } from '../components/Icon'
 import { useFlow, UserFlow } from '../workspace/FlowContext'
-import { useSample, SAMPLES } from '../workspace/SampleContext'
+import { usePinGate } from '../workspace/PinGateContext'
+import { clearApplications } from '../workspace/applications'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Flow picker — the very first screen. Choosing a persona sets the user flow
@@ -11,7 +13,6 @@ import { useSample, SAMPLES } from '../workspace/SampleContext'
 // ─────────────────────────────────────────────────────────────────────────────
 const OPTIONS: { flow: UserFlow; icon: IconName; title: string; sub: string }[] = [
   { flow: 'Visitor', icon: 'eye', title: 'Visitor', sub: 'Just browsing — not signed in' },
-  { flow: 'New User', icon: 'idCard', title: 'New User', sub: 'Signed in — no loans yet' },
   { flow: 'Applicant', icon: 'clock', title: 'Applicant', sub: 'Application in progress' },
   { flow: 'Borrower', icon: 'myLoan', title: 'Borrower', sub: 'Has one or more active loans' },
 ]
@@ -19,7 +20,11 @@ const OPTIONS: { flow: UserFlow; icon: IconName; title: string; sub: string }[] 
 export default function FlowSelectScreen() {
   const navigate = useNavigate()
   const { setFlow } = useFlow()
-  const { sample, setSample } = useSample()
+  const { lock } = usePinGate()
+
+  // Returning to the launch screen starts a fresh run — re-lock the PIN gate
+  // and clear any submitted applications so protected areas prompt again.
+  useEffect(() => { lock(); clearApplications() }, [lock])
 
   const choose = (f: UserFlow) => {
     setFlow(f)
@@ -45,43 +50,6 @@ export default function FlowSelectScreen() {
         alt="NongHyup Finance (Cambodia) Plc"
         sx={{ width: 180, height: 'auto', display: 'block', mx: 'auto', mb: 4 }}
       />
-
-      {/* Global sample segmented control: Sample 1 (with nav) / Sample 2 (no nav) */}
-      <Box sx={{ display: 'flex', bgcolor: 'rgba(255,255,255,0.15)', borderRadius: '12px', p: 0.5, gap: 0.5, mb: 3 }}>
-        {SAMPLES.map((s) => {
-          const active = s.id === sample
-          // Sample 2 is selectable but still a work in progress.
-          const wip = s.id === '2'
-          return (
-            <Box
-              key={s.id}
-              onClick={() => setSample(s.id)}
-              sx={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 0.25,
-                py: 1.25,
-                borderRadius: '9px',
-                cursor: 'pointer',
-                fontSize: 14,
-                fontWeight: 700,
-                color: active ? '#1C4DB8' : 'rgba(255,255,255,0.85)',
-                bgcolor: active ? '#fff' : 'transparent',
-                transition: 'all 0.12s',
-              }}
-            >
-              {s.label}
-              {wip && (
-                <Box component="span" sx={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.4px', textTransform: 'uppercase', color: active ? 'rgba(28,77,184,0.7)' : 'rgba(255,255,255,0.85)' }}>
-                  Under constructing
-                </Box>
-              )}
-            </Box>
-          )
-        })}
-      </Box>
 
       <Typography sx={{ fontSize: 13, fontWeight: 700, letterSpacing: '1px', color: 'rgba(255,255,255,0.6)', textAlign: 'center', textTransform: 'uppercase' }}>
         Select user flow

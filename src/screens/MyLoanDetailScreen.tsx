@@ -1,6 +1,5 @@
 import { ReactNode, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSample } from '../workspace/SampleContext'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -20,14 +19,8 @@ const ACCENT = '#345EAC'
 const PAID = '#275CB2'
 const OUTSTANDING = '#8CC919'
 
-type Tab = 'details' | 'others'
-
 export default function MyLoanDetailScreen() {
   const navigate = useNavigate()
-  const { sample } = useSample()
-  // Sample 1 → one page (all sections stacked); Sample 2 → 2 segments (Details / Others tabs).
-  const combined = sample === '1'
-  const [tab, setTab] = useState<Tab>('details')
   const [payOpen, setPayOpen] = useState(false)
 
   return (
@@ -38,58 +31,13 @@ export default function MyLoanDetailScreen() {
           Small Business Loan
         </Typography>
 
-        {combined ? (
-          <Box sx={{ px: 3, pt: 2.5, pb: 6, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-            <DetailsTab onPay={() => setPayOpen(true)} />
-            <OthersTab />
-          </Box>
-        ) : (
-          <Box sx={{ px: 3, pt: 2.5, pb: 6, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-            <SegmentedTabs value={tab} onChange={setTab} />
-            {tab === 'details' ? <DetailsTab onPay={() => setPayOpen(true)} /> : <OthersTab />}
-          </Box>
-        )}
+        <Box sx={{ px: 3, pt: 2.5, pb: 6, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <DetailsTab onPay={() => setPayOpen(true)} />
+          <OthersTab />
+        </Box>
       </Box>
 
       <PayLoanSheet open={payOpen} onClose={() => setPayOpen(false)} />
-    </Box>
-  )
-}
-
-// ─── Segmented pill: Details | Others ────────────────────────────────────────
-function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => void }) {
-  const TABS: { id: Tab; label: string }[] = [
-    { id: 'details', label: 'Details' },
-    { id: 'others', label: 'Others' },
-  ]
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'stretch', height: 40, bgcolor: '#EBEBEC', borderRadius: '24px', p: '4px', gap: 0.5 }}>
-      {TABS.map((t) => {
-        const active = value === t.id
-        return (
-          <Box
-            key={t.id}
-            onClick={() => onChange(t.id)}
-            sx={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'center',
-              borderRadius: '24px',
-              fontSize: 14,
-              fontWeight: 500,
-              cursor: 'pointer',
-              transition: 'all 0.15s',
-              color: active ? '#18181B' : '#71717A',
-              bgcolor: active ? '#fff' : 'transparent',
-              boxShadow: active ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
-            }}
-          >
-            {t.label}
-          </Box>
-        )
-      })}
     </Box>
   )
 }

@@ -6,64 +6,13 @@ import PhoneCanvas from './PhoneCanvas'
 import AppRouter from '../router/AppRouter'
 import { findScreen, DEFAULT_SCREEN, screensForFlow } from './registry'
 import { FlowProvider, useFlow, USER_FLOWS, type UserFlow } from './FlowContext'
-import { SampleProvider, useSample, SAMPLES } from './SampleContext'
+import { PinGateProvider } from './PinGateContext'
 
 const SIDEBAR_W = 272
-
-// ─── Sample selector — global Sample 1 / Sample 2 segmented control ──────────
-function SampleSelect() {
-  const { sample, setSample } = useSample()
-  const navigate = useNavigate()
-  return (
-    <Box sx={{ mb: 4 }}>
-      <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.8px', color: '#9AA3B2', mb: 1 }}>
-        SAMPLE
-      </Typography>
-      <Box sx={{ display: 'flex', bgcolor: '#EEF1F5', borderRadius: 2, p: 0.5, gap: 0.5 }}>
-        {SAMPLES.map((s) => {
-          const active = s.id === sample
-          // Sample 2 is not ready yet — show a "Coming soon" badge and block selection.
-          const disabled = s.id === '2'
-          return (
-            <Box
-              key={s.id}
-              onClick={() => { setSample(s.id); navigate('/flow-select') }}
-              role="button"
-              sx={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 0.25,
-                py: 1,
-                borderRadius: 1.5,
-                cursor: 'pointer',
-                fontSize: 13.5,
-                fontWeight: 700,
-                color: active ? '#0B0F1A' : '#8A94A6',
-                bgcolor: active ? '#fff' : 'transparent',
-                boxShadow: active ? '0 1px 3px rgba(16,24,40,0.08)' : 'none',
-                transition: 'all 0.12s',
-              }}
-            >
-              {s.label}
-              {disabled && (
-                <Box component="span" sx={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.4px', textTransform: 'uppercase', color: '#9AA3B2' }}>
-                  Coming soon
-                </Box>
-              )}
-            </Box>
-          )
-        })}
-      </Box>
-    </Box>
-  )
-}
 
 // Display labels for the flow picker (the underlying flow values are kept).
 const FLOW_LABELS: Record<UserFlow, string> = {
   Visitor: 'Visitor',
-  'New User': 'Visitor (logged in)',
   Applicant: 'Applicant',
   Borrower: 'Borrower',
 }
@@ -153,7 +102,7 @@ function todayLabel() {
   return `${d.getDate()}/${d.toLocaleString('en-US', { month: 'long' }).toUpperCase()}/${d.getFullYear()}`
 }
 
-// Active flow-screen id, derived from the URL ("/home" → "home").
+// Active flow-screen id, derived from the URL ("/products" → "products").
 function useActiveScreenId() {
   const { pathname } = useLocation()
   const seg = pathname.split('/').filter(Boolean)[0]
@@ -166,10 +115,9 @@ function Sidebar() {
   const [params] = useSearchParams()
   const activeId = useActiveScreenId()
   const { flow } = useFlow()
-  const { sample } = useSample()
 
-  // Screens for the active user flow + sample, grouped by section in registry order.
-  const screens = screensForFlow(flow, sample)
+  // Screens for the active user flow, grouped by section in registry order.
+  const screens = screensForFlow(flow)
   const sections: string[] = []
   for (const s of screens) if (!sections.includes(s.section)) sections.push(s.section)
 
@@ -200,7 +148,6 @@ function Sidebar() {
         NongHyup Mobile App
       </Typography>
 
-      <SampleSelect />
       <UserFlowSelect />
 
       {sections.map((section) => {
@@ -293,7 +240,7 @@ function SampleSwitcher() {
 export default function Workspace() {
   return (
     <FlowProvider>
-      <SampleProvider>
+      <PinGateProvider>
       <Box sx={{ display: 'flex', minHeight: { xs: '100dvh', md: '100vh' }, bgcolor: { xs: 'transparent', md: '#DDE0E5' } }}>
         <Sidebar />
 
@@ -316,7 +263,7 @@ export default function Workspace() {
           </PhoneCanvas>
         </Box>
       </Box>
-      </SampleProvider>
+      </PinGateProvider>
     </FlowProvider>
   )
 }

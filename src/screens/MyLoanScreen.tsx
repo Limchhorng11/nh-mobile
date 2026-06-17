@@ -1,16 +1,14 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import IconButton from '@mui/material/IconButton'
-import Badge from '@mui/material/Badge'
 import BottomNav from '../components/BottomNav'
 import PayLoanSheet from '../components/PayLoanSheet'
 import { Icon } from '../components/Icon'
 import { SummaryCard, Card, StatusChip, SectionLabel, AdvanceCard, HomeTopBar } from '../components/home/HomeParts'
 import { useFlow } from '../workspace/FlowContext'
-import { useSample } from '../workspace/SampleContext'
+import { getApplications, reviewQuery } from '../workspace/applications'
 
 const BLUE = '#275CB2'
 
@@ -25,51 +23,27 @@ const TABS: { id: Tab; label: string }[] = [
 // My Loans — segmented control switches between Active / In Review / Complete.
 export default function MyLoanScreen() {
   const { flow } = useFlow()
-  const { sample } = useSample()
-  const navigate = useNavigate()
   // Applicants have only an in-review application: no summary card, no active/complete loans.
   const isApplicant = flow === 'Applicant'
-  // Visitors and New Users have no loans or applications at all — fully empty state.
-  const isEmpty = flow === 'Visitor' || flow === 'New User'
-  const [tab, setTab] = useState<Tab>(isApplicant ? 'review' : 'active')
+  // Visitors have no loans or applications at all — fully empty state.
+  const isEmpty = flow === 'Visitor'
+  // ?tab=review (e.g. straight after submitting an application) opens In Review.
+  const [params] = useSearchParams()
+  const tabParam = params.get('tab')
+  const initialTab: Tab = tabParam === 'review' || tabParam === 'complete' ? tabParam : isApplicant ? 'review' : 'active'
+  const [tab, setTab] = useState<Tab>(initialTab)
   const [payOpen, setPayOpen] = useState(false)
 
   return (
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1 }}>
         {/* Header */}
-        {sample === '1' ? (
-          <>
-            <HomeTopBar />
-            <Box sx={{ px: 3, pt: 0.5, pb: 1 }}>
-              <Typography sx={{ fontSize: 30, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px' }}>
-                My Loans
-              </Typography>
-            </Box>
-          </>
-        ) : (
-          <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#F5F5F5', px: 3, pt: 3, pb: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton onClick={() => navigate('/home')} aria-label="Back" sx={{ ml: -1, color: '#0B0F1A' }}>
-                <Icon name="chevronLeft" size={26} color="#0B0F1A" />
-              </IconButton>
-              <Box sx={{ flex: 1 }} />
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <IconButton onClick={() => navigate('/chat')} size="small" sx={{ color: '#1A1A1A', p: '6px' }} aria-label="Messages">
-                  <Badge badgeContent={2} color="error" sx={{ '& .MuiBadge-badge': { fontSize: 9, height: 15, minWidth: 15 } }}>
-                    <Box component="img" src="/assets/brand/ico_chat.svg" alt="" sx={{ width: 24, height: 24, display: 'block' }} />
-                  </Badge>
-                </IconButton>
-                <IconButton onClick={() => navigate('/notifications')} size="small" sx={{ color: '#1A1A1A', p: '6px' }} aria-label="Notifications">
-                  <Box component="img" src="/assets/brand/ico_bell.svg" alt="" sx={{ width: 24, height: 24, display: 'block' }} />
-                </IconButton>
-              </Box>
-            </Box>
-            <Typography sx={{ fontSize: 30, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', mt: 0.5 }}>
-              My Loans
-            </Typography>
-          </Box>
-        )}
+        <HomeTopBar />
+        <Box sx={{ px: 3, pt: 0.5, pb: 1 }}>
+          <Typography sx={{ fontSize: 30, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px' }}>
+            My Loans
+          </Typography>
+        </Box>
         <Box sx={{ px: 3, pb: '54px', display: 'flex', flexDirection: 'column', gap: '24px', mt: '24px' }}>
           {isEmpty ? (
             <EmptyState
@@ -92,7 +66,7 @@ export default function MyLoanScreen() {
         </Box>
       </Box>
 
-      {sample === '1' && <BottomNav />}
+      <BottomNav />
 
       <PayLoanSheet open={payOpen} onClose={() => setPayOpen(false)} />
     </Box>
@@ -243,42 +217,58 @@ function ActiveLoanCard({ banner, onPay }: { banner?: { tone: 'neutral' | 'warni
 }
 
 // ─── In Review tab ───────────────────────────────────────────────────────────
+// A single in-review card — reused for the demo loan and for any application
+// the user has just submitted (e.g. Staff Loan).
+function ReviewCard({ title, amount, onView }: { title: string; amount: string; onView: () => void }) {
+  return (
+    <Card onClick={onView} sx={{ cursor: 'pointer', p: '18px' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A' }}>{title}</Typography>
+        <StatusChip label="In review" color="#B7791F" bg="#FBEBC6" />
+      </Box>
+
+      <Box sx={{ bgcolor: '#F7F7F8', border: 'none', borderRadius: '10px', px: 2, py: 1.5, mt: 2 }}>
+        <Typography sx={{ fontSize: 11, color: '#8A94A6', fontWeight: 600 }}>Requested amount</Typography>
+        <Typography sx={{ fontSize: 19, fontWeight: 800, color: '#0B0F1A', mt: 0.25 }}>{amount}</Typography>
+      </Box>
+
+      <Box sx={{ mt: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
+          <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>Step 2 of 10</Typography>
+          <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#3A4256' }}>Credit assessment</Typography>
+        </Box>
+        <Box sx={{ height: 6, borderRadius: 3, bgcolor: '#E7ECF2', overflow: 'hidden' }}>
+          <Box sx={{ height: '100%', width: '20%', bgcolor: '#B7791F', borderRadius: 3 }} />
+        </Box>
+      </Box>
+
+      <Button
+        variant="outlined"
+        onClick={(e) => { e.stopPropagation(); onView() }}
+        endIcon={<Icon name="arrowRight" size={16} />}
+        fullWidth
+        sx={{ mt: 2.5, height: 44, borderRadius: '10px', fontSize: 14 }}
+      >
+        View Details
+      </Button>
+    </Card>
+  )
+}
+
 function ReviewTab() {
   const navigate = useNavigate()
+  // Applications the user just submitted appear above the standing demo review.
+  const apps = getApplications()
+
   return (
     <Box>
-      <SectionLabel label="IN REVIEW (1)" />
-      <Card onClick={() => navigate('/my-loan-review')} sx={{ cursor: 'pointer', p: '18px' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A' }}>Small Business Loan</Typography>
-          <StatusChip label="In review" color="#B7791F" bg="#FBEBC6" />
-        </Box>
-
-        <Box sx={{ bgcolor: '#F7F7F8', border: 'none', borderRadius: '10px', px: 2, py: 1.5, mt: 2 }}>
-          <Typography sx={{ fontSize: 11, color: '#8A94A6', fontWeight: 600 }}>Requested amount</Typography>
-          <Typography sx={{ fontSize: 19, fontWeight: 800, color: '#0B0F1A', mt: 0.25 }}>$4,500.00</Typography>
-        </Box>
-
-        <Box sx={{ mt: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
-            <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>Step 2 of 10</Typography>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#3A4256' }}>Credit assessment</Typography>
-          </Box>
-          <Box sx={{ height: 6, borderRadius: 3, bgcolor: '#E7ECF2', overflow: 'hidden' }}>
-            <Box sx={{ height: '100%', width: '20%', bgcolor: '#B7791F', borderRadius: 3 }} />
-          </Box>
-        </Box>
-
-        <Button
-          variant="outlined"
-          onClick={(e) => { e.stopPropagation(); navigate('/my-loan-review') }}
-          endIcon={<Icon name="arrowRight" size={16} />}
-          fullWidth
-          sx={{ mt: 2.5, height: 44, borderRadius: '10px', fontSize: 14 }}
-        >
-          View Details
-        </Button>
-      </Card>
+      <SectionLabel label={`IN REVIEW (${apps.length + 1})`} />
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {apps.map((a) => (
+          <ReviewCard key={a.ref} title={a.title} amount={a.amount} onView={() => navigate(`/my-loan-review?${reviewQuery(a)}`)} />
+        ))}
+        <ReviewCard title="Small Business Loan" amount="$4,500.00" onView={() => navigate('/my-loan-review')} />
+      </Box>
     </Box>
   )
 }

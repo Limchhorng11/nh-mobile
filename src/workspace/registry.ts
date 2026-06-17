@@ -31,8 +31,6 @@ export interface FlowScreen {
   flows?: UserFlow[]
   /** Per-flow sidebar name override (falls back to `name`) */
   flowNames?: Partial<Record<UserFlow, string>>
-  /** Global samples this screen appears in (omit = visible in every sample) */
-  inSamples?: ('1' | '2')[]
 }
 
 export const SCREENS: FlowScreen[] = [
@@ -49,18 +47,11 @@ export const SCREENS: FlowScreen[] = [
     samples: [{ v: '1', label: 'Sample 1' }],
   },
   {
-    id: 'home',
-    name: 'Home',
-    section: 'HOME',
-    samples: [
-      { v: '1', label: '1 Active + Review' },
-      { v: '2', label: '2 Active + Review' },
-      { v: '3', label: '1 Active Only' },
-    ],
-    // Visitor sees the "not yet login" home; signed-in flows see a single "Home".
-    flowNames: { 'New User': 'Home', Applicant: 'Home', Borrower: 'Home' },
-    // The nav-less Home is the Sample 2 experience only.
-    inSamples: ['2'],
+    id: 'welcome',
+    name: 'Welcome',
+    section: 'LAUNCH',
+    samples: [{ v: '1', label: 'Sample 1' }],
+    flows: ['Visitor'],
   },
   {
     id: 'more',
@@ -73,7 +64,6 @@ export const SCREENS: FlowScreen[] = [
     name: 'Products',
     section: 'PRODUCTS',
     samples: [{ v: '1', label: 'Sample 1' }],
-    inSamples: ['1'],
   },
   {
     id: 'product-detail',
@@ -104,7 +94,7 @@ export const SCREENS: FlowScreen[] = [
     name: 'My Loans',
     section: 'MY LOAN',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['Visitor', 'New User', 'Applicant', 'Borrower'],
+    flows: ['Visitor', 'Applicant', 'Borrower'],
   },
   {
     id: 'my-loan-detail',
@@ -223,63 +213,70 @@ export const SCREENS: FlowScreen[] = [
     name: '1 · Tell us about you',
     section: 'APPLY LOAN MWL',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['New User', 'Applicant', 'Borrower'],
+    flows: ['Applicant', 'Borrower'],
   },
   {
     id: 'mwl-loan',
     name: '2 · Loan request',
     section: 'APPLY LOAN MWL',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['New User', 'Applicant', 'Borrower'],
+    flows: ['Applicant', 'Borrower'],
   },
   {
     id: 'mwl-guarantor',
     name: '3 · Add your guarantor',
     section: 'APPLY LOAN MWL',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['New User', 'Applicant', 'Borrower'],
+    flows: ['Applicant', 'Borrower'],
   },
   {
     id: 'mwl-review',
     name: 'Review application',
     section: 'APPLY LOAN MWL',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['New User', 'Applicant', 'Borrower'],
+    flows: ['Applicant', 'Borrower'],
   },
   {
     id: 'mwl-success',
     name: 'Application received',
     section: 'APPLY LOAN MWL',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['New User', 'Applicant', 'Borrower'],
+    flows: ['Applicant', 'Borrower'],
   },
   {
     id: 'nonmwl-about',
     name: '1 · Tell us about you',
     section: 'APPLY LOAN NON-MWL',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['New User', 'Applicant', 'Borrower'],
+    flows: ['Applicant', 'Borrower'],
   },
   {
     id: 'nonmwl-loan',
     name: '2 · Loan request',
     section: 'APPLY LOAN NON-MWL',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['New User', 'Applicant', 'Borrower'],
+    flows: ['Applicant', 'Borrower'],
   },
   {
     id: 'nonmwl-review',
     name: 'Review application',
     section: 'APPLY LOAN NON-MWL',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['New User', 'Applicant', 'Borrower'],
+    flows: ['Applicant', 'Borrower'],
   },
   {
     id: 'nonmwl-success',
     name: 'Application received',
     section: 'APPLY LOAN NON-MWL',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['New User', 'Applicant', 'Borrower'],
+    flows: ['Applicant', 'Borrower'],
+  },
+  {
+    id: 'staff-loan',
+    name: 'Fill your details',
+    section: 'APPLY STAFF LOAN',
+    samples: [{ v: '1', label: 'Sample 1' }],
+    flows: ['Applicant', 'Borrower'],
   },
   {
     id: 'chat',
@@ -323,21 +320,21 @@ export const SCREENS: FlowScreen[] = [
     name: 'Profile',
     section: 'PROFILE',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['New User', 'Applicant', 'Borrower'],
+    flows: ['Applicant', 'Borrower'],
   },
   {
     id: 'profile-edit',
     name: 'Edit profile',
     section: 'PROFILE',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['New User', 'Applicant', 'Borrower'],
+    flows: ['Applicant', 'Borrower'],
   },
   {
     id: 'profile-documents',
     name: 'My documents',
     section: 'PROFILE',
     samples: [{ v: '1', label: 'Sample 1' }],
-    flows: ['New User', 'Applicant', 'Borrower'],
+    flows: ['Applicant', 'Borrower'],
   },
   {
     id: 'notifications',
@@ -425,12 +422,8 @@ export function findScreen(id: string | undefined): FlowScreen | undefined {
   return SCREENS.find((s) => s.id === id)
 }
 
-// Screens visible for a given user flow + global sample.
-// (no `flows` field = visible in all flows; no `inSamples` = visible in all samples)
-export function screensForFlow(flow: UserFlow, sample?: '1' | '2'): FlowScreen[] {
-  return SCREENS.filter(
-    (s) =>
-      (!s.flows || s.flows.includes(flow)) &&
-      (!sample || !s.inSamples || s.inSamples.includes(sample)),
-  )
+// Screens visible for a given user flow.
+// (no `flows` field = visible in all flows)
+export function screensForFlow(flow: UserFlow): FlowScreen[] {
+  return SCREENS.filter((s) => !s.flows || s.flows.includes(flow))
 }

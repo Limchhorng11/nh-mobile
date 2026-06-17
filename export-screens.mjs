@@ -22,34 +22,32 @@ const SCREENS = [
 
   // Home
   ['/products',     'Products (Visitor)',         'Visitor',  'Home'],
-  ['/products',     'Products (New User)',        'New User', 'Home'],
-  ['/home',         'Home Dashboard (Visitor)',   'Visitor',  'Home'],
-  ['/home-app',     'Home Dashboard (Logged In)', 'New User', 'Home'],
-  ['/more',         'More Menu',                  'New User', 'Home'],
+  ['/products',     'Products (New User)',        'Applicant', 'Home'],
+  ['/more',         'More Menu',                  'Applicant', 'Home'],
   ['/notifications','Notifications',              'Borrower', 'Home'],
 
   // My Loans
-  ['/my-loan',      'My Loans (Empty)',           'New User', 'My Loans'],
+  ['/my-loan',      'My Loans (Empty)',           'Applicant', 'My Loans'],
   ['/my-loan',      'My Loans (Active)',          'Borrower', 'My Loans'],
   ['/my-loan-detail','Active Loan Detail',        'Borrower', 'My Loans'],
   ['/my-loan-review','In Review Detail',          'Applicant','My Loans'],
   ['/my-loan-complete','Completed Loan Detail',   'Borrower', 'My Loans'],
 
   // Apply Loan — MWL
-  ['/mwl-about',    '1 · Tell Us About You (MWL)',      'New User', 'Apply MWL Loan'],
-  ['/mwl-loan',     '2 · Loan Request (MWL)',           'New User', 'Apply MWL Loan'],
-  ['/mwl-guarantor','3 · Add Your Guarantor (MWL)',     'New User', 'Apply MWL Loan'],
-  ['/mwl-review',   '4 · Review Application (MWL)',     'New User', 'Apply MWL Loan'],
-  ['/mwl-success',  '5 · Application Received (MWL)',   'New User', 'Apply MWL Loan'],
+  ['/mwl-about',    '1 · Tell Us About You (MWL)',      'Applicant', 'Apply MWL Loan'],
+  ['/mwl-loan',     '2 · Loan Request (MWL)',           'Applicant', 'Apply MWL Loan'],
+  ['/mwl-guarantor','3 · Add Your Guarantor (MWL)',     'Applicant', 'Apply MWL Loan'],
+  ['/mwl-review',   '4 · Review Application (MWL)',     'Applicant', 'Apply MWL Loan'],
+  ['/mwl-success',  '5 · Application Received (MWL)',   'Applicant', 'Apply MWL Loan'],
 
   // Apply Loan — Non-MWL
-  ['/nonmwl-about', '1 · Tell Us About You (Non-MWL)',  'New User', 'Apply Non-MWL Loan'],
-  ['/nonmwl-loan',  '2 · Loan Request (Non-MWL)',       'New User', 'Apply Non-MWL Loan'],
-  ['/nonmwl-review','3 · Review Application (Non-MWL)', 'New User', 'Apply Non-MWL Loan'],
-  ['/nonmwl-success','4 · Application Received (Non-MWL)','New User','Apply Non-MWL Loan'],
+  ['/nonmwl-about', '1 · Tell Us About You (Non-MWL)',  'Applicant', 'Apply Non-MWL Loan'],
+  ['/nonmwl-loan',  '2 · Loan Request (Non-MWL)',       'Applicant', 'Apply Non-MWL Loan'],
+  ['/nonmwl-review','3 · Review Application (Non-MWL)', 'Applicant', 'Apply Non-MWL Loan'],
+  ['/nonmwl-success','4 · Application Received (Non-MWL)','Applicant','Apply Non-MWL Loan'],
 
   // Tools
-  ['/calculator',   'Loan Calculator',            'New User', 'Tools'],
+  ['/calculator',   'Loan Calculator',            'Applicant', 'Tools'],
   ['/credit-score', 'Credit Score',               'Borrower', 'Tools'],
   ['/all-loan',     'All Loans',                  'Borrower', 'Tools'],
   ['/product-detail','Product Detail',            'Visitor',  'Tools'],
@@ -71,10 +69,10 @@ const SCREENS = [
   ['/chat',            'Conversations',           'Borrower', 'Chat & Support'],
   ['/chat-thread',     'Chat Thread',             'Borrower', 'Chat & Support'],
   ['/chat-new',        'New Message',             'Borrower', 'Chat & Support'],
-  ['/request-consult', 'Request Consultation',    'New User', 'Chat & Support'],
-  ['/consult-success', 'Consultation Success',    'New User', 'Chat & Support'],
-  ['/send-feedback',   'Send Feedback',           'New User', 'Chat & Support'],
-  ['/feedback-history','Feedback History',        'New User', 'Chat & Support'],
+  ['/request-consult', 'Request Consultation',    'Applicant', 'Chat & Support'],
+  ['/consult-success', 'Consultation Success',    'Applicant', 'Chat & Support'],
+  ['/send-feedback',   'Send Feedback',           'Applicant', 'Chat & Support'],
+  ['/feedback-history','Feedback History',        'Applicant', 'Chat & Support'],
 
   // Profile
   ['/profile',           'Profile',               'Borrower', 'Profile'],
@@ -82,19 +80,18 @@ const SCREENS = [
   ['/profile-edit',      'Edit Profile',          'Borrower', 'Profile'],
 
   // Settings
-  ['/account-security',       'Account Security',       'New User', 'Settings'],
-  ['/notification-settings',  'Notification Settings',  'New User', 'Settings'],
-  ['/app-settings',           'App Settings',           'New User', 'Settings'],
-  ['/about',                  'About NHFC',             'New User', 'Settings'],
-  ['/terms-privacy',          'Terms & Privacy',        'New User', 'Settings'],
-  ['/branch-locator',         'Find a Branch',          'New User', 'Settings'],
-  ['/blogs',                  'Blogs & Education',      'New User', 'Settings'],
-  ['/faq',                    'FAQ',                    'New User', 'Settings'],
+  ['/account-security',       'Account Security',       'Applicant', 'Settings'],
+  ['/notification-settings',  'Notification Settings',  'Applicant', 'Settings'],
+  ['/app-settings',           'App Settings',           'Applicant', 'Settings'],
+  ['/about',                  'About NHFC',             'Applicant', 'Settings'],
+  ['/terms-privacy',          'Terms & Privacy',        'Applicant', 'Settings'],
+  ['/branch-locator',         'Find a Branch',          'Applicant', 'Settings'],
+  ['/blogs',                  'Blogs & Education',      'Applicant', 'Settings'],
+  ['/faq',                    'FAQ',                    'Applicant', 'Settings'],
 ]
 
 const FLOW_MAP = {
   'Visitor':   'Visitor',
-  'New User':  'New User',
   'Applicant': 'Applicant',
   'Borrower':  'Borrower',
 }

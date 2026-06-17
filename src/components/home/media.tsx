@@ -57,6 +57,7 @@ export const BANNERS = mapAssets({
   housingS1: 'banners/Housing_Sample1.png',
   smeS1: 'banners/SME_Sample1.png',
   mwlS1: 'banners/MWL_Sample1.png',
+  staffLoan: 'banners/staff_loan.png',
 })
 
 export const ILLUS = mapAssets({

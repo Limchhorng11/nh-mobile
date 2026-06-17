@@ -7,7 +7,6 @@ import BottomNav from '../components/BottomNav'
 import { Icon } from '../components/Icon'
 import { HomeTopBar, NewsBanner } from '../components/home/HomeParts'
 import { AssetImg, BANNERS, DISCOVER } from '../components/home/media'
-import { useSample } from '../workspace/SampleContext'
 import { useFlow } from '../workspace/FlowContext'
 
 const HEADING = '#0B0F1A'
@@ -20,6 +19,7 @@ const PRODUCTS: Product[] = [
   { name: 'Small Biz Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.smallS1 },
   { name: 'Housing Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.housingS1 },
   { name: 'SME Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.smeS1 },
+  { name: 'Staff Loan', amount: 'USD ≤ 10,000', rate: '1.0%', img: BANNERS.staffLoan },
 ]
 
 const MIGRATION: Product = { name: 'Migration Worker Loan', amount: 'USD ≤ 15,000', rate: '1.2%', img: BANNERS.mwlS1 }
@@ -338,27 +338,23 @@ function ProductsTopBar() {
 
 export default function ProductsScreen() {
   const navigate = useNavigate()
-  const { sample } = useSample()
   const { flow } = useFlow()
-  const showNav = sample === '1'
 
-  // Logged-in flows (New User / Applicant / Borrower) in Sample 1 see the
-  // personalized greeting header; visitors and Sample 2 keep the brand logo bar.
-  const greeting = sample === '1' && flow !== 'Visitor'
+  // Signed-in flows (Applicant / Borrower) see the personalized greeting
+  // header; visitors keep the brand logo bar.
+  const greeting = flow !== 'Visitor'
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1 }}>
         {greeting ? <HomeTopBar /> : <ProductsTopBar />}
         <Box sx={{ px: 3, pb: 5, display: 'flex', flexDirection: 'column', gap: '24px', mt: 1 }}>
-          {sample === '1' && (
-            <Box>
-              <Typography sx={{ fontSize: 13, fontWeight: 800, color: MUTED, letterSpacing: '0.6px', mb: 1.5 }}>
-                NEWS &amp; PROMOTIONS
-              </Typography>
-              <NewsBanner />
-            </Box>
-          )}
+          <Box>
+            <Typography sx={{ fontSize: 13, fontWeight: 800, color: MUTED, letterSpacing: '0.6px', mb: 1.5 }}>
+              NEWS &amp; PROMOTIONS
+            </Typography>
+            <NewsBanner />
+          </Box>
 
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
@@ -375,17 +371,18 @@ export default function ProductsScreen() {
             </Box>
 
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
-              {PRODUCTS.map((p) => (
+              {/* Popular grid shows the first 4 — the full catalogue lives in "See all". */}
+              {PRODUCTS.slice(0, 4).map((p) => (
                 <ProductCard key={p.name} p={p} height={152} />
               ))}
             </Box>
           </Box>
 
-          {sample === '1' && <DiscoverSection />}
+          <DiscoverSection />
         </Box>
       </Box>
 
-      {showNav && <BottomNav />}
+      <BottomNav />
     </Box>
   )
 }

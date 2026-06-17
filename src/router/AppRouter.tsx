@@ -3,12 +3,12 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useHomePath } from '../workspace/useHomePath'
+import RequirePin from '../components/RequirePin'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Screen registry — each flow screen rendered inside the phone canvas.
 // Keep route ids in sync with src/workspace/registry.ts.
 // ─────────────────────────────────────────────────────────────────────────────
-const HomeScreen       = lazy(() => import('../screens/HomeScreen'))
 const MyLoanScreen     = lazy(() => import('../screens/MyLoanScreen'))
 const MyLoanDetailScreen = lazy(() => import('../screens/MyLoanDetailScreen'))
 const CompletedLoanDetailScreen = lazy(() => import('../screens/CompletedLoanDetailScreen'))
@@ -23,6 +23,8 @@ const SignUpScreen     = lazy(() => import('../screens/SignUpScreen'))
 const ProductsScreen   = lazy(() => import('../screens/ProductsScreen'))
 const SplashScreen     = lazy(() => import('../screens/SplashScreen'))
 const FlowSelectScreen = lazy(() => import('../screens/FlowSelectScreen'))
+const WelcomeScreen    = lazy(() => import('../screens/WelcomeScreen'))
+const StaffLoanScreen  = lazy(() => import('../screens/StaffLoanScreen'))
 const QrSignInScreen   = lazy(() => import('../screens/visitor/QrSignInScreen'))
 const OtpScreen        = lazy(() => import('../screens/visitor/OtpScreen'))
 const CreatePinScreen  = lazy(() => import('../screens/visitor/CreatePinScreen'))
@@ -65,8 +67,8 @@ const FeedbackHistoryScreen = lazy(() => import('../screens/settings/FeedbackHis
 const FaqScreen        = lazy(() => import('../screens/settings/FaqScreen'))
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Sample-aware fallback: unknown paths go to the active sample's home
-// (Sample 1 → Products / My Loan tab; Sample 2 → the Home dashboard).
+// Fallback: unknown paths go to the flow's home tab (Visitor → Products,
+// signed-in flows → My Loan).
 function HomeRedirect() {
   return <Navigate to={useHomePath()} replace />
 }
@@ -94,31 +96,31 @@ export default function AppRouter() {
         <Route path="/" element={<Navigate to="/flow-select" replace />} />
         <Route path="/flow-select" element={<FlowSelectScreen />} />
         <Route path="/splash" element={<SplashScreen />} />
-        <Route path="/home" element={<HomeScreen />} />
-        <Route path="/home-app" element={<HomeScreen loggedIn />} />
-        <Route path="/my-loan" element={<MyLoanScreen />} />
+        <Route path="/welcome" element={<WelcomeScreen />} />
+        <Route path="/my-loan" element={<RequirePin><MyLoanScreen /></RequirePin>} />
         <Route path="/my-loan-detail" element={<MyLoanDetailScreen />} />
         <Route path="/my-loan-complete" element={<CompletedLoanDetailScreen />} />
         <Route path="/my-loan-review" element={<MyLoanReviewDetailScreen />} />
-        <Route path="/mwl-about" element={<MwlAboutScreen />} />
+        <Route path="/mwl-about" element={<RequirePin><MwlAboutScreen /></RequirePin>} />
         <Route path="/mwl-loan" element={<MwlLoanScreen />} />
         <Route path="/mwl-guarantor" element={<MwlGuarantorScreen />} />
         <Route path="/mwl-review" element={<MwlReviewScreen />} />
         <Route path="/mwl-success" element={<MwlSuccessScreen />} />
-        <Route path="/nonmwl-about" element={<MwlAboutScreen nonMwl />} />
+        <Route path="/nonmwl-about" element={<RequirePin><MwlAboutScreen nonMwl /></RequirePin>} />
         <Route path="/nonmwl-loan" element={<MwlLoanScreen nonMwl />} />
         <Route path="/nonmwl-review" element={<MwlReviewScreen nonMwl />} />
         <Route path="/nonmwl-success" element={<MwlSuccessScreen product="Non-MWL Loan" />} />
+        <Route path="/staff-loan" element={<RequirePin><StaffLoanScreen /></RequirePin>} />
         <Route path="/more" element={<MoreScreen />} />
         <Route path="/settings" element={<SettingsScreen />} />
-        <Route path="/notifications" element={<NotificationsScreen />} />
+        <Route path="/notifications" element={<RequirePin><NotificationsScreen /></RequirePin>} />
         <Route path="/credit-score" element={<CreditScoreScreen />} />
         <Route path="/early-payoff" element={<EarlyPayoffScreen />} />
         <Route path="/early-payoff-pin" element={<EarlyPayoffPinScreen />} />
         <Route path="/early-payoff-success" element={<EarlyPayoffSuccessScreen />} />
-        <Route path="/profile" element={<ProfileScreen />} />
-        <Route path="/profile-documents" element={<ProfileDocumentsScreen />} />
-        <Route path="/profile-edit" element={<ProfileEditScreen />} />
+        <Route path="/profile" element={<RequirePin><ProfileScreen /></RequirePin>} />
+        <Route path="/profile-documents" element={<RequirePin><ProfileDocumentsScreen /></RequirePin>} />
+        <Route path="/profile-edit" element={<RequirePin><ProfileEditScreen /></RequirePin>} />
         <Route path="/products" element={<ProductsScreen />} />
         <Route path="/all-loan" element={<AllLoanScreen />} />
         <Route path="/sign-up" element={<SignUpScreen />} />
@@ -135,9 +137,9 @@ export default function AppRouter() {
         <Route path="/restructure-conditions" element={<RestructureConditionsScreen />} />
         <Route path="/restructure-consent" element={<RestructureConsentScreen />} />
         <Route path="/restructure-success" element={<RestructureSuccessScreen />} />
-        <Route path="/chat" element={<ChatScreen />} />
-        <Route path="/chat-thread" element={<ChatThreadScreen />} />
-        <Route path="/chat-new" element={<NewMessageScreen />} />
+        <Route path="/chat" element={<RequirePin><ChatScreen /></RequirePin>} />
+        <Route path="/chat-thread" element={<RequirePin><ChatThreadScreen /></RequirePin>} />
+        <Route path="/chat-new" element={<RequirePin><NewMessageScreen /></RequirePin>} />
         <Route path="/request-consult" element={<RequestConsultScreen />} />
         <Route path="/consult-success" element={<ConsultSuccessScreen />} />
         <Route path="/document-view" element={<DocumentViewerScreen />} />

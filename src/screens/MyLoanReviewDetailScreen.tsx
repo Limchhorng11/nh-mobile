@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { Icon } from '../components/Icon'
@@ -36,14 +36,26 @@ const EST_TOTAL = ['សរុប', '$500.00', '$39.85', '$539.85', '']
 
 export default function MyLoanReviewDetailScreen() {
   const navigate = useNavigate()
+  const [params] = useSearchParams()
   const [callOpen, setCallOpen] = useState(false)
+
+  // The detail is parametrised so a freshly-submitted application (e.g. Staff
+  // Loan) can show its own figures; defaults keep the existing Housing example.
+  const title = params.get('title') ?? 'Request Housing Loan'
+  const amount = params.get('amount') ?? '$4,500.00'
+  const term = params.get('term') ?? '24 months'
+  const rate = params.get('rate') ?? '1.20%/mo'
+  const ref = params.get('ref') ?? 'NH-2026-04821'
+  const requestedOn = params.get('on') ?? '12 Feb 2026'
+  // The Staff Loan review has no assigned officer card.
+  const isStaff = title === 'Staff Loan'
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1, pb: '44px' }}>
         <MwlHeader onBack={() => navigate(-1)} />
         <Typography sx={{ fontSize: 28, fontWeight: 800, color: HEADING, letterSpacing: '-1px', px: 3, mt: 0.5 }}>
-          Request Housing Loan
+          {title}
         </Typography>
 
         <Box sx={{ px: 3, pt: 2, pb: 5, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
@@ -52,18 +64,18 @@ export default function MyLoanReviewDetailScreen() {
             <Box sx={{ bgcolor: '#FBEBC6', borderRadius: '999px', px: '9px', py: '3px' }}>
               <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#B7791F' }}>In review</Typography>
             </Box>
-            <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.65px' }}>NH-2026-04821</Typography>
+            <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.65px' }}>{ref}</Typography>
           </Box>
 
           {/* Request amount card */}
           <Box sx={{ bgcolor: '#fff', borderRadius: '12px', p: 2.5 }}>
             <Typography sx={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.6px', color: LABEL }}>REQUEST AMOUNT</Typography>
-            <Typography sx={{ fontSize: 38, fontWeight: 800, color: HEADING, letterSpacing: '-1px', lineHeight: 1.1, mt: 0.5 }}>$4,500.00</Typography>
+            <Typography sx={{ fontSize: 38, fontWeight: 800, color: HEADING, letterSpacing: '-1px', lineHeight: 1.1, mt: 0.5 }}>{amount}</Typography>
             <Box sx={{ height: '1px', bgcolor: '#F0F0F0', my: 1.75 }} />
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <MetaCol label="Requested on" value="12 Feb 2026" />
-              <MetaCol label="Term" value="24 months" />
-              <MetaCol label="Rate" value="1.20%/mo" />
+              <MetaCol label="Requested on" value={requestedOn} />
+              <MetaCol label="Term" value={term} />
+              <MetaCol label="Rate" value={rate} />
             </Box>
           </Box>
 
@@ -155,7 +167,8 @@ export default function MyLoanReviewDetailScreen() {
             </Typography>
           </Box>
 
-          {/* My officer */}
+          {/* My officer — not shown for a Staff Loan review */}
+          {!isStaff && (
           <Box>
             <SectionLabel>My Officer</SectionLabel>
             <Box sx={{ bgcolor: '#fff', borderRadius: '12px', p: 2.5, display: 'flex', alignItems: 'center', gap: 1.5, mt: 1.25 }}>
@@ -183,6 +196,7 @@ export default function MyLoanReviewDetailScreen() {
               </Box>
             </Box>
           </Box>
+          )}
         </Box>
       </Box>
 
