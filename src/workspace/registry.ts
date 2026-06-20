@@ -442,6 +442,12 @@ export const SCREENS: FlowScreen[] = [
     section: 'SETTINGS',
     samples: [{ v: '1', label: 'Sample 1' }],
   },
+  {
+    id: 'cbc',
+    name: 'CBC',
+    section: 'SETTINGS',
+    samples: [{ v: '1', label: 'Sample 1' }],
+  },
 ]
 
 export const DEFAULT_SCREEN = SCREENS[0]

@@ -10,8 +10,37 @@ import { SummaryCard, Card, StatusChip, SectionLabel, AdvanceCard, HomeTopBar } 
 import { useFlow } from '../workspace/FlowContext'
 import { getApplications, reviewQuery } from '../workspace/applications'
 import { activeStage, STAGE_CHIP } from '../workspace/tracking'
+import { BottomSheet } from './mwl/MwlParts'
 
 const BLUE = '#275CB2'
+const MUTED = '#8A94A6'
+const HEADING = '#0B0F1A'
+
+// ── Credit score data (shared with CreditScoreScreen) ──────────────────────
+const CS_SCORE = 742
+const CS_MIN = 300
+const CS_MAX = 850
+const CS_BAND = { label: 'Very Good', color: '#2E9E5B' }
+
+function CreditGaugeSvg({ size = 200 }: { size?: number }) {
+  const h = size * 0.575
+  const cx = size / 2, cy = h * 0.945
+  const r = size * 0.417
+  const startAngle = Math.PI
+  const pct = (CS_SCORE - CS_MIN) / (CS_MAX - CS_MIN)
+  const angle = startAngle + pct * Math.PI
+  const x1 = cx + r * Math.cos(startAngle), y1 = cy + r * Math.sin(startAngle)
+  const x2 = cx + r * Math.cos(Math.PI * 2), y2 = cy + r * Math.sin(Math.PI * 2)
+  const px = cx + r * Math.cos(angle), py = cy + r * Math.sin(angle)
+  const sw = size * 0.067
+  return (
+    <Box component="svg" width={size} height={h} viewBox={`0 0 ${size} ${h}`} sx={{ display: 'block' }}>
+      <path d={`M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`} fill="none" stroke="#EDEFF3" strokeWidth={sw} strokeLinecap="round" />
+      <path d={`M ${x1} ${y1} A ${r} ${r} 0 0 1 ${px} ${py}`} fill="none" stroke={CS_BAND.color} strokeWidth={sw} strokeLinecap="round" />
+      <circle cx={px} cy={py} r={sw * 0.44} fill="#fff" stroke={CS_BAND.color} strokeWidth={sw * 0.19} />
+    </Box>
+  )
+}
 
 type Tab = 'active' | 'review' | 'complete'
 
@@ -34,6 +63,7 @@ export default function MyLoanScreen() {
   const initialTab: Tab = tabParam === 'review' || tabParam === 'complete' ? tabParam : isApplicant ? 'review' : 'active'
   const [tab, setTab] = useState<Tab>(initialTab)
   const [payOpen, setPayOpen] = useState(false)
+  const [creditOpen, setCreditOpen] = useState(false)
 
   return (
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -55,6 +85,30 @@ export default function MyLoanScreen() {
           ) : (
             <>
               {!isApplicant && <SummaryCard loanCount={3} />}
+
+              {!isApplicant && (
+                <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: 3, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Icon name="clock" size={16} color="#000" />
+                    <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#000' }}>Next payment due</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box>
+                      <Typography sx={{ fontSize: 22, fontWeight: 700, color: '#0B0F1A', lineHeight: 1.2 }}>$320.00</Typography>
+                      <Typography sx={{ fontSize: 11, color: '#8A94A6' }}>Due 16 May · in 9 days</Typography>
+                    </Box>
+                    <Button
+                      variant="contained"
+                      onClick={() => setPayOpen(true)}
+                      startIcon={<Icon name="cash" size={18} />}
+                      sx={{ height: 48, minWidth: 0, borderRadius: '12px', px: '20px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#2B4F92' } }}
+                    >
+                      Pay Now
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+
               {!isApplicant && <AdvanceCard />}
 
               <SegmentedTabs value={tab} onChange={setTab} />
@@ -70,6 +124,36 @@ export default function MyLoanScreen() {
       <BottomNav />
 
       <PayLoanSheet open={payOpen} onClose={() => setPayOpen(false)} />
+
+      {/* Credit score summary sheet */}
+      <BottomSheet open={creditOpen} onClose={() => setCreditOpen(false)}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pb: 1 }}>
+          <CreditGaugeSvg size={180} />
+          <Box sx={{ mt: -1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+            <Typography sx={{ fontSize: 48, fontWeight: 900, color: HEADING, lineHeight: 1, letterSpacing: '-2px' }}>
+              {CS_SCORE}
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ bgcolor: '#E6F4ED', borderRadius: '999px', px: '10px', py: '3px' }}>
+                <Typography sx={{ fontSize: 13, fontWeight: 700, color: CS_BAND.color }}>{CS_BAND.label}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4, bgcolor: '#F0FBF5', borderRadius: '999px', px: '8px', py: '3px' }}>
+                <Typography sx={{ fontSize: 12, color: '#1FA85C' }}>▲</Typography>
+                <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#1FA85C' }}>+11 pts this month</Typography>
+              </Box>
+            </Box>
+            <Typography sx={{ fontSize: 12, color: MUTED, mt: 1 }}>Updated 12 Jun 2026 · refreshed monthly</Typography>
+          </Box>
+          <Box sx={{ width: '100%', mt: 2.5, bgcolor: '#F5F7FB', borderRadius: '14px', px: 2, py: 1.5, display: 'flex', justifyContent: 'space-between' }}>
+            {[{ label: 'Poor', color: '#EF4444' }, { label: 'Fair', color: '#F97316' }, { label: 'Good', color: '#EAB308' }, { label: 'Very Good', color: '#2E9E5B' }, { label: 'Excellent', color: '#1B8048' }].map((b) => (
+              <Box key={b.label} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: b.color, outline: b.label === CS_BAND.label ? `3px solid ${b.color}` : 'none', outlineOffset: '2px' }} />
+                <Typography sx={{ fontSize: 10, fontWeight: b.label === CS_BAND.label ? 800 : 500, color: b.label === CS_BAND.label ? HEADING : MUTED }}>{b.label}</Typography>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </BottomSheet>
     </Box>
   )
 }
@@ -142,9 +226,9 @@ function ActiveTab({ onPay }: { onPay: () => void }) {
     <Box>
       <SectionLabel label="ACTIVE LOANS (3)" />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <ActiveLoanCard title="Small Biz Loan" icon="store" restructured onPay={onPay} />
-        <ActiveLoanCard title="Housing Loan" icon="home" onPay={onPay} />
-        <ActiveLoanCard title="Micro Loan" icon="sprout" status="overdue" onPay={onPay} />
+        <ActiveLoanCard title="Small Biz Loan" icon="store" restructured />
+        <ActiveLoanCard title="Housing Loan" icon="home" />
+        <ActiveLoanCard title="Micro Loan" icon="sprout" status="overdue" />
       </Box>
     </Box>
   )
@@ -159,7 +243,7 @@ function StatBox({ label, value }: { label: string; value: string }) {
   )
 }
 
-function ActiveLoanCard({ title, icon, status, restructured, onPay }: { title: string; icon: 'store' | 'home' | 'sprout'; status?: 'restructure' | 'overdue'; restructured?: boolean; onPay: () => void }) {
+function ActiveLoanCard({ title, icon, status, restructured }: { title: string; icon: 'store' | 'home' | 'sprout'; status?: 'restructure' | 'overdue'; restructured?: boolean }) {
   const navigate = useNavigate()
   return (
     <Card onClick={() => navigate('/my-loan-detail')} sx={{ cursor: 'pointer', p: '16px' }}>
@@ -207,15 +291,6 @@ function ActiveLoanCard({ title, icon, status, restructured, onPay }: { title: s
         <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A' }}>$4,500.00 left</Typography>
       </Box>
 
-      <Button
-        variant="contained"
-        fullWidth
-        onClick={(e) => { e.stopPropagation(); onPay() }}
-        startIcon={<Icon name="cash" size={18} />}
-        sx={{ mt: 2, height: 44, borderRadius: '12px', fontSize: 14, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' } }}
-      >
-        Pay Now
-      </Button>
     </Card>
   )
 }

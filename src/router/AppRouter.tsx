@@ -76,6 +76,7 @@ const BlogsScreen      = lazy(() => import('../screens/settings/BlogsScreen'))
 const SendFeedbackScreen = lazy(() => import('../screens/settings/SendFeedbackScreen'))
 const FeedbackHistoryScreen = lazy(() => import('../screens/settings/FeedbackHistoryScreen'))
 const FaqScreen        = lazy(() => import('../screens/settings/FaqScreen'))
+const CBCScreen        = lazy(() => import('../screens/CBCScreen'))
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Fallback: unknown paths go to the flow's home tab (Visitor → Products,
@@ -172,6 +173,7 @@ export default function AppRouter() {
         <Route path="/send-feedback" element={<SendFeedbackScreen />} />
         <Route path="/feedback-history" element={<FeedbackHistoryScreen />} />
         <Route path="/faq" element={<FaqScreen />} />
+        <Route path="/cbc" element={<CBCScreen />} />
 
         {/* Catch-all: redirect unknown paths to the active sample's home */}
         <Route path="*" element={<HomeRedirect />} />

@@ -107,6 +107,7 @@ export function FieldCard({
   leading,
   onClick,
   onChange,
+  placeholder,
 }: {
   label: string
   required?: boolean
@@ -115,6 +116,7 @@ export function FieldCard({
   leading?: ReactNode
   onClick?: () => void
   onChange?: (v: string) => void
+  placeholder?: string
 }) {
   return (
     <Box
@@ -139,7 +141,8 @@ export function FieldCard({
             component="input"
             value={typeof value === 'string' ? value : ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
-            sx={{ display: 'block', width: '100%', border: 'none', outline: 'none', background: 'transparent', fontSize: 16, fontWeight: 600, color: '#0B0F1A', mt: '2px', p: 0, fontFamily: 'inherit' }}
+            placeholder={placeholder}
+            sx={{ display: 'block', width: '100%', border: 'none', outline: 'none', background: 'transparent', fontSize: 16, fontWeight: 600, color: '#0B0F1A', mt: '2px', p: 0, fontFamily: 'inherit', '&::placeholder': { color: '#C2C8D0', fontWeight: 400 } }}
           />
         ) : (
           <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#0B0F1A', mt: 0.25 }} noWrap>

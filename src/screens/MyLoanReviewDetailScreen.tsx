@@ -1,48 +1,38 @@
-﻿import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
 import { Icon } from '../components/Icon'
+import { AssetImg, asset } from '../components/home/media'
 import CallSheet from '../components/CallSheet'
-import { MwlHeader } from './mwl/MwlParts'
 import { addNotice } from '../workspace/notifications'
+import { TRACK_STAGES as STAGES } from '../workspace/tracking'
 
-// ─────────────────────────────────────────────────────────────────────────────
-// In-review application detail — opened from the "In Review" card on My Loans.
-// Mirrors the Figma "Request Housing Loan" frame: amount, timeline, estimate.
-// ─────────────────────────────────────────────────────────────────────────────
 const HEADING = '#0B0F1A'
 const LABEL = '#737373'
-const VALUE = '#171717'
-const ACCENT = '#345EAC'
 const BLUE = '#275CB2'
-const KH = `'Noto Sans Khmer', sans-serif`
+const GREEN = '#1FA85C'
+const MUTED = '#8A94A6'
+const PEND = '#9AA3B2'
 
-type Chip = { label: string; color: string; bg: string }
-type Step = { title: string; sub: string; state: 'done' | 'current' | 'pending'; desc?: string; chips?: Chip[] }
-const TIMELINE: Step[] = [
-  { title: 'Application Received', sub: 'Completed · 1 Jun 2026', state: 'done' },
-  { title: 'Guarantor Consent', sub: 'Completed · 1 Jun 2026', state: 'done' },
-  {
-    title: 'Assessment',
-    sub: 'In progress · Est. 1–2 business days',
-    state: 'current',
-    desc: 'Our team reviews your application, including the credit bureau report.',
-  },
-  {
-    title: 'Decision',
-    sub: 'Pending assessment',
-    state: 'pending',
-    chips: [
-      { label: 'Approved', color: '#1FA85C', bg: '#DCF5E6' },
-      { label: 'Rejected', color: '#E11D48', bg: '#FDE7EC' },
-      { label: 'Cancelled', color: '#C47F11', bg: '#FBEBC6' },
-    ],
-    desc: 'The outcome will be confirmed here.',
-  },
-  { title: 'Disbursement', sub: 'Released after approval', state: 'pending' },
-]
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: MUTED, mb: 1 }}>
+      {children}
+    </Typography>
+  )
+}
+
+function MetaCol({ label, value }: { label: string; value: string }) {
+  return (
+    <Box>
+      <Typography sx={{ fontSize: 11.5, color: LABEL, lineHeight: 1.3 }}>{label}</Typography>
+      <Typography sx={{ fontSize: 14, fontWeight: 700, color: HEADING, mt: 0.25 }}>{value}</Typography>
+    </Box>
+  )
+}
 
 export default function MyLoanReviewDetailScreen() {
   const navigate = useNavigate()
@@ -50,19 +40,17 @@ export default function MyLoanReviewDetailScreen() {
   const [callOpen, setCallOpen] = useState(false)
   const [disbursed, setDisbursed] = useState(false)
 
-  // The detail is parametrised so a freshly-submitted application (e.g. Staff
-  // Loan) can show its own figures; defaults keep the existing Housing example.
   const title = params.get('title') ?? 'Request Housing Loan'
   const amount = params.get('amount') ?? '$4,500.00'
   const term = params.get('term') ?? '24 months'
   const rate = params.get('rate') ?? '1.20%/mo'
   const ref = params.get('ref') ?? 'NH-2026-04821'
   const requestedOn = params.get('on') ?? '12 Feb 2026'
-  // The Staff Loan review has no assigned officer card.
   const isStaff = title === 'Staff Loan'
 
-  // Staff Loan: "Continue" disburses the loan — show the success popup and raise
-  // a disbursement notification (visible in Notifications → All).
+  const activeIndex = STAGES.findIndex((s) => s.state === 'active')
+  const [sel, setSel] = useState(activeIndex < 0 ? 0 : activeIndex)
+
   const disburse = () => {
     addNotice({
       kind: 'disbursement',
@@ -76,24 +64,47 @@ export default function MyLoanReviewDetailScreen() {
   return (
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1, pb: '44px' }}>
-        <MwlHeader onBack={() => navigate(-1)} />
-        <Typography sx={{ fontSize: 28, fontWeight: 800, color: HEADING, letterSpacing: '-1px', px: 3, mt: 0.5 }}>
+        {/* Header */}
+        <Box sx={{ px: 1, pt: 1 }}>
+          <IconButton onClick={() => navigate(-1)} aria-label="Back" sx={{ color: HEADING }}>
+            <Icon name="chevronLeft" size={26} color={HEADING} />
+          </IconButton>
+        </Box>
+
+        {/* Mascot */}
+        <Box sx={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', mt: -1 }}>
+          <AssetImg
+            src={asset('illustrations/mascot_inprogress.png')}
+            alt=""
+            sx={{ height: '100%', width: '100%', objectFit: 'contain' }}
+            fallback={
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                <Icon name="clock" size={44} color="#C9D2DE" />
+                <Typography sx={{ fontSize: 12, color: '#B4BCC9' }}>mascot_inprogress.png</Typography>
+              </Box>
+            }
+          />
+        </Box>
+
+        <Typography sx={{ fontSize: 28, fontWeight: 800, color: HEADING, letterSpacing: '-1px', px: 3, mt: 0.5, lineHeight: 1.15, textAlign: 'center' }}>
           {title}
         </Typography>
 
         <Box sx={{ px: 3, pt: 2, pb: 5, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          {/* Status row */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {/* Status + ref */}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
             <Box sx={{ bgcolor: '#FBEBC6', borderRadius: '999px', px: '9px', py: '3px' }}>
               <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#B7791F' }}>In review</Typography>
             </Box>
-            <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.65px' }}>{ref}</Typography>
+            <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.5px' }}>{ref}</Typography>
           </Box>
 
           {/* Request amount card */}
           <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: 2.5 }}>
-            <Typography sx={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.6px', color: LABEL }}>REQUEST AMOUNT</Typography>
-            <Typography sx={{ fontSize: 38, fontWeight: 800, color: HEADING, letterSpacing: '-1px', lineHeight: 1.1, mt: 0.5 }}>{amount}</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: LABEL }}>REQUEST AMOUNT</Typography>
+            <Typography sx={{ fontSize: 36, fontWeight: 800, color: HEADING, letterSpacing: '-1px', lineHeight: 1.1, mt: 0.5 }}>
+              {amount}
+            </Typography>
             <Box sx={{ height: '1px', bgcolor: '#F0F0F0', my: 1.75 }} />
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <MetaCol label="Requested on" value={requestedOn} />
@@ -102,53 +113,102 @@ export default function MyLoanReviewDetailScreen() {
             </Box>
           </Box>
 
-          {/* Application timeline */}
-          <Box>
-            <SectionLabel>Application Timeline</SectionLabel>
-            <Box sx={{ mt: 1.5 }}>
-              {TIMELINE.map((s, i) => (
-                <TimelineRow key={s.title} step={s} last={i === TIMELINE.length - 1} />
-              ))}
+          {/* Horizontal step tracker */}
+          <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', p: '18px' }}>
+            <SectionLabel>APPLICATION TRACKER</SectionLabel>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', mt: 1 }}>
+              {STAGES.map((s, i) => {
+                const selected = i === sel
+                return (
+                  <Fragment key={s.key}>
+                    <Box
+                      role="button"
+                      onClick={() => setSel(i)}
+                      sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, flexShrink: 0, cursor: 'pointer' }}
+                    >
+                      <Box
+                        sx={{
+                          width: 34,
+                          height: 34,
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          bgcolor: s.state === 'done' ? GREEN : s.state === 'active' ? BLUE : '#EEF1F5',
+                          boxShadow: selected ? `0 0 0 4px ${s.state === 'done' ? 'rgba(31,168,92,0.18)' : s.state === 'pending' ? 'rgba(154,163,178,0.22)' : 'rgba(39,92,178,0.18)'}` : 'none',
+                          transition: 'box-shadow 0.2s',
+                        }}
+                      >
+                        {s.state === 'done' ? (
+                          <Icon name="check" size={17} color="#fff" />
+                        ) : (
+                          <Typography sx={{ fontSize: 14, fontWeight: 800, color: s.state === 'active' ? '#fff' : PEND }}>{i + 1}</Typography>
+                        )}
+                      </Box>
+                      <Typography sx={{ fontSize: 11, fontWeight: 600, color: s.state === 'pending' ? PEND : '#3A4256', textAlign: 'center', mt: 0.5, lineHeight: 1.2, whiteSpace: 'pre-line' }}>{s.label}</Typography>
+                    </Box>
+                    {i < STAGES.length - 1 && (
+                      <Box sx={{ flex: 1, height: 3, mt: '16px', mx: 0.25, borderRadius: '2px', position: 'relative', bgcolor: s.state === 'done' ? GREEN : '#E2E6EC' }}>
+                        {s.state === 'active' && (
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              left: 0,
+                              top: '50%',
+                              transform: 'translate(-3px, -50%)',
+                              width: 8,
+                              height: 8,
+                              borderRadius: '50%',
+                              bgcolor: BLUE,
+                              animation: 'trackerPulse 1.2s ease-in-out infinite',
+                              '@keyframes trackerPulse': {
+                                '0%, 100%': { boxShadow: '0 0 0 0 rgba(39,92,178,0.45)' },
+                                '50%': { boxShadow: '0 0 0 5px rgba(39,92,178,0)' },
+                              },
+                            }}
+                          />
+                        )}
+                      </Box>
+                    )}
+                  </Fragment>
+                )
+              })}
             </Box>
+            {/* Selected stage info */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, bgcolor: '#EAF1FC', borderRadius: '10px', px: 1.5, py: 1.25 }}>
+              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: BLUE, flexShrink: 0 }} />
+              <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#2B4A7E' }}>{STAGES[sel].info}</Typography>
+            </Box>
+            <Typography sx={{ fontSize: 12, color: MUTED, textAlign: 'center', mt: 1.5 }}>Tap a stage to preview the tracker</Typography>
           </Box>
 
-          {/* My officer — not shown for a Staff Loan review */}
+          {/* Officer — not shown for Staff Loan */}
           {!isStaff && (
-          <Box>
-            <SectionLabel>My Officer</SectionLabel>
-            <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: 2.5, display: 'flex', alignItems: 'center', gap: 1.5, mt: 1.25 }}>
-              <Box
-                sx={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  flexShrink: 0,
-                  background: 'radial-gradient(circle at 30% 30%, #9BD0FF 0%, #4C8BE0 45%, #2B4F92 100%)',
-                  boxShadow: '0 6px 24px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
-                }}
-              />
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography sx={{ fontSize: 13, fontWeight: 600, color: VALUE }}>Mr. Pisey Sok</Typography>
-                <Typography sx={{ fontSize: 11, color: LABEL }}>Riverside Branch</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box role="button" aria-label="Chat" onClick={() => navigate('/chat')} sx={{ display: 'flex', cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
-                  <Icon name="message" size={22} color="#0B0F1A" />
+            <Box>
+              <SectionLabel>HAVE QUESTIONS? YOUR OFFICER</SectionLabel>
+              <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: '16px', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{ width: 42, height: 42, borderRadius: '50%', bgcolor: '#E7F0FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Typography sx={{ fontSize: 14, fontWeight: 800, color: BLUE }}>SP</Typography>
                 </Box>
-                <Box role="button" aria-label="Call" onClick={() => setCallOpen(true)} sx={{ display: 'flex', cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
-                  <Icon name="phone" size={22} color="#0B0F1A" />
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{ fontSize: 15, fontWeight: 700, color: HEADING }}>Sok Pisey</Typography>
+                  <Typography sx={{ fontSize: 12.5, color: MUTED }}>Credit Officer · Toul Kork Branch</Typography>
                 </Box>
-                <Box role="button" aria-label="Telegram" onClick={() => window.open('https://t.me/', '_blank')} sx={{ display: 'flex', cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
-                  <Icon name="telegram" size={22} color="#229ED9" />
-                </Box>
+                <Button
+                  variant="contained"
+                  onClick={() => setCallOpen(true)}
+                  startIcon={<Icon name="phone" size={16} />}
+                  sx={{ height: 40, borderRadius: '10px', px: 2, fontSize: 14, fontWeight: 700, bgcolor: GREEN, '&:hover': { bgcolor: '#198C4C' } }}
+                >
+                  Call
+                </Button>
               </Box>
             </Box>
-          </Box>
           )}
         </Box>
       </Box>
 
-      {/* Staff Loan: continue the process → disbursement */}
+      {/* Staff Loan: disbursement CTA */}
       {isStaff && (
         <Box sx={{ flexShrink: 0, px: 3, pt: 2.5, pb: '44px', bgcolor: '#F5F5F5' }}>
           <Button
@@ -197,65 +257,6 @@ export default function MyLoanReviewDetailScreen() {
           </Box>
         </Box>
       )}
-    </Box>
-  )
-}
-
-function MetaCol({ label, value }: { label: string; value: string }) {
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-      <Typography sx={{ fontSize: 11, color: LABEL }}>{label}</Typography>
-      <Typography sx={{ fontSize: 13, fontWeight: 700, color: VALUE }}>{value}</Typography>
-    </Box>
-  )
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.65px', textTransform: 'uppercase', pl: 0.5 }}>
-      {children}
-    </Typography>
-  )
-}
-
-function TimelineRow({ step, last }: { step: Step; last: boolean }) {
-  const done = step.state === 'done'
-  const current = step.state === 'current'
-  return (
-    <Box sx={{ display: 'flex', gap: 1.5 }}>
-      {/* Node + connector */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-        <Box
-          sx={{
-            width: 18,
-            height: 18,
-            borderRadius: '50%',
-            mt: '2px',
-            bgcolor: done ? BLUE : '#fff',
-            border: done ? `2px solid ${BLUE}` : current ? `2px solid ${BLUE}` : '2px solid #C9D2DE',
-          }}
-        />
-        {!last && <Box sx={{ width: 2, flex: 1, minHeight: 28, bgcolor: done ? BLUE : '#E2E6EC', my: '2px' }} />}
-      </Box>
-      {/* Text */}
-      <Box sx={{ pb: last ? 0 : 2, minWidth: 0 }}>
-        <Typography sx={{ fontSize: 16, fontWeight: 700, color: step.state === 'pending' ? '#9AA3B2' : HEADING, lineHeight: 1.2 }}>
-          {step.title}
-        </Typography>
-        <Typography sx={{ fontSize: 13, color: LABEL, mt: 0.25 }}>{step.sub}</Typography>
-        {step.desc && (
-          <Typography sx={{ fontSize: 12.5, color: '#8A94A6', mt: 0.5, lineHeight: 1.45 }}>{step.desc}</Typography>
-        )}
-        {step.chips && (
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 0.75 }}>
-            {step.chips.map((c) => (
-              <Box key={c.label} sx={{ bgcolor: c.bg, borderRadius: '999px', px: 1, py: '2px' }}>
-                <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: c.color }}>{c.label}</Typography>
-              </Box>
-            ))}
-          </Box>
-        )}
-      </Box>
     </Box>
   )
 }

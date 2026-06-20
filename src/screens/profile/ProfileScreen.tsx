@@ -1,16 +1,19 @@
-﻿import { useRef, useState } from 'react'
+﻿import { useRef, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import { Icon } from '../../components/Icon'
 import { CollapsingHeader, CollapsingTitle, useCollapse } from '../../components/CollapsingHeader'
-import { FieldCard } from '../mwl/MwlParts'
+import { FieldCard, BottomSheet } from '../mwl/MwlParts'
 import { AssetImg, ILLUS } from '../../components/home/media'
 import { AvatarArt } from '../../components/home/illustrations'
 
 const HEADING = '#0B0F1A'
 const MUTED = '#8A94A6'
 const BLUE = '#275CB2'
+const DANGER = '#D63B3B'
 
 const EMPLOYMENT: { label: string; value: string }[] = [
   { label: 'Employment Type', value: 'Employed · Private sector' },
@@ -116,7 +119,30 @@ function IdentityCard() {
 export default function ProfileScreen() {
   const navigate = useNavigate()
   const { collapse, onScroll } = useCollapse()
-  const [empOpen, setEmpOpen] = useState(true)
+  const [staffOpen, setStaffOpen] = useState(false)
+  const [staffId, setStaffId] = useState('')
+  const [staffSave, setStaffSave] = useState<'idle' | 'loading' | 'match' | 'nomatch' | 'saved'>('idle')
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const staffSavedRef = useRef(false)
+  const [staffConfirmOpen, setStaffConfirmOpen] = useState(false)
+  const [staffNoMatchOpen, setStaffNoMatchOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+
+  useEffect(() => {
+    if (staffSavedRef.current) return
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    if (staffId.length === 0) { setStaffSave('idle'); return }
+    setStaffSave('loading')
+    saveTimer.current = setTimeout(() => {
+      if (/^NH-\d{9}$/.test(staffId)) {
+        setStaffSave('match')
+        setStaffConfirmOpen(true)
+      } else {
+        setStaffSave('nomatch')
+      }
+    }, 1200)
+    return () => { if (saveTimer.current) clearTimeout(saveTimer.current) }
+  }, [staffId])
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -135,30 +161,166 @@ export default function ProfileScreen() {
             <IdentityCard />
           </Box>
 
-          {/* Employment details — collapsible */}
+          {/* Employment details — always visible */}
           <Box>
-            <Box
-              onClick={() => setEmpOpen((v) => !v)}
-              role="button"
-              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', py: 0.5 }}
-            >
+            <Box sx={{ py: 0.5, mb: 1 }}>
               <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', color: MUTED }}>
                 EMPLOYMENT DETAILS
               </Typography>
-              <Box sx={{ display: 'flex', transform: empOpen ? 'none' : 'rotate(180deg)', transition: 'transform 0.2s' }}>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+              {EMPLOYMENT.map((f) => (
+                <FieldCard key={f.label} label={f.label} value={f.value} />
+              ))}
+            </Box>
+          </Box>
+
+          {/* Staff Information — collapsible with Staff ID input */}
+          <Box>
+            <Box
+              role="button"
+              onClick={() => setStaffOpen((v) => !v)}
+              sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', py: 0.5 }}
+            >
+              <Box sx={{ display: 'flex', transform: staffOpen ? 'none' : 'rotate(180deg)', transition: 'transform 0.2s' }}>
                 <Icon name="chevronUp" size={18} color={MUTED} />
               </Box>
+              <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', color: MUTED }}>
+                STAFF INFORMATION
+              </Typography>
             </Box>
-            {empOpen && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25, mt: 1 }}>
-                {EMPLOYMENT.map((f) => (
-                  <FieldCard key={f.label} label={f.label} value={f.value} />
-                ))}
+            {staffOpen && (
+              <Box sx={{ mt: 1 }}>
+                {staffSave === 'saved' ? (
+                  <FieldCard
+                    label="Staff ID"
+                    value={staffId}
+                    onClick={() => setStaffConfirmOpen(true)}
+                    trailing={
+                      <Box sx={{ display: 'flex' }}>
+                        <Icon name="arrowRight" size={20} color={MUTED} />
+                      </Box>
+                    }
+                  />
+                ) : (
+                  <FieldCard
+                    label="Staff ID"
+                    value={staffId}
+                    onChange={(v) => setStaffId(v)}
+                    placeholder="NH-000000000"
+                    trailing={
+                      staffSave === 'loading' ? (
+                        <CircularProgress size={16} sx={{ color: BLUE, flexShrink: 0 }} />
+                      ) : staffSave === 'match' ? (
+                        <Box role="button" onClick={() => setStaffConfirmOpen(true)} sx={{ display: 'flex', cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
+                          <Icon name="checkCircle" size={20} color="#22C55E" />
+                        </Box>
+                      ) : staffSave === 'nomatch' ? (
+                        <Box role="button" onClick={() => setStaffNoMatchOpen(true)} sx={{ display: 'flex', cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
+                          <Icon name="alert" size={20} color="#EF4444" />
+                        </Box>
+                      ) : null
+                    }
+                  />
+                )}
               </Box>
             )}
           </Box>
+
+          {/* Delete account */}
+          <Box sx={{ pt: '60px', pb: '8px', display: 'flex', justifyContent: 'center' }}>
+            <Box
+              role="button"
+              onClick={() => setDeleteOpen(true)}
+              sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, cursor: 'pointer', '&:active': { opacity: 0.6 } }}
+            >
+              <Icon name="trash" size={20} color={MUTED} />
+              <Typography sx={{ fontSize: 16, fontWeight: 800, color: MUTED }}>Delete account</Typography>
+            </Box>
+          </Box>
         </Box>
       </Box>
+
+      {/* Staff information confirmation sheet */}
+      <BottomSheet open={staffConfirmOpen} onClose={() => setStaffConfirmOpen(false)}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, pb: 1 }}>
+          <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: '#EBF1FB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="checkCircle" size={28} color={BLUE} />
+          </Box>
+          <Typography sx={{ fontSize: 20, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px', mt: 0.5, textAlign: 'center' }}>
+            This is your staff information
+          </Typography>
+          <Typography sx={{ fontSize: 13, color: MUTED, textAlign: 'center', lineHeight: 1.5 }}>
+            Your staff ID has been verified and linked to your account.
+          </Typography>
+        </Box>
+        {/* Staff ID card */}
+        <Box sx={{ bgcolor: '#F5F7FB', borderRadius: '14px', px: 3, py: 2, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          <Typography sx={{ fontSize: 12, color: MUTED, fontWeight: 600 }}>Staff ID</Typography>
+          <Typography sx={{ fontSize: 18, fontWeight: 800, color: HEADING, letterSpacing: '0.5px' }}>{staffId}</Typography>
+        </Box>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={() => { staffSavedRef.current = true; setStaffSave('saved'); setStaffConfirmOpen(false) }}
+          sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4E9C' } }}
+        >
+          Got it
+        </Button>
+      </BottomSheet>
+
+      {/* Staff ID no-match sheet */}
+      <BottomSheet open={staffNoMatchOpen} onClose={() => setStaffNoMatchOpen(false)}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, pb: 1 }}>
+          <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="close" size={26} color="#EF4444" />
+          </Box>
+          <Typography sx={{ fontSize: 20, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px', mt: 0.5, textAlign: 'center' }}>
+            ID does not match
+          </Typography>
+          <Typography sx={{ fontSize: 14, color: MUTED, textAlign: 'center', lineHeight: 1.55 }}>
+            Your ID does not match, please try again.
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={() => setStaffNoMatchOpen(false)}
+          sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: '#EF4444', '&:hover': { bgcolor: '#DC2626' } }}
+        >
+          Try again
+        </Button>
+      </BottomSheet>
+
+      {/* Delete account confirmation sheet */}
+      <BottomSheet open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, pb: 1 }}>
+          <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="trash" size={26} color={DANGER} />
+          </Box>
+          <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px', mt: 0.5 }}>
+            Delete account?
+          </Typography>
+          <Typography sx={{ fontSize: 14, color: MUTED, textAlign: 'center', lineHeight: 1.55 }}>
+            This will permanently remove your account and all associated data. This action cannot be undone.
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={() => navigate('/flow-select')}
+          sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: DANGER, '&:hover': { bgcolor: '#B52E2E' } }}
+        >
+          Yes, delete my account
+        </Button>
+        <Typography
+          role="button"
+          onClick={() => setDeleteOpen(false)}
+          sx={{ textAlign: 'center', fontSize: 14, fontWeight: 600, color: MUTED, cursor: 'pointer', pb: 0.5, '&:active': { opacity: 0.6 } }}
+        >
+          Cancel
+        </Typography>
+      </BottomSheet>
     </Box>
   )
 }

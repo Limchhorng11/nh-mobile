@@ -227,10 +227,12 @@ function DiscoverGrid() {
   const isVisitor = flow === 'Visitor'
 
   const items: { icon: IconName; label: string; bg: string; img?: string; onClick: () => void }[] = [
-    { icon: 'calculator', label: 'Calculator',     bg: '#0B1A14', img: DISCOVER.calculator, onClick: () => navigate('/calculator') },
-    { icon: 'findBranch', label: 'Branch Locator',        bg: '#1C3B6E', onClick: () => navigate('/branch-locator') },
-    { icon: 'gauge',      label: 'Credit Score',           bg: '#14432C', onClick: () => navigate(isVisitor ? '/sign-up?next=' + encodeURIComponent('/credit-score') : '/credit-score') },
-    { icon: 'feedback',   label: 'Submit a Complaint',    bg: '#3B1C5C', onClick: () => navigate(isVisitor ? '/sign-up?next=' + encodeURIComponent('/send-feedback') : '/send-feedback') },
+    { icon: 'calculator', label: 'Calculator',              bg: '#0B1A14', img: DISCOVER.calculator, onClick: () => navigate('/calculator') },
+    { icon: 'findBranch', label: 'Branch Locator',          bg: '#1C3B6E', onClick: () => navigate('/branch-locator') },
+    { icon: 'gauge',      label: 'Credit Score',            bg: '#14432C', onClick: () => navigate(isVisitor ? '/sign-up?next=' + encodeURIComponent('/credit-score') : '/credit-score') },
+    { icon: 'feedback',   label: 'Submit a Complaint',      bg: '#3B1C5C', onClick: () => navigate(isVisitor ? '/sign-up?next=' + encodeURIComponent('/send-feedback') : '/send-feedback') },
+    { icon: 'phone',      label: 'Request a Consultation', bg: '#1A3A30', onClick: () => navigate(isVisitor ? '/sign-up?next=' + encodeURIComponent('/request-consult') : '/request-consult') },
+    { icon: 'idCard',     label: 'CBC',                    bg: '#1A2545', onClick: () => navigate('/cbc') },
   ]
 
   return (
@@ -385,11 +387,6 @@ export function MoreMenuBody({
         <Box>
           <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6', mb: 1.5 }}>DISCOVER</Typography>
           <DiscoverGrid />
-        </Box>
-
-        {/* Request a consultation */}
-        <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', overflow: 'hidden' }}>
-          <MoreRow icon="phone" label="Request a consultation" onClick={() => navigate(isVisitor ? '/sign-up?next=' + encodeURIComponent('/request-consult') : '/request-consult')} />
         </Box>
 
         {/* Blog Posts */}
@@ -548,9 +545,6 @@ export function SummaryCard({ children, loanCount = 3, defaultExpanded = false }
               {hidden ? <Icon name="eyeOff" size={18} /> : <Icon name="eye" size={18} />}
             </IconButton>
           </Box>
-          <Typography sx={{ fontSize: 14, color: '#3A4256', mt: 0.5 }}>
-            {loanCount} active loan{loanCount > 1 ? 's' : ''}
-          </Typography>
           <Box
             onClick={() => setExpanded((v) => !v)}
             role="button"
@@ -592,7 +586,33 @@ export function SummaryCard({ children, loanCount = 3, defaultExpanded = false }
             </Box>
           ))}
         </Box>
+
+        {/* 2×2 stats grid */}
+        <Box sx={{ mt: 2.5, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+          {[
+            { label: 'Active Loans', value: String(loanCount), sub: 'MWL · SBL · Staff', valueColor: '#275CB2', bg: '#EEF3FC', dot: '#275CB2', blur: false },
+            { label: 'Portfolio Health', value: 'Good', sub: '1 restructuring in review', valueColor: '#1A8A4C', bg: '#EAF6EF', dot: '#1FA85C', blur: false },
+            { label: 'Installments', value: '22 / 66', sub: 'payments made', valueColor: '#0B0F1A', bg: '#F5F7FA', dot: '#8A94A6', blur: false },
+            { label: 'Due This Month', value: hidden ? '••••' : (isKHR ? '៛1,312,000' : '$320'), sub: '1 payment pending', valueColor: '#C0392B', bg: '#FDF0EF', dot: '#D63B3B', blur: hidden },
+          ].map((cell) => (
+            <Box key={cell.label} sx={{ bgcolor: cell.bg, borderRadius: '14px', p: '12px 14px' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
+                <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: cell.dot, flexShrink: 0 }} />
+                <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#8A94A6', letterSpacing: '0.2px' }}>
+                  {cell.label}
+                </Typography>
+              </Box>
+              <Typography sx={{ fontSize: 22, fontWeight: 800, color: cell.valueColor, lineHeight: 1.1, letterSpacing: '-0.5px', filter: cell.blur ? 'blur(6px)' : 'none', transition: 'filter 0.15s', userSelect: cell.blur ? 'none' : 'auto' }}>
+                {cell.value}
+              </Typography>
+              <Typography sx={{ fontSize: 11, color: '#8A94A6', mt: 0.5, lineHeight: 1.3 }}>
+                {cell.sub}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
       </Collapse>
+
       {children}
     </Card>
   )

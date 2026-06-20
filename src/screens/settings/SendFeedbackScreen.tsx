@@ -8,7 +8,7 @@ import { Icon } from '../../components/Icon'
 import { useCollapse, CollapsingHeader, CollapsingTitle } from '../../components/CollapsingHeader'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Send feedback — category + message + follow-up consent (from Settings).
+// Submit a complaint — category + message + follow-up consent (from Settings).
 // ─────────────────────────────────────────────────────────────────────────────
 const HEADING = '#0B0F1A'
 const MUTED = '#8A94A6'
@@ -32,7 +32,7 @@ export default function SendFeedbackScreen() {
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1 }} onScroll={onScroll}>
         <CollapsingHeader
-          title="Send feedback"
+          title="Submit a complaint"
           collapse={collapse}
           onBack={() => navigate('/more')}
           right={
@@ -41,7 +41,7 @@ export default function SendFeedbackScreen() {
             </IconButton>
           }
         />
-        <CollapsingTitle collapse={collapse}>{"Send feedback"}</CollapsingTitle>
+        <CollapsingTitle collapse={collapse}>{"Submit a complaint"}</CollapsingTitle>
 
         <Box sx={{ px: 3, pb: 4, pt: 1 }}>
           {/* Category */}

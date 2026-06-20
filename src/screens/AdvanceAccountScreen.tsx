@@ -7,6 +7,7 @@ import IconButton from '@mui/material/IconButton'
 import { Icon } from '../components/Icon'
 import { MwlHeader, BottomSheet, BLUE } from './mwl/MwlParts'
 import { AssetImg, BANKS } from '../components/home/media'
+import { CurrencyToggle } from '../components/home/HomeParts'
 
 // ─── Advance account movement ledger ─────────────────────────────────────────
 type Move = { type: 'Top Up' | 'Settlement'; date: string; sign: '+' | '-'; amount: string; balance: string; beginning: string; ref: string }
@@ -29,6 +30,7 @@ const METHODS: Method[] = [
 ]
 
 const KHR_RATE = 4100 // 1 USD ≈ 4,100 ៛
+const ACCOUNTS = { USD: '026-00052501', KHR: '026-00052502' } as const
 
 export default function AdvanceAccountScreen() {
   const navigate = useNavigate()
@@ -63,11 +65,18 @@ export default function AdvanceAccountScreen() {
         <Box sx={{ px: 3, pb: 3, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {/* Balance + Top-up + Total IN/OUT — one unified card */}
           <Box sx={{ bgcolor: '#fff', borderRadius: '16px', border: '1px solid #ECEFF3', boxShadow: '0 1px 3px rgba(16,24,40,0.04)', overflow: 'hidden' }}>
+            {/* Full-width currency toggle */}
+            <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+              <CurrencyToggle value={displayCur} onChange={setDisplayCur} />
+            </Box>
             {/* Balance row */}
-            <Box sx={{ px: 2.5, py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
+            <Box sx={{ px: 2.5, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
               <Box sx={{ minWidth: 0 }}>
                 <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#8A94A6', letterSpacing: '0.3px' }}>Balance</Typography>
                 <Typography sx={{ fontSize: 32, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', mt: 0.25 }}>{balance}</Typography>
+                <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: '#8A94A6', mt: 0.25 }}>
+                  {displayCur} · {ACCOUNTS[displayCur]}
+                </Typography>
               </Box>
               <Button
                 variant="contained"
@@ -157,7 +166,6 @@ export default function AdvanceAccountScreen() {
             <Box sx={{ display: 'flex', bgcolor: '#EFF1F4', borderRadius: '999px', p: '3px' }}>
               {(['USD', 'KHR'] as const).map((c) => (
                 <Box key={c} role="button" onClick={() => switchCur(c)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: '5px', borderRadius: '999px', cursor: 'pointer', bgcolor: cur === c ? '#fff' : 'transparent', boxShadow: cur === c ? '0 1px 3px rgba(0,0,0,0.12)' : 'none' }}>
-                  <Typography sx={{ fontSize: 13, fontWeight: 800, color: cur === c ? BLUE : '#9AA3B2' }}>{c === 'USD' ? '$' : '៛'}</Typography>
                   <Typography sx={{ fontSize: 12, fontWeight: 700, color: cur === c ? '#0B0F1A' : '#9AA3B2' }}>{c}</Typography>
                 </Box>
               ))}
@@ -167,6 +175,9 @@ export default function AdvanceAccountScreen() {
             <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#0B0F1A' }}>{symbol}</Typography>
             <Box component="input" value={amount} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value)} inputMode="decimal" placeholder="0.00" sx={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', bgcolor: 'transparent', fontFamily: 'inherit', fontSize: 22, fontWeight: 800, color: '#0B0F1A', '&::placeholder': { color: '#C2C8D0' } }} />
           </Box>
+          <Typography sx={{ fontSize: 12, fontWeight: 500, color: '#8A94A6', mt: 0.75, pl: 0.5 }}>
+            Minimum {cur === 'USD' ? '$1.00' : '៛4,100'}
+          </Typography>
         </Box>
 
         <Box>
