@@ -110,7 +110,10 @@ export default function PortfolioSummaryScreen() {
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
-      <MwlHeader title="Portfolio Summary" onBack={() => navigate(-1)} />
+      <MwlHeader onBack={() => navigate(-1)} />
+      <Typography sx={{ fontSize: 26, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', px: 3, pb: 1, mt: -1 }}>
+        Portfolio Summary
+      </Typography>
 
       <Box className="scroll-content" sx={{ flex: 1, px: 3, pt: 2.5, pb: 5, display: 'flex', flexDirection: 'column', gap: 3 }}>
 
