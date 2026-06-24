@@ -89,23 +89,18 @@ export default function ContactUsScreen() {
             onClick={() => { window.location.href = 'tel:1800207816' }}
             sx={{ background: 'linear-gradient(135deg, #2B5CC8 0%, #1A3D8F 100%)', borderRadius: '16px', p: '20px', mt: 1, cursor: 'pointer', '&:active': { opacity: 0.88 } }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-              <Box sx={{ width: 44, height: 44, borderRadius: '12px', bgcolor: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Icon name="phone" size={22} color="#fff" />
-              </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
               <Box>
                 <Typography sx={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 600, letterSpacing: '0.4px' }}>TOLL-FREE · 24 / 7</Typography>
                 <Typography sx={{ fontSize: 22, fontWeight: 900, color: '#fff', letterSpacing: '0.5px', lineHeight: 1.15 }}>1800 207 816</Typography>
               </Box>
-            </Box>
-            <Box sx={{ height: '1px', bgcolor: 'rgba(255,255,255,0.12)', mb: 2 }} />
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography sx={{ fontSize: 12.5, color: 'rgba(255,255,255,0.6)' }}>Free from any Cambodian network</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, bgcolor: GREEN, borderRadius: '10px', px: '14px', py: '8px', flexShrink: 0, ml: 1 }}>
                 <Icon name="phone" size={14} color="#fff" />
                 <Typography sx={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Call now</Typography>
               </Box>
             </Box>
+            <Box sx={{ height: '1px', bgcolor: 'rgba(255,255,255,0.12)', mb: 2 }} />
+            <Typography sx={{ fontSize: 12.5, color: 'rgba(255,255,255,0.6)' }}>Free from any Cambodian network</Typography>
           </Box>
 
           {/* Info rows */}

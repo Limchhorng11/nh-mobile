@@ -16,6 +16,14 @@ const MUTED = '#8A94A6'
 const BLUE = '#275CB2'
 const DANGER = '#D63B3B'
 
+const RESIDENTIAL: { label: string; value: string }[] = [
+  { label: 'City / Province', value: 'Phnom Penh' },
+  { label: 'District / Khan', value: 'Khan Toul Kork' },
+  { label: 'Commune / Sangkat', value: 'Sangkat Toul Kork' },
+  { label: 'Village', value: 'Phum Toul Kork' },
+  { label: 'House No · Street No', value: 'No. 45 · Street 315' },
+]
+
 const EMPLOYMENT: { label: string; value: string }[] = [
   { label: 'Employment Type', value: 'Employed · Private sector' },
   { label: 'Occupation / Position', value: 'Senior accountant' },
@@ -80,21 +88,28 @@ function IdentityCard({ isStaff }: { isStaff?: boolean }) {
             <Icon name="camera" size={14} color="#fff" />
           </Box>
         </Box>
-        <Box sx={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <Box>
-            <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: 1.3 }}>Full Name</Typography>
-            <Typography sx={{ fontSize: 15, fontWeight: 800, color: HEADING, lineHeight: 1.25 }} noWrap>
-              Krong Kampuchea
-            </Typography>
+        <Box sx={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 8px' }}>
+            <Box>
+              <Typography sx={{ fontSize: 11, color: MUTED, lineHeight: 1.3 }}>First Name</Typography>
+              <Typography sx={{ fontSize: 14, fontWeight: 800, color: HEADING, lineHeight: 1.25 }} noWrap>Krong</Typography>
+            </Box>
+            <Box>
+              <Typography sx={{ fontSize: 11, color: MUTED, lineHeight: 1.3 }}>Last Name</Typography>
+              <Typography sx={{ fontSize: 14, fontWeight: 800, color: HEADING, lineHeight: 1.25 }} noWrap>Kampuchea</Typography>
+            </Box>
           </Box>
           <Box>
-            <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: 1.3 }}>National ID</Typography>
-            <Typography sx={{ fontSize: 15, fontWeight: 700, color: HEADING }}>28012026001</Typography>
+            <Typography sx={{ fontSize: 11, color: MUTED, lineHeight: 1.3 }}>National ID</Typography>
+            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 0.25, bgcolor: '#EDFAF3', borderRadius: '6px', px: '8px', py: '3px' }}>
+              <Icon name="checkCircle" size={13} color="#16A34A" />
+              <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#16A34A', lineHeight: 1 }}>Verified</Typography>
+            </Box>
           </Box>
           {isStaff && (
             <Box>
-              <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: 1.3 }}>Staff ID</Typography>
-              <Typography sx={{ fontSize: 15, fontWeight: 700, color: HEADING }}>NH-000123456</Typography>
+              <Typography sx={{ fontSize: 11, color: MUTED, lineHeight: 1.3 }}>Staff ID</Typography>
+              <Typography sx={{ fontSize: 14, fontWeight: 700, color: HEADING, lineHeight: 1.25 }} noWrap>NH-000123456</Typography>
             </Box>
           )}
         </Box>
@@ -170,6 +185,20 @@ export default function ProfileScreen() {
             <IdentityCard isStaff={isStaff} />
           </Box>
 
+          {/* Residential address */}
+          <Box>
+            <Box sx={{ py: 0.5, mb: 1 }}>
+              <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', color: MUTED }}>
+                RESIDENTIAL ADDRESS
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+              {RESIDENTIAL.map((f) => (
+                <FieldCard key={f.label} label={f.label} value={f.value} />
+              ))}
+            </Box>
+          </Box>
+
           {/* Employment details — always visible */}
           <Box>
             <Box sx={{ py: 0.5, mb: 1 }}>
@@ -183,7 +212,6 @@ export default function ProfileScreen() {
               ))}
             </Box>
           </Box>
-
 
           {/* Delete account */}
           <Box sx={{ pt: '60px', pb: '8px', display: 'flex', justifyContent: 'center' }}>

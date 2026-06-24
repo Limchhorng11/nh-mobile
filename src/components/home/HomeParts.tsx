@@ -299,16 +299,7 @@ export function MoreMenuBody({
   return (
     <Box className="scroll-content" sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: '#F5F5F5' }}>
       {greeting ? (
-        <HomeTopBar middle={
-          <IconButton
-            size="small"
-            onClick={() => navigate('/app-settings')}
-            sx={{ color: '#1A1A1A', p: '6px', flexShrink: 0 }}
-            aria-label="App settings"
-          >
-            <Icon name="appSettings" size={22} color="#1A1A1A" />
-          </IconButton>
-        } />
+        <HomeTopBar />
       ) : (
         /* Header — back chevron + profile (brand logo for visitors) */
         <Box sx={{ px: 3, pt: 4, pb: 1 }}>
@@ -395,6 +386,7 @@ export function MoreMenuBody({
             {[
               { icon: 'phone' as IconName, label: 'Contact Us', sub: 'Hotline & email', onClick: () => navigate('/contact-us') },
               { icon: 'feedback' as IconName, label: 'Complaint', sub: 'We reply in 2 days', onClick: () => navigate(flow === 'Visitor' ? '/sign-up?next=' + encodeURIComponent('/send-feedback') : '/send-feedback') },
+              { icon: 'message' as IconName, label: 'Request Consultation', sub: 'Talk to an officer', onClick: () => navigate(flow === 'Visitor' ? '/sign-up?next=' + encodeURIComponent('/request-consult') : '/request-consult') },
             ].map((item) => (
               <Box
                 key={item.label}
