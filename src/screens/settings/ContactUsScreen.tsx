@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
 import { Icon } from '../../components/Icon'
 import { CollapsingHeader, CollapsingTitle, useCollapse } from '../../components/CollapsingHeader'
 
@@ -11,10 +10,11 @@ const BLUE = '#275CB2'
 const GREEN = '#2EAE6C'
 
 const INFO_ROWS = [
-  { label: 'General enquiries', value: '1800 207 816', highlight: false },
-  { label: 'Complaint',         value: '023 999 010',  highlight: false },
-  { label: 'Email',             value: 'info@nhfinance.com.kh', highlight: true },
-  { label: 'Operating hours',   value: 'Mon – Fri (8:00AM – 17:00PM)', highlight: false },
+  { label: 'Complaint hotline',      value: '023 999 010',               icon: 'phone'      as const, highlight: false },
+  { label: 'Website',                value: 'nhfinance.com.kh',          icon: 'website'    as const, highlight: false },
+  { label: 'Email',                  value: 'info@nhfinance.com.kh',     icon: 'email'      as const, highlight: true  },
+  { label: 'No. 12, Norodom Blvd, Phnom Penh', value: 'Head office',    icon: 'findBranch' as const, highlight: false },
+  { label: 'Operating hours',                  value: 'Mon – Fri (8:00AM – 17:00PM)', icon: 'clock' as const, highlight: false },
 ]
 
 type SocialItem = { name: string; bg: string; svg: React.ReactNode }
@@ -83,31 +83,30 @@ export default function ContactUsScreen() {
         <CollapsingTitle collapse={collapse}>Contact Us</CollapsingTitle>
 
         <Box sx={{ px: 3, pb: 5 }}>
-          {/* Hotline hero card */}
-          <Box sx={{ background: 'linear-gradient(135deg, #2B5CC8 0%, #1A3D8F 100%)', borderRadius: '16px', p: '28px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.25, mt: 1 }}>
-            <Box sx={{ width: 52, height: 52, borderRadius: '14px', bgcolor: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="phone" size={26} color="#fff" />
-            </Box>
-            <Typography sx={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', fontWeight: 600, letterSpacing: '0.3px' }}>
-              Toll-free · 24 / 7
-            </Typography>
-            <Typography sx={{ fontSize: 30, fontWeight: 800, color: '#fff', letterSpacing: '0.5px', lineHeight: 1 }}>
-              1800 207 816
-            </Typography>
-            <Typography sx={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
-              Free from any Cambodian network
-            </Typography>
-          </Box>
-
-          {/* Call now button */}
-          <Button
-            variant="contained"
-            fullWidth
-            startIcon={<Icon name="phone" size={18} color="#fff" />}
-            sx={{ mt: 1.5, height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: GREEN, '&:hover': { bgcolor: '#249B5E' }, boxShadow: '0 4px 16px rgba(46,174,108,0.3)' }}
+          {/* Hotline hero card — tap to call */}
+          <Box
+            role="button"
+            onClick={() => { window.location.href = 'tel:1800207816' }}
+            sx={{ background: 'linear-gradient(135deg, #2B5CC8 0%, #1A3D8F 100%)', borderRadius: '16px', p: '20px', mt: 1, cursor: 'pointer', '&:active': { opacity: 0.88 } }}
           >
-            Call now
-          </Button>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+              <Box sx={{ width: 44, height: 44, borderRadius: '12px', bgcolor: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icon name="phone" size={22} color="#fff" />
+              </Box>
+              <Box>
+                <Typography sx={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: 600, letterSpacing: '0.4px' }}>TOLL-FREE · 24 / 7</Typography>
+                <Typography sx={{ fontSize: 22, fontWeight: 900, color: '#fff', letterSpacing: '0.5px', lineHeight: 1.15 }}>1800 207 816</Typography>
+              </Box>
+            </Box>
+            <Box sx={{ height: '1px', bgcolor: 'rgba(255,255,255,0.12)', mb: 2 }} />
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography sx={{ fontSize: 12.5, color: 'rgba(255,255,255,0.6)' }}>Free from any Cambodian network</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, bgcolor: GREEN, borderRadius: '10px', px: '14px', py: '8px', flexShrink: 0, ml: 1 }}>
+                <Icon name="phone" size={14} color="#fff" />
+                <Typography sx={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Call now</Typography>
+              </Box>
+            </Box>
+          </Box>
 
           {/* Info rows */}
           <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.7px', color: '#9AA3B2', px: 0.5, py: 1, mt: 1 }}>
@@ -117,12 +116,15 @@ export default function ContactUsScreen() {
             {INFO_ROWS.map((row, i) => (
               <Box
                 key={row.label}
-                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, px: '16px', py: '13px', borderBottom: i < INFO_ROWS.length - 1 ? '1px solid #F1F4F8' : 'none' }}
+                sx={{ display: 'flex', alignItems: 'center', gap: 2, px: '14px', py: '12px', borderBottom: i < INFO_ROWS.length - 1 ? '1px solid #F1F4F8' : 'none' }}
               >
-                <Typography sx={{ fontSize: 14, color: MUTED, fontWeight: 500, flexShrink: 0 }}>{row.label}</Typography>
-                <Typography sx={{ fontSize: 14, fontWeight: 700, color: row.highlight ? BLUE : HEADING, textAlign: 'right', minWidth: 0 }}>
-                  {row.value}
-                </Typography>
+                <Box sx={{ width: 38, height: 38, borderRadius: '10px', bgcolor: '#F1F4F8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Icon name={row.icon} size={20} color="#1A1A1A" />
+                </Box>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{ fontSize: 14.5, fontWeight: 700, color: row.highlight ? BLUE : HEADING }} noWrap>{row.value}</Typography>
+                  <Typography sx={{ fontSize: 12, color: MUTED, mt: 0.25 }}>{row.label}</Typography>
+                </Box>
               </Box>
             ))}
           </Box>

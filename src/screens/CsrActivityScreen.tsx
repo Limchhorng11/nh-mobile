@@ -47,9 +47,20 @@ const MORE_ACTIVITIES: Activity[] = [
     title: 'Blood Donation Drive',
     location: 'Phnom Penh',
     date: '7 March 2025',
-    meta: '13 staff members',
+    meta: '',
     description:
       'Thirteen NongHyup Finance staff joined a blood donation organised by the Cambodia Microfinance Association (CMA) with the Association of Banks in Cambodia (ABC) — supporting national blood supply needs and helping save lives.',
+    images: [],
+  },
+  {
+    id: 'afesip-cambodia',
+    category: 'COMMUNITY WELFARE',
+    title: 'Supporting AFESIP Cambodia',
+    location: 'Dangkor district · Phnom Penh',
+    date: '8 August 2023 · NH Finance 5th anniversary',
+    meta: '',
+    description:
+      'In the presence of NongHyup Bank President & CEO Lee Seok Yong, NH Finance and NongHyup Bank donated essential supplies and a $5,000 contribution to AFESIP Cambodia — supporting 155 children in the organization\'s care.',
     images: [],
   },
   {
@@ -58,7 +69,7 @@ const MORE_ACTIVITIES: Activity[] = [
     title: 'Materials for Local Authorities',
     location: 'Santuk & Baray districts · Kampong Thom',
     date: '30 May 2022',
-    meta: '5 commune halls',
+    meta: '',
     description:
       'NH Finance contributed materials and budget to help five commune halls in Santuk and Baray districts better serve their communities — 75 plastic chairs, 10 rubbish bins and 10 boxes of A4 paper.',
     images: [],
@@ -68,7 +79,7 @@ const MORE_ACTIVITIES: Activity[] = [
 function CategoryBadge({ cat }: { cat: string }) {
   const color = CAT_COLORS[cat] ?? '#275CB2'
   return (
-    <Box sx={{ display: 'inline-flex', alignItems: 'center', px: 1.25, py: '3px', borderRadius: '6px', bgcolor: `${color}14` }}>
+    <Box sx={{ display: 'inline-flex', alignSelf: 'flex-start', alignItems: 'center', px: 1.25, py: '3px', borderRadius: '6px', bgcolor: `${color}14` }}>
       <Typography sx={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '0.5px', color }}>{cat}</Typography>
     </Box>
   )
@@ -182,9 +193,9 @@ export default function CsrActivityScreen() {
 
           {/* Highlight callout — outside the card */}
           {FEATURED.highlight && (
-            <Box sx={{ p: '12px 14px', bgcolor: '#F0F5FF', borderRadius: '10px', borderLeft: '3px solid #275CB2', mb: 3 }}>
-              <Typography sx={{ fontSize: 12, fontWeight: 700, color: HEADING, mb: 0.5 }}>A continued commitment</Typography>
-              <Typography sx={{ fontSize: 12.5, color: '#275CB2', lineHeight: 1.55 }}>{FEATURED.highlight}</Typography>
+            <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '14px', overflow: 'hidden', mb: 3, p: '14px' }}>
+              <Typography sx={{ fontSize: 13, fontWeight: 700, color: HEADING, mb: 0.5 }}>A continued commitment</Typography>
+              <Typography sx={{ fontSize: 13.5, color: '#3A4255', lineHeight: 1.55 }}>{FEATURED.highlight}</Typography>
             </Box>
           )}
 
