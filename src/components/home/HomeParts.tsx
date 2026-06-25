@@ -252,26 +252,40 @@ function DiscoverGrid() {
 }
 
 const BLOG_POSTS = [
-  { cat: 'NEWS', title: 'Khmer New Year promotion',     tint: '#275CB2' },
-  { cat: 'TIPS', title: 'How to plan your repayments',  tint: '#1FA85C' },
-  { cat: 'EDU',  title: 'Understanding interest rates', tint: '#7A3FF2' },
-  { cat: 'CSR',  title: 'Supporting rural farmers',     tint: '#E08A1E' },
+  { cat: 'FINANCIAL BASICS', title: 'Unlicensed Online Loan',       tint: '#275CB2', videoId: 'RT2taL5xxWU' },
+  { cat: "CUSTOMER'S STORY",  title: "Sophea's rice farm: from harvest to growth", tint: '#1FA85C', videoId: 'VIIclHZEkco' },
+  { cat: 'EDU',               title: 'Understanding interest rates', tint: '#7A3FF2', videoId: 'bk4pBXKyW3M' },
 ]
 
 function BlogGrid() {
-  const navigate = useNavigate()
   return (
-    <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 0.5, mx: -3, px: 3, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
+    <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 0.5, mx: -3, px: 3, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
       {BLOG_POSTS.map((p) => (
-        <Box key={p.title} role="button" onClick={() => navigate('/blogs')} sx={{ flexShrink: 0, width: 'calc(50% - 18px)', bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '14px', overflow: 'hidden', cursor: 'pointer', '&:active': { opacity: 0.85 } }}>
-          <Box sx={{ height: 96, background: `linear-gradient(135deg, ${p.tint}26, ${p.tint}0D)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="blogs" size={32} color={p.tint} />
+        <Box
+          key={p.videoId}
+          component="a"
+          href={`https://www.youtube.com/watch?v=${p.videoId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{ flexShrink: 0, width: 200, bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '14px', overflow: 'hidden', textDecoration: 'none', display: 'block', cursor: 'pointer', '&:active': { opacity: 0.85 } }}
+        >
+          <Box sx={{ position: 'relative', height: 112, bgcolor: '#000', overflow: 'hidden' }}>
+            <Box
+              component="img"
+              src={`https://img.youtube.com/vi/${p.videoId}/hqdefault.jpg`}
+              alt={p.title}
+              sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            />
+            {/* Play button overlay */}
+            <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="play" size={16} color="#fff" />
+              </Box>
+            </Box>
           </Box>
           <Box sx={{ p: '10px' }}>
-            <Box sx={{ display: 'inline-block', px: 0.75, py: '2px', borderRadius: '6px', mb: 0.5 }}>
-              <Typography sx={{ fontSize: 8.5, fontWeight: 800, letterSpacing: '0.4px', color: p.tint }}>{p.cat}</Typography>
-            </Box>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#0B0F1A', lineHeight: 1.25, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            <Typography sx={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.5px', color: p.tint, mb: 0.5 }}>{p.cat}</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#0B0F1A', lineHeight: 1.3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
               {p.title}
             </Typography>
           </Box>

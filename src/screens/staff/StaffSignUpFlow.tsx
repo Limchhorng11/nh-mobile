@@ -108,10 +108,6 @@ function ScanOverlay({ onClose, onDone }: { onClose: () => void; onDone: () => v
             </Box>
           )}
 
-          {/* Mascot — yellow chat bubble face */}
-          <Box sx={{ position: 'absolute', bottom: -10, right: -10, width: 52, height: 52, borderRadius: '50%', bgcolor: '#F5C518', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.25)', border: '3px solid #fff' }}>
-            <Typography sx={{ fontSize: 22 }}>😊</Typography>
-          </Box>
         </Box>
 
         {/* Hint text */}
@@ -235,9 +231,6 @@ function VerifyFlow({ onStepDone, onDone, onClose }: { onStepDone: (step: 1 | 2)
                 </Box>
               </Box>
             )}
-            <Box sx={{ position: 'absolute', bottom: -10, right: -10, width: 48, height: 48, borderRadius: '50%', bgcolor: '#F5C518', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.25)', border: '3px solid #fff' }}>
-              <Typography sx={{ fontSize: 20 }}>😊</Typography>
-            </Box>
           </Box>
         ) : (
           /* Face frame */
@@ -338,11 +331,6 @@ export function StaffInfoScreen() {
           </Box>
           {/* Phone */}
           <Typography sx={{ fontSize: 12.5, color: MUTED }}>+855 012 345 678</Typography>
-          {/* Verified badge */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4, bgcolor: '#DCFCE7', borderRadius: 999, px: 1.25, py: 0.5 }}>
-            <Icon name="checkCircle" size={11} color={GREEN} />
-            <Typography sx={{ fontSize: 11, fontWeight: 700, color: GREEN }}>Staff Verified</Typography>
-          </Box>
           {/* Description */}
           <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: 1.5, mt: 0.5, maxWidth: 280 }}>
             You are a verified staff member of NongHyup Finance (Cambodia) Plc. Please complete identity verification to activate your account.

@@ -40,15 +40,22 @@ export default function MyLoanReviewDetailScreen() {
   const [callOpen, setCallOpen] = useState(false)
   const [disbursed, setDisbursed] = useState(false)
 
-  const title = params.get('title') ?? 'Request Housing Loan'
-  const amount = params.get('amount') ?? '$4,500.00'
+  const isRestructure = params.get('type') === 'restructure'
+  const isPayoff = params.get('type') === 'payoff'
+  const title = (isRestructure || isPayoff) ? 'Application in progress' : (params.get('title') ?? 'Request Housing Loan')
+  const amount = isRestructure ? '$8,000.00' : isPayoff ? '$3,200.00' : (params.get('amount') ?? '$4,500.00')
   const term = params.get('term') ?? '24 months'
   const rate = params.get('rate') ?? '1.20%/mo'
-  const ref = params.get('ref') ?? 'NH-2026-04821'
-  const requestedOn = params.get('on') ?? '12 Feb 2026'
-  const isStaff = title === 'Staff Loan'
+  const ref = isRestructure ? '026-01285956 · Restructure' : isPayoff ? '026-01285956 · Pay-off' : (params.get('ref') ?? 'NH-2026-04821')
+  const requestedOn = (isRestructure || isPayoff) ? '1 Jun 2026' : (params.get('on') ?? '12 Feb 2026')
+  const isStaff = !isRestructure && !isPayoff && title === 'Staff Loan'
 
-  const activeIndex = STAGES.findIndex((s) => s.state === 'active')
+  const stages = isRestructure
+    ? STAGES.map((s, i) => i === STAGES.length - 1 ? { ...s, label: 'New Terms\nTake Effect' } : s)
+    : isPayoff
+    ? STAGES.map((s, i) => i === STAGES.length - 1 ? { ...s, label: 'Loan\nClosed' } : s)
+    : STAGES
+  const activeIndex = stages.findIndex((s) => s.state === 'active')
   const [sel, setSel] = useState(activeIndex < 0 ? 0 : activeIndex)
 
   const disburse = () => {
@@ -93,11 +100,37 @@ export default function MyLoanReviewDetailScreen() {
         <Box sx={{ px: 3, pt: 2, pb: 5, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {/* Status + ref */}
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-            <Box sx={{ bgcolor: '#FBEBC6', borderRadius: '999px', px: '9px', py: '3px' }}>
-              <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#B7791F' }}>In review</Typography>
+            <Box sx={{ bgcolor: (isRestructure || isPayoff) ? '#EAF1FC' : '#FBEBC6', borderRadius: '999px', px: '9px', py: '3px' }}>
+              <Typography sx={{ fontSize: 11, fontWeight: 700, color: (isRestructure || isPayoff) ? BLUE : '#B7791F' }}>{(isRestructure || isPayoff) ? 'In progress' : 'In review'}</Typography>
             </Box>
             <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.5px' }}>{ref}</Typography>
           </Box>
+
+          {/* Restructure banner */}
+          {isRestructure && (
+            <Box sx={{ bgcolor: '#EFE7FB', border: '1px solid #D4C4F5', borderRadius: '12px', px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: '#7A4DD6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icon name="layers" size={18} color="#fff" />
+              </Box>
+              <Box>
+                <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.5px', color: '#5B3BA8' }}>RESTRUCTURE REQUEST</Typography>
+                <Typography sx={{ fontSize: 13, color: '#7A4DD6', mt: 0.25 }}>Modifying your existing Small Biz Loan</Typography>
+              </Box>
+            </Box>
+          )}
+
+          {/* Pay-off banner */}
+          {isPayoff && (
+            <Box sx={{ bgcolor: '#E8F6EF', border: '1px solid #A8DFC0', borderRadius: '12px', px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: GREEN, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icon name="cash" size={18} color="#fff" />
+              </Box>
+              <Box>
+                <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.5px', color: '#166534' }}>PAY-OFF REQUEST</Typography>
+                <Typography sx={{ fontSize: 13, color: GREEN, mt: 0.25 }}>Early settlement of your existing loan</Typography>
+              </Box>
+            </Box>
+          )}
 
           {/* Request amount card */}
           <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: 2.5 }}>
@@ -117,7 +150,7 @@ export default function MyLoanReviewDetailScreen() {
           <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', p: '18px' }}>
             <SectionLabel>APPLICATION TRACKER</SectionLabel>
             <Box sx={{ display: 'flex', alignItems: 'flex-start', mt: 1 }}>
-              {STAGES.map((s, i) => {
+              {stages.map((s, i) => {
                 const selected = i === sel
                 return (
                   <Fragment key={s.key}>
@@ -147,7 +180,7 @@ export default function MyLoanReviewDetailScreen() {
                       </Box>
                       <Typography sx={{ fontSize: 11, fontWeight: 600, color: s.state === 'pending' ? PEND : '#3A4256', textAlign: 'center', mt: 0.5, lineHeight: 1.2, whiteSpace: 'pre-line' }}>{s.label}</Typography>
                     </Box>
-                    {i < STAGES.length - 1 && (
+                    {i < stages.length - 1 && (
                       <Box sx={{ flex: 1, height: 3, mt: '16px', mx: 0.25, borderRadius: '2px', position: 'relative', bgcolor: s.state === 'done' ? GREEN : '#E2E6EC' }}>
                         {s.state === 'active' && (
                           <Box
@@ -177,7 +210,7 @@ export default function MyLoanReviewDetailScreen() {
             {/* Selected stage info */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, bgcolor: '#EAF1FC', borderRadius: '10px', px: 1.5, py: 1.25 }}>
               <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: BLUE, flexShrink: 0 }} />
-              <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#2B4A7E' }}>{STAGES[sel].info}</Typography>
+              <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#2B4A7E' }}>{stages[sel].info}</Typography>
             </Box>
             <Typography sx={{ fontSize: 12, color: MUTED, textAlign: 'center', mt: 1.5 }}>Tap a stage to preview the tracker</Typography>
           </Box>

@@ -13,10 +13,12 @@ import { clearNotices } from '../workspace/notifications'
 // (persisted to localStorage) and continues to the Splash screen.
 // ─────────────────────────────────────────────────────────────────────────────
 const OPTIONS: { flow: UserFlow; icon: IconName; title: string; sub: string }[] = [
-  { flow: 'Visitor',   icon: 'eye',      title: 'Visitor',   sub: 'Just browsing — not signed in' },
-  { flow: 'Applicant', icon: 'clock',    title: 'Applicant', sub: 'Application in progress' },
-  { flow: 'Borrower',  icon: 'myLoan',   title: 'Borrower',  sub: 'Has one or more active loans' },
-  { flow: 'Staff',     icon: 'idCard',   title: 'Staff',     sub: 'NongHyup employee — staff loan' },
+  { flow: 'Visitor',     icon: 'eye',      title: 'Visitor',     sub: 'Just browsing — not signed in' },
+  { flow: 'Applicant',  icon: 'clock',    title: 'Applicant',  sub: 'Application in progress' },
+  { flow: 'Borrower',   icon: 'myLoan',   title: 'Borrower',   sub: 'Has one or more active loans' },
+  { flow: 'Co-Borrower',icon: 'myLoan',   title: 'Co-Borrower',sub: 'Co-borrowing on an active loan' },
+  { flow: 'Guarantee',  icon: 'eye',      title: 'Guarantee',  sub: 'Acting as guarantor on a loan' },
+  { flow: 'Staff',      icon: 'idCard',   title: 'Staff',      sub: 'NongHyup employee — staff loan' },
 ]
 
 export default function FlowSelectScreen() {

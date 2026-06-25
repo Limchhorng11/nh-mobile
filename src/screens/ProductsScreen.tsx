@@ -344,7 +344,7 @@ function ProductsTopBar() {
         position: 'sticky',
         top: 0,
         zIndex: 10,
-        bgcolor: '#fff',
+        bgcolor: 'transparent',
       }}
     >
       <Box

@@ -201,10 +201,8 @@ export function SettingsSections() {
         <Box>
           <SectionLabel>ABOUT</SectionLabel>
           <Card>
-            <NavRow icon="phone" label="NHFC Hotline" divider onClick={() => navigate('/contact-us')} />
             <NavRow icon="faq" label="FAQ" divider onClick={() => navigate('/faq')} />
-            <NavRow icon="appPolicy" label="App policy & terms" divider onClick={() => navigate('/terms-privacy')} />
-            <NavRow icon="aboutNhfc" label="About NHFC" onClick={() => navigate('/about')} />
+            <NavRow icon="appPolicy" label="App policy & terms" onClick={() => navigate('/terms-privacy')} />
           </Card>
         </Box>
 

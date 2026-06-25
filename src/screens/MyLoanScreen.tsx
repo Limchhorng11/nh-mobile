@@ -43,25 +43,25 @@ function CreditGaugeSvg({ size = 200 }: { size?: number }) {
   )
 }
 
-type Tab = 'active' | 'review' | 'complete'
+type Tab = 'active' | 'review' | 'complete' | 'guarantee'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'active', label: 'Active' },
   { id: 'review', label: 'Requests' },
   { id: 'complete', label: 'Paid off' },
+  { id: 'guarantee', label: 'Guarantee' },
 ]
 
 // My Loans — segmented control switches between Active / In Review / Complete.
 export default function MyLoanScreen() {
   const { flow } = useFlow()
-  // Applicants have only an in-review application: no summary card, no active/complete loans.
   const isApplicant = flow === 'Applicant'
+  const isGuarantee = flow === 'Guarantee'
   // Visitors and Staff have no loans — fully empty state.
   const isEmpty = flow === 'Visitor' || flow === 'Staff'
-  // ?tab=review (e.g. straight after submitting an application) opens In Review.
   const [params] = useSearchParams()
   const tabParam = params.get('tab')
-  const initialTab: Tab = tabParam === 'review' || tabParam === 'complete' ? tabParam : isApplicant ? 'review' : 'active'
+  const initialTab: Tab = tabParam === 'review' || tabParam === 'complete' ? tabParam : isApplicant ? 'review' : isGuarantee ? 'guarantee' : 'active'
   const [tab, setTab] = useState<Tab>(initialTab)
   const [payOpen, setPayOpen] = useState(false)
   const [creditOpen, setCreditOpen] = useState(false)
@@ -85,15 +85,16 @@ export default function MyLoanScreen() {
             />
           ) : (
             <>
-              {!isApplicant && <SummaryCard loanCount={3} onPay={() => setPayOpen(true)} />}
+              {!isApplicant && !isGuarantee && <SummaryCard loanCount={3} onPay={() => setPayOpen(true)} />}
 
-              {!isApplicant && <AdvanceCard />}
+              {!isApplicant && !isGuarantee && <AdvanceCard />}
 
               <SegmentedTabs value={tab} onChange={setTab} />
 
-              {tab === 'active' && (isApplicant ? <EmptyState label="No active loans yet" hint="Your loan appears here once your application is approved." /> : <ActiveTab onPay={() => setPayOpen(true)} />)}
+              {tab === 'active' && (isApplicant || isGuarantee ? <EmptyState label="No active loans yet" hint="Your loan appears here once your application is approved." /> : <ActiveTab onPay={() => setPayOpen(true)} />)}
               {tab === 'review' && <ReviewTab />}
-              {tab === 'complete' && (isApplicant ? <EmptyState label="No completed loans" hint="Loans you've fully paid off will show up here." /> : <CompleteTab />)}
+              {tab === 'complete' && (isApplicant || isGuarantee ? <EmptyState label="No completed loans" hint="Loans you've fully paid off will show up here." /> : <CompleteTab />)}
+              {tab === 'guarantee' && (isGuarantee || flow === 'Borrower' ? <GuaranteeTab /> : <EmptyState label="No guarantee loans" hint="Loans you are acting as guarantor on will appear here." />)}
             </>
           )}
         </Box>
@@ -168,10 +169,10 @@ function EmptyState({ label, hint, showApplyButtons }: { label: string; hint: st
   )
 }
 
-// ─── Segmented pill: Active | In Review | Complete ───────────────────────────
+// ─── Segmented pill: Active | Requests | Paid off | Guarantee ────────────────
 function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => void }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'stretch', height: 40, bgcolor: '#EBEBEC', borderRadius: 999, p: '4px', gap: 0.5 }}>
+    <Box sx={{ height: 40, bgcolor: '#EBEBEC', borderRadius: 999, p: '4px', gap: 0.5, overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' }, display: 'flex', alignItems: 'stretch', justifyContent: 'space-between' }}>
       {TABS.map((t) => {
         const active = value === t.id
         return (
@@ -179,11 +180,12 @@ function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => 
             key={t.id}
             onClick={() => onChange(t.id)}
             sx={{
-              flex: 1,
+              flex: '0 0 auto',
+              px: '14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              textAlign: 'center',
+              whiteSpace: 'nowrap',
               borderRadius: 999,
               fontSize: 13,
               fontWeight: 700,
@@ -216,6 +218,18 @@ function ActiveTab({ onPay }: { onPay: () => void }) {
   )
 }
 
+// ─── Guarantee tab ───────────────────────────────────────────────────────────
+function GuaranteeTab() {
+  return (
+    <Box>
+      <SectionLabel label="GUARANTEE LOANS (1)" />
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <ActiveLoanCard title="Small Biz Loan" icon="store" statusLabel="On Track" guaranteeNav />
+      </Box>
+    </Box>
+  )
+}
+
 function StatBox({ label, value }: { label: string; value: string }) {
   return (
     <Box sx={{ flex: 1, bgcolor: '#F7F7F8', border: 'none', borderRadius: '10px', px: 2, py: 1.5 }}>
@@ -225,10 +239,11 @@ function StatBox({ label, value }: { label: string; value: string }) {
   )
 }
 
-function ActiveLoanCard({ title, icon, status, restructured }: { title: string; icon: 'store' | 'home' | 'sprout'; status?: 'restructure' | 'overdue'; restructured?: boolean }) {
+function ActiveLoanCard({ title, icon, status, restructured, statusLabel, guaranteeNav }: { title: string; icon: 'store' | 'home' | 'sprout'; status?: 'restructure' | 'overdue'; restructured?: boolean; statusLabel?: string; guaranteeNav?: boolean }) {
   const navigate = useNavigate()
+  const suffix = guaranteeNav ? '&guarantee=true' : ''
   return (
-    <Card onClick={() => navigate(status === 'overdue' ? '/my-loan-detail?overdue=true' : '/my-loan-detail')} sx={{ cursor: 'pointer', p: '16px' }}>
+    <Card onClick={() => navigate(status === 'overdue' ? `/my-loan-detail?overdue=true${suffix}` : `/my-loan-detail${guaranteeNav ? '?guarantee=true' : ''}`)} sx={{ cursor: 'pointer', p: '16px' }}>
       {/* Main content */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
         {/* Header: icon + title/subtitle + status chips + chevron */}
@@ -245,7 +260,7 @@ function ActiveLoanCard({ title, icon, status, restructured }: { title: string; 
               </Box>
             )}
           </Box>
-          <StatusChip label="Active" color="#1FA85C" bg="#DCF5E6" />
+          <StatusChip label={statusLabel ?? 'Active'} color="#1FA85C" bg="#DCF5E6" />
           <Icon name="chevronRight" size={18} color="#C9D2DE" />
         </Box>
 
@@ -278,6 +293,8 @@ const REQ_STATUS = {
   rejected: { label: 'Rejected', color: '#E11D48', bg: '#FDE7EC' },
   cancelled: { label: 'Cancelled', color: '#6B7280', bg: '#EDEFF2' },
   disbursed: { label: 'Disbursed', color: '#1FA85C', bg: '#DCF5E6' },
+  restructured: { label: 'Approved', color: '#7A4DD6', bg: '#EFE7FB' },
+  paidOff: { label: 'Paid Off', color: '#1FA85C', bg: '#DCF5E6' },
 }
 
 // Reference icon per loan product (mirrors the Loan Calculator).
@@ -294,7 +311,9 @@ const PRODUCT_ICON: Record<string, IconName> = {
 const iconFor = (title: string): IconName => PRODUCT_ICON[title] ?? 'cash'
 
 // Past requests with terminal outcomes.
-const REQUEST_HISTORY: { title: string; sub: string; status: ReqStatus }[] = [
+const REQUEST_HISTORY: { title: string; sub: string; status: ReqStatus; tag?: string }[] = [
+  { title: 'Restructuring', sub: 'RST-2026-001234 · 12 May 2026', status: REQ_STATUS.restructured, tag: 'Restructure' },
+  { title: 'Early Payoff', sub: 'EPO-2026-009812 · 20 May 2026', status: REQ_STATUS.paidOff, tag: 'Pay Off' },
   { title: 'SME Loan', sub: 'SME-2026-309818 · 14 Apr 2026', status: REQ_STATUS.notEligible },
   { title: 'Micro Loan', sub: 'MCL-2026-204417 · 22 Apr 2026', status: REQ_STATUS.rejected },
   { title: 'Wash Loan', sub: 'WL-2026-118250 · 10 Mar 2026', status: REQ_STATUS.cancelled },
@@ -303,7 +322,7 @@ const REQUEST_HISTORY: { title: string; sub: string; status: ReqStatus }[] = [
 
 // A request row — same visual language as the active loan card (icon + title +
 // subtitle + status chip), compact for a list.
-function RequestRow({ icon, title, sub, status, amount, onClick, showSub }: { icon: IconName; title: string; sub: string; status: ReqStatus; amount?: string; onClick?: () => void; showSub?: boolean }) {
+function RequestRow({ icon, title, sub, status, amount, onClick, showSub, tag }: { icon: IconName; title: string; sub: string; status: ReqStatus; amount?: string; onClick?: () => void; showSub?: boolean; tag?: string }) {
   return (
     <Card onClick={onClick} sx={{ cursor: onClick ? 'pointer' : 'default', p: '14px 16px' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -311,7 +330,10 @@ function RequestRow({ icon, title, sub, status, amount, onClick, showSub }: { ic
           <Icon name={icon} size={21} color={BLUE} />
         </Box>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A' }} noWrap>{title}</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+            <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A' }} noWrap>{title}</Typography>
+            {tag && <Box sx={{ bgcolor: '#F0F2F5', borderRadius: '6px', px: '7px', py: '2px', flexShrink: 0 }}><Typography sx={{ fontSize: 10.5, fontWeight: 700, color: '#6B7280', letterSpacing: '0.2px' }}>{tag}</Typography></Box>}
+          </Box>
           {showSub && <Typography sx={{ fontSize: 12, color: '#8A94A6', mt: '2px' }} noWrap>{sub.split(' · ')[0]}</Typography>}
         </Box>
         <StatusChip label={status.label} color={status.color} bg={status.bg} />
@@ -335,55 +357,50 @@ function SectionHeader({ children, muted }: { children: React.ReactNode; muted?:
 
 function ReviewTab() {
   const navigate = useNavigate()
-  // Current = applications the user submitted + a restructuring request.
-  // Their status follows the application-tracking stage (shared with the tracker).
-  const apps = getApplications()
+  const { flow } = useFlow()
+  const isApplicant = flow === 'Applicant'
+  const isBorrower = flow === 'Borrower'
+
+  if (!isApplicant && !isBorrower) {
+    return <EmptyState label="No loan requests" hint="Loan applications you submit will appear here." />
+  }
+
   const trackChip = STAGE_CHIP[activeStage().key]
-  const current = [
-    ...apps.map((a) => ({
-      icon: iconFor(a.title),
-      title: a.title,
-      sub: `${a.ref} · ${a.on}`,
-      amount: a.amount,
-      status: trackChip,
-      onClick: () => navigate(`${a.track ? '/mwl-tracker' : '/my-loan-review'}?${reviewQuery(a)}`),
-    })),
-    { icon: 'layers' as IconName, title: 'Restructuring', sub: 'Small Biz Loan · 026-01285956', amount: '$8,000.00', status: trackChip, onClick: () => navigate('/mwl-tracker?ref=026-01285956&tag=Restructure') },
-    { icon: 'cash' as IconName, title: 'Pay off', sub: 'Small Biz Loan · 026-01285956', amount: '$3,200.00', status: trackChip, onClick: () => navigate('/mwl-tracker?ref=026-01285956&tag=Pay-off') },
+  const apps = getApplications()
+  const sampleApp = apps.length > 0 ? apps[0] : { title: 'Small Biz Loan', ref: 'MWL-2026-001234', on: '10 Jun 2026', amount: '$5,000.00', track: true }
+
+  const borrowerCurrent = [
+    { icon: 'layers' as IconName, title: 'Restructuring', sub: 'Small Biz Loan', amount: '$8,000.00', status: REQ_STATUS.assessment, onClick: () => navigate('/my-loan-review?type=restructure') },
+    { icon: 'cash' as IconName, title: 'Pay off', sub: 'Small Biz Loan', amount: '$3,200.00', status: REQ_STATUS.assessment, onClick: () => navigate('/my-loan-review?type=payoff') },
   ]
+  const applicantCurrent = [{
+    icon: iconFor(sampleApp.title),
+    title: sampleApp.title,
+    sub: `${sampleApp.ref} · ${sampleApp.on}`,
+    amount: sampleApp.amount,
+    status: trackChip,
+    onClick: () => navigate('/mwl-tracker'),
+  }]
+  const current = isApplicant ? applicantCurrent : borrowerCurrent
 
   return (
-    <Box>
-      <SectionHeader>Current ({current.length})</SectionHeader>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {current.map((c, i) => (
-          <RequestRow key={i} icon={c.icon} title={c.title} sub={c.sub} amount={c.amount} status={c.status} onClick={c.onClick} showSub />
-        ))}
-      </Box>
-
-      <Box sx={{ mt: 3 }}>
-        <SectionHeader muted>History</SectionHeader>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Box>
+        <SectionHeader>Current ({current.length})</SectionHeader>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {REQUEST_HISTORY.map((h) => {
-            const ref = h.sub.split(' · ')[0]
-            const isDecision = h.status === REQ_STATUS.notEligible || h.status === REQ_STATUS.rejected || h.status === REQ_STATUS.cancelled
-            return (
-              <RequestRow
-                key={h.sub}
-                icon={iconFor(h.title)}
-                title={h.title}
-                sub={h.sub}
-                status={h.status}
-                onClick={isDecision ? () => navigate(`/loan-decision?ref=${encodeURIComponent(ref)}`) : undefined}
-              />
-            )
-          })}
+          {current.map((c, i) => (
+            <RequestRow key={i} icon={c.icon} title={c.title} sub={c.sub} amount={c.amount} status={c.status} onClick={c.onClick} showSub />
+          ))}
         </Box>
       </Box>
-
-      <Typography sx={{ fontSize: 11.5, color: '#9AA3B2', textAlign: 'center', mt: 2.5, lineHeight: 1.5 }}>
-        Requests are kept for 36 months · Older records: ask your branch.
-      </Typography>
+      <Box>
+        <SectionHeader muted>History ({REQUEST_HISTORY.length})</SectionHeader>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {REQUEST_HISTORY.map((r, i) => (
+            <RequestRow key={i} icon={iconFor(r.title)} title={r.title} sub={r.sub} status={r.status} tag={r.tag} showSub />
+          ))}
+        </Box>
+      </Box>
     </Box>
   )
 }

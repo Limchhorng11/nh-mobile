@@ -1,6 +1,7 @@
 ﻿import { useNavigate, useSearchParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import { Icon } from '../components/Icon'
 
@@ -100,6 +101,7 @@ export default function DocumentViewerScreen() {
   const [params] = useSearchParams()
   const name = params.get('name') ?? 'Actual Payment'
   const contract = CONTRACTS[name]
+  const isGuaranteeDownload = params.get('guarantee') === 'true'
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -122,7 +124,8 @@ export default function DocumentViewerScreen() {
         </Box>
       ) : (
       /* Document body — repayment schedule */
-      <Box className="scroll-content" sx={{ flex: 1, overflow: 'auto', bgcolor: '#fff' }}>
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <Box className="scroll-content" sx={{ flex: 1, overflow: 'auto', bgcolor: '#fff' }}>
         <Box sx={{ px: 1.5, py: 3 }}>
           {/* Title block */}
           <Box sx={{ textAlign: 'center', mb: 2.5 }}>
@@ -133,6 +136,18 @@ export default function DocumentViewerScreen() {
               Customer History
             </Typography>
           </Box>
+
+          {/* Guarantor notice */}
+          {isGuaranteeDownload && (
+            <Box sx={{ mb: 2.5, bgcolor: '#FBF6EC', border: '1px solid #E8C97A', borderRadius: '12px', px: 2, py: 1.5, display: 'flex', alignItems: 'flex-start', gap: 1.25 }}>
+              <Box sx={{ mt: '1px', flexShrink: 0 }}>
+                <Icon name="info" size={16} color="#C47F11" />
+              </Box>
+              <Typography sx={{ fontSize: 13, color: '#7A5A12', lineHeight: 1.55 }}>
+                You are viewing this document as a <Box component="span" sx={{ fontWeight: 700 }}>guarantor</Box>. You are jointly responsible if the primary borrower defaults on this loan.
+              </Typography>
+            </Box>
+          )}
 
           {/* Metadata — two columns */}
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 3, rowGap: 1 }}>
@@ -178,6 +193,19 @@ export default function DocumentViewerScreen() {
               ))}
             </Box>
           </Box>
+        </Box>
+        </Box>
+
+        {/* Sticky download button */}
+        <Box sx={{ flexShrink: 0, px: 3, pt: 2, pb: '36px', bgcolor: '#fff', borderTop: '1px solid #EDEFF2' }}>
+          <Button
+            variant="contained"
+            fullWidth
+            startIcon={<Icon name="download" size={18} color="#fff" />}
+            sx={{ height: 52, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1e4a9a' } }}
+          >
+            Download PDF
+          </Button>
         </Box>
       </Box>
       )}

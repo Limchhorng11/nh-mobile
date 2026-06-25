@@ -10,8 +10,8 @@ import { createContext, useContext, useState, ReactNode } from 'react'
 // Persisted to localStorage so it survives the preview's full-page reloads.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type UserFlow = 'Visitor' | 'Applicant' | 'Borrower' | 'Staff'
-export const USER_FLOWS: UserFlow[] = ['Visitor', 'Applicant', 'Borrower', 'Staff']
+export type UserFlow = 'Visitor' | 'Applicant' | 'Borrower' | 'Co-Borrower' | 'Guarantee' | 'Staff'
+export const USER_FLOWS: UserFlow[] = ['Visitor', 'Applicant', 'Borrower', 'Co-Borrower', 'Guarantee', 'Staff']
 
 const STORAGE_KEY = 'weloan-user-flow'
 

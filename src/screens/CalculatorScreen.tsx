@@ -260,10 +260,10 @@ export default function CalculatorScreen() {
                     </Box>
                     <Typography sx={{ fontSize: 15, fontWeight: 700, color: BLUE }}>{gracePeriod} months</Typography>
                   </Box>
-                  <Slider value={gracePeriod} onChange={(_, v) => setGracePeriod(v as number)} min={1} max={Math.floor(term / 2)} step={1} aria-label="Grace period" sx={sliderSx} />
+                  <Slider value={gracePeriod} onChange={(_, v) => setGracePeriod(v as number)} min={1} max={12} step={1} aria-label="Grace period" sx={sliderSx} />
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.25 }}>
                     <Typography sx={{ fontSize: 11, color: MUTED }}>1 month</Typography>
-                    <Typography sx={{ fontSize: 11, color: MUTED }}>{Math.floor(term / 2)} months</Typography>
+                    <Typography sx={{ fontSize: 11, color: MUTED }}>12 months</Typography>
                   </Box>
                 </Box>
               )}

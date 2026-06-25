@@ -96,7 +96,7 @@ export default function OtpScreen() {
       </Box>
 
       <Box sx={{ flexShrink: 0, px: 3, pt: 2.5, pb: '44px', bgcolor: '#F5F5F5' }}>
-        <Button variant="contained" fullWidth onClick={() => navigate((flow === 'Staff' ? '/staff-signup-info' : '/create-pin') + nextSuffix)} sx={{ height: 56, borderRadius: '14px', fontSize: 16, fontWeight: 700 }}>
+        <Button variant="contained" fullWidth onClick={() => navigate((flow === 'Staff' ? '/staff-signup-info' : '/enter-name') + nextSuffix)} sx={{ height: 56, borderRadius: '14px', fontSize: 16, fontWeight: 700 }}>
           Confirm
         </Button>
       </Box>
