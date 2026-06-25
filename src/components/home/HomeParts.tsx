@@ -247,6 +247,24 @@ function DiscoverGrid() {
           </Box>
         </Box>
       ))}
+      {/* CBC — full-width row */}
+      <Box
+        role="button"
+        onClick={() => navigate('/cbc')}
+        sx={{ gridColumn: '1 / -1', position: 'relative', borderRadius: '14px', overflow: 'hidden', height: 80, bgcolor: '#0A2240', cursor: 'pointer', '&:active': { opacity: 0.85 } }}
+      >
+        <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 100%)' }} />
+        <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', px: '16px', gap: 1.5 }}>
+          <Icon name="gauge" size={26} color="rgba(255,255,255,0.9)" />
+          <Box>
+            <Typography sx={{ color: '#fff', fontSize: 14, fontWeight: 800, lineHeight: 1.2 }}>CBC</Typography>
+            <Typography sx={{ color: 'rgba(255,255,255,0.65)', fontSize: 11.5, fontWeight: 500, lineHeight: 1.3 }}>Credit Bureau of Cambodia</Typography>
+          </Box>
+          <Box sx={{ ml: 'auto' }}>
+            <Icon name="arrowRight" size={18} color="rgba(255,255,255,0.6)" />
+          </Box>
+        </Box>
+      </Box>
     </Box>
   )
 }

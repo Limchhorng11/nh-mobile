@@ -43,13 +43,12 @@ function CreditGaugeSvg({ size = 200 }: { size?: number }) {
   )
 }
 
-type Tab = 'active' | 'review' | 'complete' | 'guarantee'
+type Tab = 'active' | 'review' | 'complete'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'active', label: 'Active' },
   { id: 'review', label: 'Requests' },
   { id: 'complete', label: 'Paid off' },
-  { id: 'guarantee', label: 'Guarantee' },
 ]
 
 // My Loans — segmented control switches between Active / In Review / Complete.
@@ -61,7 +60,7 @@ export default function MyLoanScreen() {
   const isEmpty = flow === 'Visitor' || flow === 'Staff'
   const [params] = useSearchParams()
   const tabParam = params.get('tab')
-  const initialTab: Tab = tabParam === 'review' || tabParam === 'complete' ? tabParam : isApplicant ? 'review' : isGuarantee ? 'guarantee' : 'active'
+  const initialTab: Tab = tabParam === 'review' || tabParam === 'complete' ? tabParam : isApplicant ? 'review' : 'active'
   const [tab, setTab] = useState<Tab>(initialTab)
   const [payOpen, setPayOpen] = useState(false)
   const [creditOpen, setCreditOpen] = useState(false)
@@ -91,10 +90,9 @@ export default function MyLoanScreen() {
 
               <SegmentedTabs value={tab} onChange={setTab} />
 
-              {tab === 'active' && (isApplicant || isGuarantee ? <EmptyState label="No active loans yet" hint="Your loan appears here once your application is approved." /> : <ActiveTab onPay={() => setPayOpen(true)} />)}
+              {tab === 'active' && (isApplicant ? <EmptyState label="No active loans yet" hint="Your loan appears here once your application is approved." /> : isGuarantee ? <GuaranteeTab /> : <ActiveTab onPay={() => setPayOpen(true)} flow={flow} />)}
               {tab === 'review' && <ReviewTab />}
               {tab === 'complete' && (isApplicant || isGuarantee ? <EmptyState label="No completed loans" hint="Loans you've fully paid off will show up here." /> : <CompleteTab />)}
-              {tab === 'guarantee' && (isGuarantee || flow === 'Borrower' ? <GuaranteeTab /> : <EmptyState label="No guarantee loans" hint="Loans you are acting as guarantor on will appear here." />)}
             </>
           )}
         </Box>
@@ -180,11 +178,11 @@ function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => 
             key={t.id}
             onClick={() => onChange(t.id)}
             sx={{
-              flex: '0 0 auto',
-              px: '14px',
+              flex: 1,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              textAlign: 'center',
               whiteSpace: 'nowrap',
               borderRadius: 999,
               fontSize: 13,
@@ -205,15 +203,18 @@ function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => 
 }
 
 // ─── Active tab ──────────────────────────────────────────────────────────────
-function ActiveTab({ onPay }: { onPay: () => void }) {
+function ActiveTab({ onPay, flow }: { onPay: () => void; flow: string }) {
   return (
-    <Box>
-      <SectionLabel label="ACTIVE LOANS (3)" />
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <ActiveLoanCard title="Small Biz Loan" icon="store" restructured />
-        <ActiveLoanCard title="Housing Loan" icon="home" />
-        <ActiveLoanCard title="Micro Loan" icon="sprout" status="overdue" />
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Box>
+        <SectionLabel label="ACTIVE LOANS (3)" />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <ActiveLoanCard title="Small Biz Loan" icon="store" restructured />
+          <ActiveLoanCard title="Housing Loan" icon="home" />
+          <ActiveLoanCard title="Micro Loan" icon="sprout" status="overdue" />
+        </Box>
       </Box>
+      {flow === 'Borrower' && <GuaranteeTab />}
     </Box>
   )
 }
@@ -224,7 +225,7 @@ function GuaranteeTab() {
     <Box>
       <SectionLabel label="GUARANTEE LOANS (1)" />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <ActiveLoanCard title="Small Biz Loan" icon="store" statusLabel="On Track" guaranteeNav />
+        <ActiveLoanCard title="Small Biz Loan" icon="store" statusLabel="Guarantee" statusColor="#C2870F" statusBg="#FEF3C7" guaranteeNav />
       </Box>
     </Box>
   )
@@ -239,7 +240,7 @@ function StatBox({ label, value }: { label: string; value: string }) {
   )
 }
 
-function ActiveLoanCard({ title, icon, status, restructured, statusLabel, guaranteeNav }: { title: string; icon: 'store' | 'home' | 'sprout'; status?: 'restructure' | 'overdue'; restructured?: boolean; statusLabel?: string; guaranteeNav?: boolean }) {
+function ActiveLoanCard({ title, icon, status, restructured, statusLabel, statusColor, statusBg, guaranteeNav }: { title: string; icon: 'store' | 'home' | 'sprout'; status?: 'restructure' | 'overdue'; restructured?: boolean; statusLabel?: string; statusColor?: string; statusBg?: string; guaranteeNav?: boolean }) {
   const navigate = useNavigate()
   const suffix = guaranteeNav ? '&guarantee=true' : ''
   return (
@@ -253,14 +254,19 @@ function ActiveLoanCard({ title, icon, status, restructured, statusLabel, guaran
           </Box>
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#0B0F1A' }} noWrap>{title}</Typography>
-            {(restructured || status === 'overdue') && (
+            {(restructured || status === 'overdue' || guaranteeNav) && (
               <Box sx={{ mt: '4px', display: 'inline-flex', gap: 0.5 }}>
                 {restructured && <StatusChip label="1st Restructured" color="#7A4DD6" bg="#EFE7FB" />}
                 {status === 'overdue' && <StatusChip label="Overdue" color="#E8770B" bg="#FFF1E6" />}
+                {guaranteeNav && (
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: '4px', bgcolor: statusBg ?? '#FEF3C7', borderRadius: '6px', px: '8px', py: '3px' }}>
+                    <Icon name="person" size={11} color={statusColor ?? '#C2870F'} />
+                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: statusColor ?? '#C2870F' }}>{statusLabel ?? 'Guarantee'}</Typography>
+                  </Box>
+                )}
               </Box>
             )}
           </Box>
-          <StatusChip label={statusLabel ?? 'Active'} color="#1FA85C" bg="#DCF5E6" />
           <Icon name="chevronRight" size={18} color="#C9D2DE" />
         </Box>
 
@@ -312,8 +318,6 @@ const iconFor = (title: string): IconName => PRODUCT_ICON[title] ?? 'cash'
 
 // Past requests with terminal outcomes.
 const REQUEST_HISTORY: { title: string; sub: string; status: ReqStatus; tag?: string }[] = [
-  { title: 'Restructuring', sub: 'RST-2026-001234 · 12 May 2026', status: REQ_STATUS.restructured, tag: 'Restructure' },
-  { title: 'Early Payoff', sub: 'EPO-2026-009812 · 20 May 2026', status: REQ_STATUS.paidOff, tag: 'Pay Off' },
   { title: 'SME Loan', sub: 'SME-2026-309818 · 14 Apr 2026', status: REQ_STATUS.notEligible },
   { title: 'Micro Loan', sub: 'MCL-2026-204417 · 22 Apr 2026', status: REQ_STATUS.rejected },
   { title: 'Wash Loan', sub: 'WL-2026-118250 · 10 Mar 2026', status: REQ_STATUS.cancelled },
@@ -422,7 +426,7 @@ function CompletedCard({ title, amount, term, rate, lastPaid }: { title: string;
           <Icon name={icon} size={22} color={BLUE} />
         </Box>
         <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#0B0F1A', flex: 1, minWidth: 0 }} noWrap>{title}</Typography>
-        <StatusChip label="Paid Off" color="#1FA85C" bg="#DCF5E6" />
+        <Icon name="chevronRight" size={18} color="#C9D2DE" />
       </Box>
 
       {/* Progress — 100% complete */}

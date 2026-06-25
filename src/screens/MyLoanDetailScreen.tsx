@@ -29,6 +29,7 @@ export default function MyLoanDetailScreen() {
   const product = searchParams.get('product') ?? 'Small Business Loan'
   const { flow } = useFlow()
   const isCoBorrower = flow === 'Co-Borrower'
+  const isBorrower = flow === 'Borrower'
   const isGuaranteeView = flow === 'Guarantee' || searchParams.get('guarantee') === 'true'
 
   return (
@@ -47,13 +48,14 @@ export default function MyLoanDetailScreen() {
       </Box>
 
       <PayLoanSheet open={payOpen} onClose={() => setPayOpen(false)} overdue={overdue} />
-      <ProductFeaturesSheet open={infoOpen} onClose={() => setInfoOpen(false)} product={product} isCoBorrower={isCoBorrower} isGuarantee={!isCoBorrower && isGuaranteeView} />
+      <ProductFeaturesSheet open={infoOpen} onClose={() => setInfoOpen(false)} product={product} isCoBorrower={isCoBorrower} isBorrower={isBorrower} isGuarantee={!isCoBorrower && isGuaranteeView} />
     </Box>
   )
 }
 
 // ─── DETAILS tab ─────────────────────────────────────────────────────────────
 function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView }: { onPay: () => void; overdue: boolean; onInfo: () => void; isGuaranteeView?: boolean }) {
+  const [showAllRows, setShowAllRows] = useState(false)
   const navigate = useNavigate()
   const isGuarantee = !!isGuaranteeView
   return (
@@ -138,13 +140,33 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView }: { onPay: () => 
 
       {/* Actual payment table */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
-        <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.65px', textTransform: 'uppercase', pl: 0.5 }}>
-          Actual Payment
-        </Typography>
-        <PaymentTable />
-        <Typography sx={{ fontSize: 11, color: LABEL, textAlign: 'center', mt: 0.5 }}>
-          Showing 3 of 6 · <Box component="span" role="button" onClick={() => navigate(`/document-view?name=Actual%20Payment${isGuarantee ? '&guarantee=true' : ''}`)} sx={{ color: ACCENT, fontWeight: 700, cursor: 'pointer' }}>Download</Box> for full view
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pl: 0.5 }}>
+          <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.65px', textTransform: 'uppercase' }}>
+            Actual Payment
+          </Typography>
+          <Box
+            role="button"
+            onClick={() => navigate(`/document-view?name=Actual%20Payment${isGuarantee ? '&guarantee=true' : ''}`)}
+            sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:active': { opacity: 0.7 } }}
+          >
+            <Icon name="download" size={14} color={ACCENT} />
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: ACCENT }}>Download</Typography>
+          </Box>
+        </Box>
+        <PaymentTable showAll={showAllRows} />
+        <Box
+          role="button"
+          onClick={() => setShowAllRows(v => !v)}
+          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, pt: 1, cursor: 'pointer', '&:active': { opacity: 0.7 } }}
+        >
+          <Box component="svg" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" sx={{ width: 15, height: 15 }}>
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+            <circle cx="12" cy="12" r="3" />
+          </Box>
+          <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: ACCENT }}>
+            {showAllRows ? 'Show less' : 'View full schedule'}
+          </Typography>
+        </Box>
       </Box>
     </Box>
   )
@@ -203,16 +225,41 @@ type PayRow = {
   tone?: 'dim' | 'highlight' | 'normal'
 }
 const PAY_ROWS: PayRow[] = [
-  { no: '2', date: '5/06/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
-  { no: '3', date: '5/07/26', principal: '$39.93', other: '$5.53', total: '$44.99', badge: { text: 'ជិតដល់', tone: 'soon' }, tone: 'highlight' },
-  { no: '4', date: '5/08/26', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '1',  date: '5/01/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '2',  date: '5/02/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '3',  date: '5/03/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '4',  date: '5/04/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '5',  date: '5/05/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '6',  date: '5/06/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '7',  date: '5/07/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '8',  date: '5/08/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '9',  date: '5/09/26', principal: '$39.93', other: '$5.53', total: '$44.99', badge: { text: 'ជិតដល់', tone: 'soon' }, tone: 'highlight' },
+  { no: '10', date: '5/10/26', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '11', date: '5/11/26', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '12', date: '5/12/26', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '13', date: '5/01/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '14', date: '5/02/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '15', date: '5/03/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '16', date: '5/04/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '17', date: '5/05/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '18', date: '5/06/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '19', date: '5/07/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '20', date: '5/08/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '21', date: '5/09/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '22', date: '5/10/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '23', date: '5/11/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '24', date: '5/12/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
 ]
+const PAY_PREVIEW = 3
 const PAY_HEAD = ['រ.ល', 'កាលបរិច្ឆេទ', 'ប្រាក់ដើម', 'ផ្សេងៗ', 'ប្រាក់សរុប']
 // Fixed column widths — keep numeric columns tight so the last column has
 // room for the amount + status badge (otherwise the badge gets clipped).
 const PAY_W: string[] = ['9%', '21%', '19%', '15%', '36%']
 
-function PaymentTable() {
+function PaymentTable({ showAll = false }: { showAll?: boolean }) {
+  const highlightIdx = PAY_ROWS.findIndex(r => r.tone === 'highlight')
+  const previewStart = Math.max(0, highlightIdx - 1)
+  const rows = showAll ? PAY_ROWS : PAY_ROWS.slice(previewStart, previewStart + PAY_PREVIEW)
   return (
     <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', overflow: 'hidden' }}>
       <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
@@ -241,11 +288,11 @@ function PaymentTable() {
           </Box>
         </Box>
         <Box component="tbody">
-          {PAY_ROWS.map((row, ri) => {
+          {rows.map((row, ri) => {
             const bg = row.tone === 'highlight' ? '#EBF6EC' : '#fff'
             const dim = row.tone === 'dim'
             return (
-              <Box component="tr" key={ri} sx={{ bgcolor: bg, borderBottom: ri < PAY_ROWS.length - 1 ? '1px solid #F0F0F0' : 'none' }}>
+              <Box component="tr" key={ri} sx={{ bgcolor: bg, borderBottom: ri < rows.length - 1 ? '1px solid #F0F0F0' : 'none' }}>
                 <Box component="td" sx={{ textAlign: 'center', px: 0.5, py: '8px', fontSize: 12, fontWeight: 500, color: dim ? 'rgba(0,0,0,0.2)' : LABEL }}>
                   {row.no}
                 </Box>
@@ -392,32 +439,34 @@ const DOCS: { title: string; sub: string; size: string }[] = [
   { title: 'Guarantee Contract', sub: 'Guarantor agreement · Third party security', size: 'PDF · 76 KB' },
 ]
 
-function DocRow({ title, sub, size, last }: { title: string; sub: string; size: string; last?: boolean }) {
+function DocRow({ title, last }: { title: string; sub?: string; size?: string; last?: boolean }) {
   const navigate = useNavigate()
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: '14px', borderBottom: last ? 'none' : '1px solid #F0F0F0' }}>
-      {/* Document-page thumbnail (old preview style) */}
-      <Box sx={{ width: 40, height: 50, borderRadius: '6px', border: '1px solid #E2E6EC', bgcolor: '#fff', flexShrink: 0, p: '7px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Box key={i} sx={{ display: 'flex', gap: '3px' }}>
-            <Box sx={{ flex: 1, height: 3, bgcolor: '#E2E6EC', borderRadius: '1px' }} />
-            <Box sx={{ width: 8, height: 3, bgcolor: '#EDEFF2', borderRadius: '1px' }} />
-          </Box>
-        ))}
-      </Box>
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography sx={{ fontSize: 14, fontWeight: 700, color: VALUE }} noWrap>{title}</Typography>
-        <Typography sx={{ fontSize: 12, color: LABEL, lineHeight: 1.4 }}>{sub}</Typography>
-      </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5, flexShrink: 0 }}>
-        <Typography sx={{ fontSize: 11, color: LABEL }}>{size}</Typography>
-        <Box role="button" onClick={() => navigate('/document-view?name=' + encodeURIComponent(title))} sx={{ display: 'flex', alignItems: 'center', gap: 0.4, bgcolor: '#EEF3FC', borderRadius: '999px', px: 1, py: 0.4, cursor: 'pointer', '&:active': { opacity: 0.7 } }}>
-          <Box component="svg" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" sx={{ width: 13, height: 13 }}>
-            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-            <circle cx="12" cy="12" r="3" />
-          </Box>
-          <Typography sx={{ fontSize: 12, fontWeight: 700, color: ACCENT }}>View</Typography>
+    <Box
+      role="button"
+      onClick={() => navigate('/document-view?name=' + encodeURIComponent(title))}
+      sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: '13px', borderBottom: last ? 'none' : '1px solid #F0F0F0', cursor: 'pointer', '&:active': { opacity: 0.7 } }}
+    >
+      {/* Red PDF badge */}
+      <Box sx={{ width: 36, height: 36, borderRadius: '8px', bgcolor: '#FEECEC', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box component="svg" viewBox="0 0 24 24" fill="none" stroke="#E03232" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" sx={{ width: 18, height: 18 }}>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="8" y1="13" x2="16" y2="13" />
+          <line x1="8" y1="17" x2="12" y2="17" />
         </Box>
+      </Box>
+
+      {/* Title */}
+      <Typography sx={{ flex: 1, fontSize: 14.5, fontWeight: 700, color: VALUE, minWidth: 0 }} noWrap>{title}</Typography>
+
+      {/* Eye + View */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+        <Box component="svg" viewBox="0 0 24 24" fill="none" stroke={ACCENT} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" sx={{ width: 15, height: 15 }}>
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+          <circle cx="12" cy="12" r="3" />
+        </Box>
+        <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: ACCENT }}>View</Typography>
       </Box>
     </Box>
   )
@@ -436,7 +485,6 @@ const PRODUCT_FEATURES: Record<string, { title: string; tagline: string; feature
       { icon: 'gauge',       label: 'Interest Rate',   value: 'From 1.20% / month'   },
       { icon: 'checkCircle', label: 'Repayment',       value: 'Equal monthly payment'},
       { icon: 'layers',      label: 'Collateral',      value: 'Not required'         },
-      { icon: 'idCard',      label: 'Eligibility',     value: '18+ · Cambodian ID'   },
     ],
   },
   'Migration Worker Loan': {
@@ -488,7 +536,7 @@ const DEFAULT_FEATURES: (typeof PRODUCT_FEATURES)[string] = {
   ],
 }
 
-function ProductFeaturesSheet({ open, onClose, product, isCoBorrower, isGuarantee }: { open: boolean; onClose: () => void; product: string; isCoBorrower?: boolean; isGuarantee?: boolean }) {
+function ProductFeaturesSheet({ open, onClose, product, isCoBorrower, isBorrower, isGuarantee }: { open: boolean; onClose: () => void; product: string; isCoBorrower?: boolean; isBorrower?: boolean; isGuarantee?: boolean }) {
   const info = PRODUCT_FEATURES[product] ?? DEFAULT_FEATURES
   return (
     <>
@@ -559,14 +607,67 @@ function ProductFeaturesSheet({ open, onClose, product, isCoBorrower, isGuarante
           </Box>
         )}
 
+        {/* Borrower identity card */}
+        {isBorrower && (
+          <Box sx={{ mx: 3, mt: 2, bgcolor: '#F8FAFF', border: '1.5px solid #E0EAFF', borderRadius: '14px', p: '14px 16px', display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 28, height: 28, borderRadius: '8px', bgcolor: '#EEF3FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Icon name="idCard" size={15} color={ACCENT} />
+                </Box>
+                <Typography sx={{ fontSize: 13, fontWeight: 800, color: ACCENT, letterSpacing: '0.3px' }}>BORROWER</Typography>
+              </Box>
+              <Box sx={{ bgcolor: '#EEF3FC', borderRadius: '999px', px: '10px', py: '3px' }}>
+                <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: ACCENT }}>Primary liable</Typography>
+              </Box>
+            </Box>
+            <Box sx={{ height: '1px', bgcolor: '#E0EAFF' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+              <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: '#E8EAEE', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography sx={{ fontSize: 14, fontWeight: 800, color: ACCENT }}>KK</Typography>
+              </Box>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography sx={{ fontSize: 11, color: LABEL, lineHeight: 1.2 }}>Account holder</Typography>
+                <Typography sx={{ fontSize: 14, fontWeight: 700, color: HEADING, lineHeight: 1.3 }}>Krong Kampuchea</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                <Icon name="checkCircle" size={14} color="#16A34A" />
+                <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: '#16A34A' }}>Verified</Typography>
+              </Box>
+            </Box>
+          </Box>
+        )}
+
         {/* Feature rows — guarantee view shows loan-you-guarantee context */}
         {isGuarantee ? (
           <Box sx={{ px: 3, pt: 2, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
-            <Box sx={{ bgcolor: '#FFF8EC', border: '1.5px solid #F5D78E', borderRadius: '12px', p: '12px 14px', display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-              <Icon name="alert" size={14} color="#C2870F" />
-              <Typography sx={{ fontSize: 12.5, color: '#7A4F00', lineHeight: 1.5 }}>
-                This is a loan you are guaranteeing. You are jointly responsible if the primary borrower defaults.
-              </Typography>
+            {/* Guarantee identity card — mirrors Co-Borrower style */}
+            <Box sx={{ bgcolor: '#FFFBF2', border: '1.5px solid #F5D78E', borderRadius: '14px', p: '14px 16px', display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 28, height: 28, borderRadius: '8px', bgcolor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Icon name="alert" size={14} color="#C2870F" />
+                  </Box>
+                  <Typography sx={{ fontSize: 13, fontWeight: 800, color: '#92400E', letterSpacing: '0.3px' }}>GUARANTOR</Typography>
+                </Box>
+                <Box sx={{ bgcolor: '#FEF3C7', borderRadius: '999px', px: '10px', py: '3px' }}>
+                  <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: '#C2870F' }}>Jointly liable</Typography>
+                </Box>
+              </Box>
+              <Box sx={{ height: '1px', bgcolor: '#F5D78E' }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: '#FEF3C7', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 800, color: '#C2870F' }}>DK</Typography>
+                </Box>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{ fontSize: 11, color: LABEL, lineHeight: 1.2 }}>Primary borrower</Typography>
+                  <Typography sx={{ fontSize: 14, fontWeight: 700, color: HEADING, lineHeight: 1.3 }}>Dim Kim</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                  <Icon name="checkCircle" size={14} color="#16A34A" />
+                  <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: '#16A34A' }}>Verified</Typography>
+                </Box>
+              </Box>
             </Box>
             {[
               { icon: 'myLoan' as const,      label: 'Loan product',      value: info.title },

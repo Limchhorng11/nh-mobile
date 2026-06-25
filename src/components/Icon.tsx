@@ -70,6 +70,7 @@ import {
   Moon,
   Monitor,
   RefreshCw,
+  UserRound,
   type LucideProps,
 } from 'lucide-react'
 
@@ -118,6 +119,7 @@ export type IconName =
   | 'upload'
   | 'signature'
   | 'idCard'
+  | 'person'
   | 'qrCode'
   | 'products'
   | 'checkCircle'
@@ -226,6 +228,7 @@ const REGISTRY: Record<IconName, { sf: string; cmp: ComponentType<LucideProps> }
   upload:          { sf: 'square.and.arrow.up',    cmp: Upload },
   signature:       { sf: 'signature',              cmp: PenLine },
   idCard:          { sf: 'person.text.rectangle',  cmp: Contact },
+  person:          { sf: 'person.fill',             cmp: UserRound },
   qrCode:          { sf: 'qrcode',                  cmp: QrCode },
   checkCircle:     { sf: 'checkmark.circle',        cmp: CircleCheck },
   check:           { sf: 'checkmark',               cmp: Check },
