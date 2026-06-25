@@ -317,18 +317,18 @@ const PRODUCT_ICON: Record<string, IconName> = {
 const iconFor = (title: string): IconName => PRODUCT_ICON[title] ?? 'cash'
 
 // Past requests with terminal outcomes.
-const REQUEST_HISTORY: { title: string; sub: string; status: ReqStatus; tag?: string }[] = [
-  { title: 'SME Loan', sub: 'SME-2026-309818 · 14 Apr 2026', status: REQ_STATUS.notEligible },
-  { title: 'Micro Loan', sub: 'MCL-2026-204417 · 22 Apr 2026', status: REQ_STATUS.rejected },
-  { title: 'Wash Loan', sub: 'WL-2026-118250 · 10 Mar 2026', status: REQ_STATUS.cancelled },
-  { title: 'Small Biz Loan', sub: 'SBL-2025-201311 · 12 Jan 2025', status: REQ_STATUS.disbursed },
+const REQUEST_HISTORY: { title: string; sub: string; status: ReqStatus; statusKey: string; tag?: string; disabled?: boolean }[] = [
+  { title: 'SME Loan',       sub: 'SME-2026-309818 · 14 Apr 2026', status: REQ_STATUS.notEligible, statusKey: 'notEligible' },
+  { title: 'Micro Loan',     sub: 'MCL-2026-204417 · 22 Apr 2026', status: REQ_STATUS.rejected,    statusKey: 'rejected'    },
+  { title: 'Wash Loan',      sub: 'WL-2026-118250 · 10 Mar 2026',  status: REQ_STATUS.cancelled,   statusKey: 'cancelled'   },
+  { title: 'Small Biz Loan', sub: 'SBL-2025-201311 · 12 Jan 2025', status: REQ_STATUS.disbursed,   statusKey: 'disbursed',  disabled: true },
 ]
 
 // A request row — same visual language as the active loan card (icon + title +
 // subtitle + status chip), compact for a list.
-function RequestRow({ icon, title, sub, status, amount, onClick, showSub, tag }: { icon: IconName; title: string; sub: string; status: ReqStatus; amount?: string; onClick?: () => void; showSub?: boolean; tag?: string }) {
+function RequestRow({ icon, title, sub, status, amount, onClick, showSub, tag, disabled }: { icon: IconName; title: string; sub: string; status: ReqStatus; amount?: string; onClick?: () => void; showSub?: boolean; tag?: string; disabled?: boolean }) {
   return (
-    <Card onClick={onClick} sx={{ cursor: onClick ? 'pointer' : 'default', p: '14px 16px' }}>
+    <Card onClick={disabled ? undefined : onClick} sx={{ cursor: disabled ? 'default' : onClick ? 'pointer' : 'default', p: '14px 16px', opacity: disabled ? 0.45 : 1 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
         <Box sx={{ width: 42, height: 42, borderRadius: '12px', bgcolor: '#EEF1FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <Icon name={icon} size={21} color={BLUE} />
@@ -338,10 +338,11 @@ function RequestRow({ icon, title, sub, status, amount, onClick, showSub, tag }:
             <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A' }} noWrap>{title}</Typography>
             {tag && <Box sx={{ bgcolor: '#F0F2F5', borderRadius: '6px', px: '7px', py: '2px', flexShrink: 0 }}><Typography sx={{ fontSize: 10.5, fontWeight: 700, color: '#6B7280', letterSpacing: '0.2px' }}>{tag}</Typography></Box>}
           </Box>
-          {showSub && <Typography sx={{ fontSize: 12, color: '#8A94A6', mt: '2px' }} noWrap>{sub.split(' · ')[0]}</Typography>}
+          <Box sx={{ mt: '4px' }}>
+            <StatusChip label={status.label} color={status.color} bg={status.bg} />
+          </Box>
         </Box>
-        <StatusChip label={status.label} color={status.color} bg={status.bg} />
-        {onClick && <Icon name="chevronRight" size={18} color="#C9D2DE" />}
+        {!disabled && <Icon name="chevronRight" size={18} color="#C9D2DE" />}
       </Box>
       {amount && (
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1.5, pt: 1.5, borderTop: '1px solid #F0F2F5' }}>
@@ -364,6 +365,8 @@ function ReviewTab() {
   const { flow } = useFlow()
   const isApplicant = flow === 'Applicant'
   const isBorrower = flow === 'Borrower'
+  const [showAllHistory, setShowAllHistory] = useState(false)
+  const HISTORY_PREVIEW = 3
 
   if (!isApplicant && !isBorrower) {
     return <EmptyState label="No loan requests" hint="Loan applications you submit will appear here." />
@@ -400,10 +403,25 @@ function ReviewTab() {
       <Box>
         <SectionHeader muted>History ({REQUEST_HISTORY.length})</SectionHeader>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {REQUEST_HISTORY.map((r, i) => (
-            <RequestRow key={i} icon={iconFor(r.title)} title={r.title} sub={r.sub} status={r.status} tag={r.tag} showSub />
+          {(showAllHistory ? REQUEST_HISTORY : REQUEST_HISTORY.slice(0, HISTORY_PREVIEW)).map((r, i) => (
+            <RequestRow key={i} icon={iconFor(r.title)} title={r.title} sub={r.sub} status={r.status} tag={r.tag} showSub disabled={!!r.disabled} onClick={r.disabled ? undefined : () => navigate(`/my-loan-review?status=${r.statusKey}&title=${encodeURIComponent(r.title)}&ref=${encodeURIComponent(r.sub)}`)} />
           ))}
         </Box>
+        {REQUEST_HISTORY.length > HISTORY_PREVIEW && (
+          <Box
+            role="button"
+            onClick={() => setShowAllHistory(v => !v)}
+            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75, mt: 1.25, cursor: 'pointer', py: '6px' }}
+          >
+            <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#275CB2' }}>
+              {showAllHistory ? 'Show less' : `See more (${REQUEST_HISTORY.length - HISTORY_PREVIEW} more)`}
+            </Typography>
+            <Icon name={showAllHistory ? 'chevronUp' : 'chevronDown'} size={16} color="#275CB2" />
+          </Box>
+        )}
+        <Typography sx={{ fontSize: 11.5, color: '#8A94A6', textAlign: 'center', mt: 0.5, lineHeight: 1.5 }}>
+          History keeps 36 months · Older records: ask your branch
+        </Typography>
       </Box>
     </Box>
   )
