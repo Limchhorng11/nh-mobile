@@ -56,11 +56,12 @@ export default function MyLoanScreen() {
   const { flow } = useFlow()
   const isApplicant = flow === 'Applicant'
   const isGuarantee = flow === 'Guarantee'
-  // Visitors and Staff have no loans — fully empty state.
-  const isEmpty = flow === 'Visitor' || flow === 'Staff'
+  // Visitors always empty; Staff empty only until they submit an application.
+  const isEmpty = flow === 'Visitor' || (flow === 'Staff' && getApplications().length === 0)
   const [params] = useSearchParams()
   const tabParam = params.get('tab')
-  const initialTab: Tab = tabParam === 'review' || tabParam === 'complete' ? tabParam : isApplicant ? 'review' : 'active'
+  const isStaff = flow === 'Staff'
+  const initialTab: Tab = tabParam === 'review' || tabParam === 'complete' ? tabParam : (isApplicant || isStaff) ? 'review' : 'active'
   const [tab, setTab] = useState<Tab>(initialTab)
   const [payOpen, setPayOpen] = useState(false)
   const [creditOpen, setCreditOpen] = useState(false)
