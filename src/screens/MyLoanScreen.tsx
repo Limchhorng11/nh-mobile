@@ -368,19 +368,28 @@ function ReviewTab() {
   const [showAllHistory, setShowAllHistory] = useState(false)
   const HISTORY_PREVIEW = 3
 
-  if (!isApplicant && !isBorrower) {
-    return <EmptyState label="No loan requests" hint="Loan applications you submit will appear here." />
-  }
-
   const trackChip = STAGE_CHIP[activeStage().key]
   const apps = getApplications()
-  const sampleApp = apps.length > 0 ? apps[0] : { title: 'Small Biz Loan', ref: 'MWL-2026-001234', on: '10 Jun 2026', amount: '$5,000.00', track: true }
 
-  const borrowerCurrent = [
+  // Cards for newly submitted applications (any flow)
+  const submittedCards = apps.map((a) => ({
+    icon: iconFor(a.title),
+    title: a.title,
+    sub: `${a.ref} · ${a.on}`,
+    amount: a.amount,
+    status: a.track ? trackChip : REQ_STATUS.assessment,
+    onClick: () => a.track ? navigate('/mwl-tracker') : navigate(`/my-loan-review?${reviewQuery(a)}`),
+  }))
+
+  // Borrower always shows hardcoded in-progress requests + any submitted apps
+  const borrowerFixed = [
     { icon: 'layers' as IconName, title: 'Restructuring', sub: 'Small Biz Loan', amount: '$8,000.00', status: REQ_STATUS.assessment, onClick: () => navigate('/my-loan-review?type=restructure') },
     { icon: 'cash' as IconName, title: 'Pay off', sub: 'Small Biz Loan', amount: '$3,200.00', status: REQ_STATUS.assessment, onClick: () => navigate('/my-loan-review?type=payoff') },
   ]
-  const applicantCurrent = [{
+
+  // Applicant with no submitted apps falls back to the MWL sample card
+  const sampleApp = { title: 'Small Biz Loan', ref: 'MWL-2026-001234', on: '10 Jun 2026', amount: '$5,000.00', track: true }
+  const applicantFallback = [{
     icon: iconFor(sampleApp.title),
     title: sampleApp.title,
     sub: `${sampleApp.ref} · ${sampleApp.on}`,
@@ -388,7 +397,16 @@ function ReviewTab() {
     status: trackChip,
     onClick: () => navigate('/mwl-tracker'),
   }]
-  const current = isApplicant ? applicantCurrent : borrowerCurrent
+
+  const current = isBorrower
+    ? [...submittedCards, ...borrowerFixed]
+    : isApplicant
+      ? (submittedCards.length > 0 ? submittedCards : applicantFallback)
+      : submittedCards
+
+  if (current.length === 0) {
+    return <EmptyState label="No loan requests" hint="Loan applications you submit will appear here." />
+  }
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
