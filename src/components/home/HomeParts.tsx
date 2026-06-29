@@ -18,6 +18,8 @@ import { AssetImg, BANNERS, ILLUS, DISCOVER } from './media'
 import { Icon, type IconName } from '../Icon'
 import { ProductScene, AvatarArt, PromoScene } from './illustrations'
 import { useFlow } from '../../workspace/FlowContext'
+import { usePinGate } from '../../workspace/PinGateContext'
+import PinGateScreen from '../../screens/PinGateScreen'
 import { SettingsSections } from '../../screens/SettingsScreen'
 import CallSheet from '../CallSheet'
 
@@ -326,8 +328,20 @@ export function MoreMenuBody({
 }) {
   const navigate = useNavigate()
   const { flow } = useFlow()
+  const { unlocked, unlock } = usePinGate()
   const isVisitor = flow === 'Visitor'
   const [callOpen, setCallOpen] = useState(false)
+  const [pinPending, setPinPending] = useState<string | null>(null)
+
+  if (pinPending && !unlocked) {
+    return <PinGateScreen onSuccess={() => { unlock(); navigate(pinPending); setPinPending(null) }} />
+  }
+
+  const requirePin = (path: string) => {
+    if (isVisitor) { navigate('/sign-up?next=' + encodeURIComponent(path)); return }
+    if (unlocked) { navigate(path) } else { setPinPending(path) }
+  }
+
   return (
     <Box className="scroll-content" sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: '#F5F5F5' }}>
       {greeting ? (
@@ -402,8 +416,7 @@ export function MoreMenuBody({
           </Box>
         )}
 
-        {/* My Officer */}
-        {(flow === 'Applicant' || flow === 'Borrower') && <MyLoanOfficerCard />}
+
 
         {/* Discover */}
         <Box>
@@ -417,8 +430,8 @@ export function MoreMenuBody({
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
             {[
               { icon: 'phone' as IconName, label: 'Contact Us', sub: 'Hotline & email', onClick: () => navigate('/contact-us') },
-              { icon: 'feedback' as IconName, label: 'Complaint', sub: 'We reply in 2 days', onClick: () => navigate(flow === 'Visitor' ? '/sign-up?next=' + encodeURIComponent('/send-feedback') : '/send-feedback') },
-              { icon: 'message' as IconName, label: 'Request Consultation', sub: 'Talk to an officer', onClick: () => navigate(flow === 'Visitor' ? '/sign-up?next=' + encodeURIComponent('/request-consult') : '/request-consult') },
+              { icon: 'feedback' as IconName, label: 'Complaint', sub: 'We reply in 2 days', onClick: () => requirePin('/send-feedback') },
+              { icon: 'message' as IconName, label: 'Request Consultation', sub: 'Talk to an officer', onClick: () => requirePin('/request-consult') },
             ].map((item) => (
               <Box
                 key={item.label}

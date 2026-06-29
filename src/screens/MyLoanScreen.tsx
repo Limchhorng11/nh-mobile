@@ -46,13 +46,14 @@ function CreditGaugeSvg({ size = 200 }: { size?: number }) {
 type Tab = 'active' | 'review' | 'complete'
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: 'active', label: 'Active' },
   { id: 'review', label: 'Requests' },
+  { id: 'active', label: 'Active' },
   { id: 'complete', label: 'Paid off' },
 ]
 
 // My Loans — segmented control switches between Active / In Review / Complete.
 export default function MyLoanScreen() {
+  const navigate = useNavigate()
   const { flow } = useFlow()
   const isApplicant = flow === 'Applicant'
   const isGuarantee = flow === 'Guarantee'
@@ -65,10 +66,14 @@ export default function MyLoanScreen() {
   const [tab, setTab] = useState<Tab>(initialTab)
   const [payOpen, setPayOpen] = useState(false)
   const [creditOpen, setCreditOpen] = useState(false)
+  const isBorrower = flow === 'Borrower'
+  const apps = getApplications()
+  const reviewHasCards = isBorrower || (isApplicant ? true : apps.length > 0)
+  const tabHasCards = tab === 'active' ? !isApplicant : tab === 'complete' ? !isApplicant : tab === 'review' ? reviewHasCards : true
 
   return (
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: isEmpty ? '#fff' : '#F5F5F5' }}>
-      <Box className="scroll-content" sx={{ flex: 1 }}>
+      <Box className="scroll-content" sx={{ flex: 1, overflow: 'auto' }}>
         {/* Header */}
         <HomeTopBar />
         <Box sx={{ px: 3, pt: 0.5, pb: 1 }}>
@@ -80,20 +85,81 @@ export default function MyLoanScreen() {
           {isEmpty ? (
             <EmptyState
               label="No loans yet"
-              hint="Apply for a loan from the Products tab and it will appear here."
-              showApplyButtons
+              hint="You don't have any loans yet. Explore our products and apply in minutes."
             />
+          ) : isGuarantee ? (
+            <GuarantorView />
           ) : (
             <>
-              {!isApplicant && !isGuarantee && <SummaryCard loanCount={3} onPay={() => setPayOpen(true)} />}
+              {!isApplicant && <SummaryCard loanCount={3} onPay={() => setPayOpen(true)} />}
 
-              {!isApplicant && !isGuarantee && <AdvanceCard />}
+              {!isApplicant && <AdvanceCard />}
 
               <SegmentedTabs value={tab} onChange={setTab} />
 
-              {tab === 'active' && (isApplicant ? <EmptyState label="No active loans yet" hint="Your loan appears here once your application is approved." /> : isGuarantee ? <GuaranteeTab /> : <ActiveTab onPay={() => setPayOpen(true)} flow={flow} />)}
-              {tab === 'review' && <ReviewTab />}
-              {tab === 'complete' && (isApplicant || isGuarantee ? <EmptyState label="No completed loans" hint="Loans you've fully paid off will show up here." /> : <CompleteTab />)}
+              {tab === 'active' && (isApplicant ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+                  <Box sx={{ mb: -4, width: '100%' }}><EmptyState label="No active loans yet" /></Box>
+                  <Typography sx={{ fontSize: 13, color: '#8A94A6', textAlign: 'center', mt: -1 }}>
+                    Apply for a loan from the Products tab<br />and it will appear here.
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    onClick={() => navigate('/products')}
+                    sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
+                  >
+                    Visit &amp; Apply Loans
+                  </Button>
+                </Box>
+              ) : <ActiveTab onPay={() => setPayOpen(true)} flow={flow} />)}
+              {tab === 'review' && (reviewHasCards ? <ReviewTab /> : (
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+                  <Box sx={{ mb: -4, width: '100%' }}><EmptyState label="No loan requests" /></Box>
+                  <Typography sx={{ fontSize: 13, color: '#8A94A6', textAlign: 'center', mt: -1 }}>
+                    Apply for a loan from the Products tab<br />and it will appear here.
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    onClick={() => navigate('/products')}
+                    sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
+                  >
+                    Visit &amp; Apply Loans
+                  </Button>
+                </Box>
+              ))}
+              {tab === 'complete' && (isApplicant ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+                  <Box sx={{ mb: -4, width: '100%' }}><EmptyState label="No completed loans" /></Box>
+                  <Typography sx={{ fontSize: 13, color: '#8A94A6', textAlign: 'center', mt: -1 }}>
+                    Apply for a loan from the Products tab<br />and it will appear here.
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    onClick={() => navigate('/products')}
+                    sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
+                  >
+                    Visit &amp; Apply Loans
+                  </Button>
+                </Box>
+              ) : <CompleteTab />)}
+              {tabHasCards && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  <Typography sx={{ fontSize: 13, color: '#8A94A6', textAlign: 'center' }}>
+                    Apply for a loan from the Products tab<br />and it will appear here.
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    onClick={() => navigate('/products')}
+                    sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
+                  >
+                    Visit &amp; Apply Loans
+                  </Button>
+                </Box>
+              )}
             </>
           )}
         </Box>
@@ -208,25 +274,85 @@ function ActiveTab({ onPay, flow }: { onPay: () => void; flow: string }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Box>
-        <SectionLabel label="ACTIVE LOANS (3)" />
+        <SectionLabel label="ACTIVE LOANS (4)" />
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <ActiveLoanCard title="Small Biz Loan" icon="store" restructured />
-          <ActiveLoanCard title="Housing Loan" icon="home" />
+          <ActiveLoanCard title="Housing Loan" icon="home" coBorrower />
           <ActiveLoanCard title="Micro Loan" icon="sprout" status="overdue" />
+          <ActiveLoanCard title="Staff Loan" icon="idCard" salaryDeduction staffLoan />
         </Box>
       </Box>
-      {flow === 'Borrower' && <GuaranteeTab />}
+      {flow === 'Co-Borrower' && <GuaranteeTab />}
+    </Box>
+  )
+}
+
+// ─── Guarantor full view (replaces tabs for Guarantee flow) ─────────────────
+function GuarantorDonut({ pct = 0.55, size = 72 }: { pct?: number; size?: number }) {
+  const cx = size / 2, cy = size / 2, r = size * 0.42
+  const sw = size * 0.13
+  const startAngle = -Math.PI / 2
+  const endAngle = startAngle + pct * 2 * Math.PI
+  const x1 = cx + r * Math.cos(startAngle), y1 = cy + r * Math.sin(startAngle)
+  const x2 = cx + r * Math.cos(endAngle), y2 = cy + r * Math.sin(endAngle)
+  const large = pct > 0.5 ? 1 : 0
+  return (
+    <Box component="svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`} sx={{ display: 'block', flexShrink: 0 }}>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#EDEFF3" strokeWidth={sw} />
+      <path d={`M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`} fill="none" stroke="#2E9E5B" strokeWidth={sw} strokeLinecap="round" />
+      <text x={cx} y={cy - 4} textAnchor="middle" fontSize={size * 0.18} fontWeight="800" fill={HEADING}>{Math.round(pct * 100)}%</text>
+      <text x={cx} y={cy + size * 0.17} textAnchor="middle" fontSize={size * 0.13} fill={MUTED}>repaid</text>
+    </Box>
+  )
+}
+
+function GuarantorView() {
+  const navigate = useNavigate()
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      {/* Total Outstanding card */}
+      <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', overflow: 'hidden' }}>
+        {/* Top row: donut + amounts */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: '16px 18px' }}>
+          <GuarantorDonut pct={0.55} size={78} />
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography sx={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.6px', color: MUTED, mb: 0.5 }}>TOTAL OUTSTANDING GUARANTEE</Typography>
+            <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.15 }}>$4,780.00</Typography>
+            <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.15 }}>៛19,598,000</Typography>
+          </Box>
+        </Box>
+
+        {/* Repaid / Left legend row */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, borderTop: '1px solid #F0F2F5', px: '18px', py: '12px' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+            <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#2E9E5B', flexShrink: 0 }} />
+            <Typography sx={{ fontSize: 12.5, color: MUTED }}>Repaid <Box component="span" sx={{ fontWeight: 700, color: HEADING }}>≈ $26,070</Box></Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+            <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#EDEFF3', border: '1.5px solid #C9D2DE', flexShrink: 0 }} />
+            <Typography sx={{ fontSize: 12.5, color: MUTED }}>Left <Box component="span" sx={{ fontWeight: 700, color: HEADING }}>≈ $81,970</Box></Typography>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Guaranteed loans list */}
+      <GuaranteeTab count={3} />
     </Box>
   )
 }
 
 // ─── Guarantee tab ───────────────────────────────────────────────────────────
-function GuaranteeTab() {
+function GuaranteeTab({ count = 1 }: { count?: number }) {
+  const cards = [
+    <ActiveLoanCard key="mwl" title="Migrant Worker Loan" icon="plane" statusLabel="Guarantee" statusColor="#C2870F" statusBg="#FEF3C7" guaranteeNav payAmount="$360.00" />,
+    <ActiveLoanCard key="hl"  title="Housing Loan"        icon="home"  statusLabel="Guarantee" statusColor="#C2870F" statusBg="#FEF3C7" guaranteeNav payAmount="$520.00" />,
+    <ActiveLoanCard key="ml"  title="Micro Loan"          icon="sprout" statusLabel="Guarantee" statusColor="#C2870F" statusBg="#FEF3C7" guaranteeNav payAmount="$180.00" />,
+  ].slice(0, count)
   return (
     <Box>
-      <SectionLabel label="GUARANTEE LOANS (1)" />
+      <SectionLabel label={`GUARANTEE LOANS (${count})`} />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <ActiveLoanCard title="Small Biz Loan" icon="store" statusLabel="Guarantee" statusColor="#C2870F" statusBg="#FEF3C7" guaranteeNav />
+        {cards}
       </Box>
     </Box>
   )
@@ -241,11 +367,18 @@ function StatBox({ label, value }: { label: string; value: string }) {
   )
 }
 
-function ActiveLoanCard({ title, icon, status, restructured, statusLabel, statusColor, statusBg, guaranteeNav }: { title: string; icon: 'store' | 'home' | 'sprout'; status?: 'restructure' | 'overdue'; restructured?: boolean; statusLabel?: string; statusColor?: string; statusBg?: string; guaranteeNav?: boolean }) {
+function ActiveLoanCard({ title, icon, status, restructured, coBorrower, salaryDeduction, staffLoan, statusLabel, statusColor, statusBg, guaranteeNav, payAmount }: { title: string; icon: 'store' | 'home' | 'sprout' | 'idCard' | 'plane'; status?: 'restructure' | 'overdue'; restructured?: boolean; coBorrower?: boolean; salaryDeduction?: boolean; staffLoan?: boolean; statusLabel?: string; statusColor?: string; statusBg?: string; guaranteeNav?: boolean; payAmount?: string }) {
   const navigate = useNavigate()
-  const suffix = guaranteeNav ? '&guarantee=true' : ''
+  const encodedTitle = encodeURIComponent(title)
+  const destination = staffLoan
+    ? '/my-loan-detail?product=Staff+Loan'
+    : status === 'overdue'
+      ? `/my-loan-detail?overdue=true&product=${encodedTitle}`
+      : guaranteeNav
+        ? `/my-loan-detail?guarantee=true&product=${encodedTitle}`
+        : `/my-loan-detail?product=${encodedTitle}`
   return (
-    <Card onClick={() => navigate(status === 'overdue' ? `/my-loan-detail?overdue=true${suffix}` : `/my-loan-detail${guaranteeNav ? '?guarantee=true' : ''}`)} sx={{ cursor: 'pointer', p: '16px' }}>
+    <Card onClick={() => navigate(destination)} sx={{ cursor: 'pointer', p: '16px' }}>
       {/* Main content */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
         {/* Header: icon + title/subtitle + status chips + chevron */}
@@ -255,13 +388,22 @@ function ActiveLoanCard({ title, icon, status, restructured, statusLabel, status
           </Box>
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#0B0F1A' }} noWrap>{title}</Typography>
-            {(restructured || status === 'overdue' || guaranteeNav) && (
+            {(restructured || status === 'overdue' || guaranteeNav || coBorrower || salaryDeduction) && (
               <Box sx={{ mt: '4px', display: 'inline-flex', gap: 0.5 }}>
                 {restructured && <StatusChip label="1st Restructured" color="#7A4DD6" bg="#EFE7FB" />}
                 {status === 'overdue' && <StatusChip label="Overdue" color="#E8770B" bg="#FFF1E6" />}
+                {salaryDeduction && (
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', bgcolor: '#E6F4EA', borderRadius: '6px', px: '8px', py: '3px' }}>
+                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#15803D' }}>Salary deduction</Typography>
+                  </Box>
+                )}
+                {coBorrower && (
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', bgcolor: '#E8F0FE', borderRadius: '6px', px: '8px', py: '3px' }}>
+                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: BLUE }}>Co-Borrower</Typography>
+                  </Box>
+                )}
                 {guaranteeNav && (
-                  <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: '4px', bgcolor: statusBg ?? '#FEF3C7', borderRadius: '6px', px: '8px', py: '3px' }}>
-                    <Icon name="person" size={11} color={statusColor ?? '#C2870F'} />
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', bgcolor: statusBg ?? '#FEF3C7', borderRadius: '6px', px: '8px', py: '3px' }}>
                     <Typography sx={{ fontSize: 11, fontWeight: 700, color: statusColor ?? '#C2870F' }}>{statusLabel ?? 'Guarantee'}</Typography>
                   </Box>
                 )}
@@ -287,6 +429,17 @@ function ActiveLoanCard({ title, icon, status, restructured, statusLabel, status
           <Typography sx={{ fontSize: 12.5, color: '#8A94A6' }}>Next due · 20 May</Typography>
           <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A' }}>$4,500.00 left</Typography>
         </Box>
+
+        {/* Pay button — Guarantee cards only */}
+        {guaranteeNav && (
+          <Box
+            component="button"
+            onClick={(e: React.MouseEvent) => { e.stopPropagation(); navigate(destination) }}
+            sx={{ mt: 1.5, width: '100%', height: 42, borderRadius: '10px', bgcolor: BLUE, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', '&:active': { opacity: 0.85 } }}
+          >
+            <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Pay {payAmount ?? '$360.00'}</Typography>
+          </Box>
+        )}
       </Box>
     </Card>
   )
@@ -406,7 +559,7 @@ function ReviewTab() {
       : submittedCards
 
   if (current.length === 0) {
-    return <EmptyState label="No loan requests" hint="Loan applications you submit will appear here." />
+    return <EmptyState label="No loan requests" />
   }
 
   return (
@@ -422,22 +575,10 @@ function ReviewTab() {
       <Box>
         <SectionHeader muted>History ({REQUEST_HISTORY.length})</SectionHeader>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {(showAllHistory ? REQUEST_HISTORY : REQUEST_HISTORY.slice(0, HISTORY_PREVIEW)).map((r, i) => (
+          {REQUEST_HISTORY.map((r, i) => (
             <RequestRow key={i} icon={iconFor(r.title)} title={r.title} sub={r.sub} status={r.status} tag={r.tag} showSub disabled={!!r.disabled} onClick={r.disabled ? undefined : () => navigate(`/my-loan-review?status=${r.statusKey}&title=${encodeURIComponent(r.title)}&ref=${encodeURIComponent(r.sub)}`)} />
           ))}
         </Box>
-        {REQUEST_HISTORY.length > HISTORY_PREVIEW && (
-          <Box
-            role="button"
-            onClick={() => setShowAllHistory(v => !v)}
-            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75, mt: 1.25, cursor: 'pointer', py: '6px' }}
-          >
-            <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#275CB2' }}>
-              {showAllHistory ? 'Show less' : `See more (${REQUEST_HISTORY.length - HISTORY_PREVIEW} more)`}
-            </Typography>
-            <Icon name={showAllHistory ? 'chevronUp' : 'chevronDown'} size={16} color="#275CB2" />
-          </Box>
-        )}
         <Typography sx={{ fontSize: 11.5, color: '#8A94A6', textAlign: 'center', mt: 0.5, lineHeight: 1.5 }}>
           History keeps 36 months · Older records: ask your branch
         </Typography>

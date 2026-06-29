@@ -309,7 +309,7 @@ export default function CalculatorScreen() {
         <Button
           variant="contained"
           fullWidth
-          onClick={() => navigate(flow === 'Visitor' ? '/sign-up?next=' + encodeURIComponent('/mwl-about') : '/mwl-about')}
+          onClick={() => navigate('/all-loan')}
           sx={{ minHeight: 48, borderRadius: '8px', fontSize: 16, fontWeight: 600, bgcolor: '#275CB2', '&:hover': { bgcolor: '#1f4f9e' } }}
         >
           Apply this loan

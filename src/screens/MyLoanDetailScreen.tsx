@@ -42,19 +42,19 @@ export default function MyLoanDetailScreen() {
 
 
         <Box sx={{ px: 3, pt: 2.5, pb: 6, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          <DetailsTab onPay={() => setPayOpen(true)} overdue={overdue} onInfo={() => setInfoOpen(true)} isGuaranteeView={isGuaranteeView} />
-          <OthersTab isGuaranteeView={isGuaranteeView} />
+          <DetailsTab onPay={() => setPayOpen(true)} overdue={overdue} onInfo={() => setInfoOpen(true)} isGuaranteeView={isGuaranteeView} isCoBorrower={isCoBorrower} />
+          <OthersTab isGuaranteeView={isGuaranteeView} product={product} />
         </Box>
       </Box>
 
       <PayLoanSheet open={payOpen} onClose={() => setPayOpen(false)} overdue={overdue} />
-      <ProductFeaturesSheet open={infoOpen} onClose={() => setInfoOpen(false)} product={product} isCoBorrower={isCoBorrower} isBorrower={isBorrower} isGuarantee={!isCoBorrower && isGuaranteeView} />
+      <ProductFeaturesSheet open={infoOpen} onClose={() => setInfoOpen(false)} product={product} isCoBorrower={isCoBorrower} isBorrower={isBorrower} isGuarantee={!isCoBorrower && isGuaranteeView} loanAmount="$8,640" />
     </Box>
   )
 }
 
 // ─── DETAILS tab ─────────────────────────────────────────────────────────────
-function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView }: { onPay: () => void; overdue: boolean; onInfo: () => void; isGuaranteeView?: boolean }) {
+function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower }: { onPay: () => void; overdue: boolean; onInfo: () => void; isGuaranteeView?: boolean; isCoBorrower?: boolean }) {
   const [showAllRows, setShowAllRows] = useState(false)
   const navigate = useNavigate()
   const isGuarantee = !!isGuaranteeView
@@ -81,8 +81,9 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView }: { onPay: () => 
         </Box>
       </Box>
 
-      {/* Overview card — donut + legend + progress + meta */}
-      <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {/* Overview card — donut + legend + progress + next payment */}
+      <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {/* Donut + legend */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Donut />
           <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -98,45 +99,42 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView }: { onPay: () => 
             <Typography sx={{ fontSize: 12.5, fontWeight: 500, color: LABEL }}>8 of 24 paid</Typography>
             <Typography sx={{ fontSize: 12.5, fontWeight: 600, color: '#000' }}>33% completed</Typography>
           </Box>
-          <Box sx={{ height: 6, borderRadius: '999px', bgcolor: '#fff', overflow: 'hidden' }}>
+          <Box sx={{ height: 6, borderRadius: '999px', bgcolor: '#F0F2F5', overflow: 'hidden' }}>
             <Box sx={{ height: '100%', width: '33%', bgcolor: OUTSTANDING, borderRadius: '999px' }} />
           </Box>
         </Box>
 
-        {/* Meta row */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #F0F0F0', pt: 1.5 }}>
-          <MetaCol label="Next Due" value="12 Feb 2026" />
+        {/* Next payment due — inside overview card */}
+        <Box sx={{ borderTop: '1px solid #F0F0F0', pt: 2, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Icon name="clock" size={14} color={LABEL} />
+              <Typography sx={{ fontSize: 12, fontWeight: 700, color: LABEL, letterSpacing: '0.2px' }}>Next payment due</Typography>
+            </Box>
+            {overdue && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4, bgcolor: '#FEF3E2', borderRadius: '6px', px: '8px', py: '3px' }}>
+                <Icon name="alert" size={11} color="#C2870F" />
+                <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#C2870F' }}>+$5.00 Penalty</Typography>
+              </Box>
+            )}
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box>
+              <Typography sx={{ fontSize: 30, fontWeight: 800, color: VALUE, letterSpacing: '-1px', lineHeight: 1.1 }}>$320.00</Typography>
+              <Typography sx={{ fontSize: 12, color: LABEL, mt: 0.5 }}>Due 16 May · in 9 days</Typography>
+            </Box>
+            <Button
+              variant="contained"
+              onClick={onPay}
+              startIcon={<Icon name="cash" size={17} />}
+              sx={{ height: 44, minWidth: 0, borderRadius: '12px', px: '18px', fontSize: 14, fontWeight: 700, bgcolor: ACCENT, '&:hover': { bgcolor: '#2B4F92' }, textTransform: 'none' }}
+            >
+              Pay now
+            </Button>
+          </Box>
         </Box>
       </Box>
 
-      {/* Next payment due card */}
-      {!isGuarantee && <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: 3 }}>
-        {/* Top row: label + penalty */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Icon name="clock" size={16} color="#000" />
-            <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#000' }}>Next payment due</Typography>
-          </Box>
-          {overdue && (
-            <Typography sx={{ fontSize: 13, fontWeight: 700, color: '#E07A1A' }}>+$5.00 Penalty</Typography>
-          )}
-        </Box>
-        {/* Bottom row: amount + due date | Pay now button */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box>
-            <Typography sx={{ fontSize: 32, fontWeight: 800, color: VALUE, letterSpacing: '-1px', lineHeight: 1.1 }}>$320.00</Typography>
-            <Typography sx={{ fontSize: 12, color: LABEL, mt: 0.25 }}>Due 16 May · in 9 days</Typography>
-          </Box>
-          <Button
-            variant="contained"
-            onClick={onPay}
-            startIcon={<Icon name="cash" size={18} />}
-            sx={{ height: 48, minWidth: 0, borderRadius: '12px', px: '22px', fontSize: 15, fontWeight: 700, bgcolor: ACCENT, '&:hover': { bgcolor: '#2B4F92' }, textTransform: 'none' }}
-          >
-            Pay now
-          </Button>
-        </Box>
-      </Box>}
 
       {/* Actual payment table */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
@@ -330,28 +328,31 @@ function StatusBadge({ text, tone }: { text: string; tone: 'paid' | 'soon' }) {
 }
 
 // ─── OTHERS tab ──────────────────────────────────────────────────────────────
-function OthersTab({ isGuaranteeView }: { isGuaranteeView?: boolean }) {
+function OthersTab({ isGuaranteeView, product }: { isGuaranteeView?: boolean; product?: string }) {
   const navigate = useNavigate()
   const [callOpen, setCallOpen] = useState(false)
   const isGuarantee = !!isGuaranteeView
+  const isStaffLoan = product === 'Staff Loan'
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
       {/* Loan service requests */}
       {!isGuarantee && <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
         <SectionLabel>Loan Service Requests</SectionLabel>
         <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', overflow: 'hidden' }}>
-          <ServiceRow icon="cash" title="Payoff Request" subtitle="Notify NHFC of intent to fully settle" divider onClick={() => navigate('/early-payoff')} />
-          <ServiceRow
-            icon="restructure"
-            title="Request Restructure"
-            subtitle="Request temporary repayment support"
-            onClick={() => navigate('/restructure-info')}
-          />
+          <ServiceRow icon="cash" title="Payoff Request" subtitle="Notify NHFC of intent to fully settle" divider={!isStaffLoan} onClick={() => navigate(isStaffLoan ? '/early-payoff?staff=true' : '/early-payoff')} />
+          {!isStaffLoan && (
+            <ServiceRow
+              icon="restructure"
+              title="Request Restructure"
+              subtitle="Request temporary repayment support"
+              onClick={() => navigate('/restructure-info')}
+            />
+          )}
         </Box>
       </Box>}
 
       {/* My documents */}
-      {!isGuarantee && <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+      {<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
         <SectionLabel>My Documents</SectionLabel>
         <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', px: '14px' }}>
           {DOCS.map((d, i) => (
@@ -499,6 +500,29 @@ const PRODUCT_FEATURES: Record<string, { title: string; tagline: string; feature
       { icon: 'idCard',      label: 'Eligibility',     value: 'Valid work permit required' },
     ],
   },
+  'Migrant Worker Loan': {
+    title: 'Migrant Worker Loan',
+    tagline: 'Support your journey abroad with confidence',
+    features: [
+      { icon: 'cash',        label: 'Loan Amount',    value: 'Up to $5,000'               },
+      { icon: 'calendar',    label: 'Loan Term',       value: '12 – 36 months'             },
+      { icon: 'gauge',       label: 'Interest Rate',   value: 'From 1.04% / month'         },
+      { icon: 'plane',       label: 'Purpose',         value: 'Overseas work preparation'  },
+      { icon: 'checkCircle', label: 'Repayment',       value: 'Monthly installment'        },
+      { icon: 'idCard',      label: 'Eligibility',     value: 'Valid work permit required' },
+    ],
+  },
+  'Micro Loan': {
+    title: 'Micro Loan',
+    tagline: 'Small loans for big ambitions',
+    features: [
+      { icon: 'cash',        label: 'Loan Amount',    value: 'Up to $2,000'             },
+      { icon: 'calendar',    label: 'Loan Term',       value: '3 – 24 months'            },
+      { icon: 'gauge',       label: 'Interest Rate',   value: 'From 1.50% / month'       },
+      { icon: 'checkCircle', label: 'Repayment',       value: 'Monthly installment'      },
+      { icon: 'layers',      label: 'Collateral',      value: 'Not required'             },
+    ],
+  },
   'Housing Loan': {
     title: 'Housing Loan',
     tagline: 'Own your dream home today',
@@ -536,8 +560,11 @@ const DEFAULT_FEATURES: (typeof PRODUCT_FEATURES)[string] = {
   ],
 }
 
-function ProductFeaturesSheet({ open, onClose, product, isCoBorrower, isBorrower, isGuarantee }: { open: boolean; onClose: () => void; product: string; isCoBorrower?: boolean; isBorrower?: boolean; isGuarantee?: boolean }) {
-  const info = PRODUCT_FEATURES[product] ?? DEFAULT_FEATURES
+function ProductFeaturesSheet({ open, onClose, product, isCoBorrower, isBorrower, isGuarantee, loanAmount }: { open: boolean; onClose: () => void; product: string; isCoBorrower?: boolean; isBorrower?: boolean; isGuarantee?: boolean; loanAmount?: string }) {
+  const rawInfo = PRODUCT_FEATURES[product] ?? DEFAULT_FEATURES
+  const info = loanAmount
+    ? { ...rawInfo, features: rawInfo.features.map(f => f.label === 'Loan Amount' ? { ...f, value: loanAmount } : f) }
+    : rawInfo
   return (
     <>
       {/* Backdrop */}
@@ -576,99 +603,49 @@ function ProductFeaturesSheet({ open, onClose, product, isCoBorrower, isBorrower
           <Typography sx={{ fontSize: 13, color: LABEL, mt: 0.25 }}>{info.tagline}</Typography>
         </Box>
 
-        {/* Co-Borrower identity card */}
-        {isCoBorrower && (
-          <Box sx={{ mx: 3, mt: 2, bgcolor: '#F8FAFF', border: '1.5px solid #E0EAFF', borderRadius: '14px', p: '14px 16px', display: 'flex', flexDirection: 'column', gap: 1.25 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ width: 28, height: 28, borderRadius: '8px', bgcolor: '#EEF3FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Icon name="idCard" size={15} color={ACCENT} />
+        {/* Loan parties list — shown for all flows */}
+        {(() => {
+          const allParties = isCoBorrower
+            ? [
+                { role: 'Borrower',     initials: 'KK', name: 'Krong Kampuchea' },
+                { role: 'Co-Borrower',  initials: 'SR', name: 'Sok Reaksmey' },
+                { role: 'Guarantor',    initials: 'DK', name: 'Dim Kim' },
+              ]
+            : isGuarantee
+            ? [
+                { role: 'Borrower',  initials: 'LS', name: 'Lim Sreypov' },
+                { role: 'Guarantor', initials: 'DK', name: 'Dim Kim' },
+              ]
+            : [
+                { role: 'Borrower', initials: 'KK', name: 'Krong Kampuchea' },
+              ]
+          return (
+            <Box sx={{ mx: 3, mt: 2, bgcolor: '#F8FAFF', border: '1.5px solid #E0EAFF', borderRadius: '14px', overflow: 'hidden' }}>
+              <Box sx={{ px: '16px', pt: '14px', pb: '10px', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 26, height: 26, borderRadius: '7px', bgcolor: '#EEF3FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Icon name="idCard" size={14} color={ACCENT} />
                 </Box>
-                <Typography sx={{ fontSize: 13, fontWeight: 800, color: ACCENT, letterSpacing: '0.3px' }}>CO-BORROWER</Typography>
+                <Typography sx={{ fontSize: 12, fontWeight: 800, color: ACCENT, letterSpacing: '0.4px' }}>LOAN PARTIES</Typography>
               </Box>
-              <Box sx={{ bgcolor: '#EEF3FC', borderRadius: '999px', px: '10px', py: '3px' }}>
-                <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: ACCENT }}>Jointly liable</Typography>
-              </Box>
-            </Box>
-            <Box sx={{ height: '1px', bgcolor: '#E0EAFF' }} />
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-              <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: '#E8EAEE', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Typography sx={{ fontSize: 14, fontWeight: 800, color: ACCENT }}>KK</Typography>
-              </Box>
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography sx={{ fontSize: 11, color: LABEL, lineHeight: 1.2 }}>Primary borrower</Typography>
-                <Typography sx={{ fontSize: 14, fontWeight: 700, color: HEADING, lineHeight: 1.3 }}>Krong Kampuchea</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                <Icon name="checkCircle" size={14} color="#16A34A" />
-                <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: '#16A34A' }}>Verified</Typography>
-              </Box>
-            </Box>
-          </Box>
-        )}
-
-        {/* Borrower identity card */}
-        {isBorrower && (
-          <Box sx={{ mx: 3, mt: 2, bgcolor: '#F8FAFF', border: '1.5px solid #E0EAFF', borderRadius: '14px', p: '14px 16px', display: 'flex', flexDirection: 'column', gap: 1.25 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box sx={{ width: 28, height: 28, borderRadius: '8px', bgcolor: '#EEF3FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Icon name="idCard" size={15} color={ACCENT} />
+              {allParties.map((p, i) => (
+                <Box key={p.role} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: '16px', py: '11px', borderTop: '1px solid #E0EAFF' }}>
+                  <Typography sx={{ fontSize: 13.5, color: LABEL, fontWeight: 500 }}>{p.role}</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: i === 0 ? '#EEF3FC' : i === 1 ? '#EEF3FC' : '#FEF3C7', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Typography sx={{ fontSize: 11, fontWeight: 800, color: i === 2 && isCoBorrower ? '#C2870F' : ACCENT }}>{p.initials}</Typography>
+                    </Box>
+                    <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: HEADING }}>{p.name}</Typography>
+                  </Box>
                 </Box>
-                <Typography sx={{ fontSize: 13, fontWeight: 800, color: ACCENT, letterSpacing: '0.3px' }}>BORROWER</Typography>
-              </Box>
-              <Box sx={{ bgcolor: '#EEF3FC', borderRadius: '999px', px: '10px', py: '3px' }}>
-                <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: ACCENT }}>Primary liable</Typography>
-              </Box>
+              ))}
             </Box>
-            <Box sx={{ height: '1px', bgcolor: '#E0EAFF' }} />
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-              <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: '#E8EAEE', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Typography sx={{ fontSize: 14, fontWeight: 800, color: ACCENT }}>KK</Typography>
-              </Box>
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography sx={{ fontSize: 11, color: LABEL, lineHeight: 1.2 }}>Account holder</Typography>
-                <Typography sx={{ fontSize: 14, fontWeight: 700, color: HEADING, lineHeight: 1.3 }}>Krong Kampuchea</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                <Icon name="checkCircle" size={14} color="#16A34A" />
-                <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: '#16A34A' }}>Verified</Typography>
-              </Box>
-            </Box>
-          </Box>
-        )}
+          )
+        })()}
 
         {/* Feature rows — guarantee view shows loan-you-guarantee context */}
         {isGuarantee ? (
           <Box sx={{ px: 3, pt: 2, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
             {/* Guarantee identity card — mirrors Co-Borrower style */}
-            <Box sx={{ bgcolor: '#FFFBF2', border: '1.5px solid #F5D78E', borderRadius: '14px', p: '14px 16px', display: 'flex', flexDirection: 'column', gap: 1.25 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box sx={{ width: 28, height: 28, borderRadius: '8px', bgcolor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Icon name="alert" size={14} color="#C2870F" />
-                  </Box>
-                  <Typography sx={{ fontSize: 13, fontWeight: 800, color: '#92400E', letterSpacing: '0.3px' }}>GUARANTOR</Typography>
-                </Box>
-                <Box sx={{ bgcolor: '#FEF3C7', borderRadius: '999px', px: '10px', py: '3px' }}>
-                  <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: '#C2870F' }}>Jointly liable</Typography>
-                </Box>
-              </Box>
-              <Box sx={{ height: '1px', bgcolor: '#F5D78E' }} />
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-                <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: '#FEF3C7', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography sx={{ fontSize: 13, fontWeight: 800, color: '#C2870F' }}>DK</Typography>
-                </Box>
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography sx={{ fontSize: 11, color: LABEL, lineHeight: 1.2 }}>Primary borrower</Typography>
-                  <Typography sx={{ fontSize: 14, fontWeight: 700, color: HEADING, lineHeight: 1.3 }}>Dim Kim</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                  <Icon name="checkCircle" size={14} color="#16A34A" />
-                  <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: '#16A34A' }}>Verified</Typography>
-                </Box>
-              </Box>
-            </Box>
             {[
               { icon: 'myLoan' as const,      label: 'Loan product',      value: info.title },
               { icon: 'pay' as const,         label: 'Loan amount',       value: info.features.find(f => f.label === 'Loan Amount')?.value ?? '—' },

@@ -158,17 +158,6 @@ export default function ProfileScreen() {
             </Box>
           </Box>
 
-          {/* Delete account */}
-          <Box sx={{ pt: '60px', pb: '8px', display: 'flex', justifyContent: 'center' }}>
-            <Box
-              role="button"
-              onClick={() => setDeleteOpen(true)}
-              sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, cursor: 'pointer', '&:active': { opacity: 0.6 } }}
-            >
-              <Icon name="trash" size={20} color={MUTED} />
-              <Typography sx={{ fontSize: 16, fontWeight: 800, color: MUTED }}>Delete account</Typography>
-            </Box>
-          </Box>
         </Box>
       </Box>
 

@@ -142,6 +142,7 @@ export function SettingsSections() {
   return (
     <>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+
         {!isVisitor && (
           <Box>
             <SectionLabel>MY OFFICER</SectionLabel>
