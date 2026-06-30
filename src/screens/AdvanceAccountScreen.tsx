@@ -126,6 +126,14 @@ export default function AdvanceAccountScreen() {
               ))}
             </Box>
           </Box>
+
+          {/* Hint */}
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mt: 2, px: 0.5 }}>
+            <Icon name="info" size={16} color="#8A94A6" />
+            <Typography sx={{ fontSize: 13, color: '#8A94A6', lineHeight: 1.5 }}>
+              Auto-repays your loans. Withdraw at a branch.
+            </Typography>
+          </Box>
         </Box>
       </Box>
 

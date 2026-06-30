@@ -110,19 +110,6 @@ export default function FaqScreen() {
             <Typography sx={{ fontSize: 14, color: MUTED, textAlign: 'center', mt: 5 }}>No questions match “{query}”.</Typography>
           )}
 
-          {/* Still need help */}
-          <Box
-            role="button"
-            onClick={() => navigate('/chat-new')}
-            sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 2.5, p: 2, borderRadius: '12px', bgcolor: '#EAF1FB', cursor: 'pointer', '&:active': { opacity: 0.8 } }}
-          >
-            <Icon name="feedback" size={22} color={BLUE} />
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography sx={{ fontSize: 14.5, fontWeight: 800, color: HEADING }}>Still need help?</Typography>
-              <Typography sx={{ fontSize: 12.5, color: '#3A4256' }}>Chat with our support team</Typography>
-            </Box>
-            <Icon name="chevronRight" size={20} color={BLUE} />
-          </Box>
         </Box>
       </Box>
     </Box>

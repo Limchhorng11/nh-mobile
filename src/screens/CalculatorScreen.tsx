@@ -20,6 +20,13 @@ const REPAYMENT_METHODS: IconOption[] = [
   { name: 'Mix Installment', icon: 'layers' },
 ]
 
+const PAYMENT_MODES = [
+  { name: 'Constant',        icon: 'equal'        as const, sub: 'Level payments'   },
+  { name: 'Decline',         icon: 'trendingDown' as const, sub: 'Lower over time'  },
+  { name: 'Ballon',          icon: 'banknote'     as const, sub: 'Lump sum at end'  },
+  { name: 'Mix-Grace Period',icon: 'calendarClock'as const, sub: 'Grace, then level'},
+]
+
 const LOAN_PRODUCTS: IconOption[] = [
   { name: 'Micro Loan', icon: 'sprout' },
   { name: 'Small Biz Loan', icon: 'store' },
@@ -35,6 +42,25 @@ const LOAN_PRODUCTS: IconOption[] = [
 // ─────────────────────────────────────────────────────────────────────────────
 const MUTED = '#747A81'
 const LABEL = '#737373'
+
+const sliderSx = {
+  py: 1,
+  color: BLUE,
+  height: 6,
+  '& .MuiSlider-rail': { bgcolor: '#E5E5E5', opacity: 1, borderRadius: '999px' },
+  '& .MuiSlider-track': { border: 'none', borderRadius: '999px' },
+  '& .MuiSlider-thumb': {
+    width: 24,
+    height: 24,
+    borderRadius: '50%',
+    bgcolor: '#fff',
+    border: `2px solid ${BLUE}`,
+    boxShadow: '0 2px 6px rgba(16,24,40,0.18)',
+    '&::before': { display: 'none' },
+    '&:hover, &.Mui-focusVisible, &.Mui-active': { boxShadow: '0 3px 10px rgba(16,24,40,0.25)' },
+  },
+  '& .MuiSlider-valueLabel': { display: 'none' },
+}
 
 // Per-product amount ceiling. The term range comes from termStopsForProduct().
 const MIN_AMOUNT = 100
@@ -66,6 +92,7 @@ export default function CalculatorScreen() {
   const [amount, setAmount] = useState(1000)
   const [term, setTerm] = useState(12)
   const [repaymentMethod, setRepaymentMethod] = useState(REPAYMENT_METHODS[0].name)
+  const [gracePeriod, setGracePeriod] = useState(4)
   const [loanProduct, setLoanProduct] = useState(lockedProduct ?? 'None')
   const [currency, setCurrency] = useState<Currency>('USD')
   const [termUnit, setTermUnit] = useState<'Month' | 'Year'>('Month')
@@ -94,8 +121,8 @@ export default function CalculatorScreen() {
   }, [maxAmount, minMonths, maxMonths])
 
   const { payment, totalPayable, totalInterest, rows } = useMemo(
-    () => buildSchedule(amount, term, Number.isNaN(monthlyInterest) ? 0 : monthlyInterest, repaymentMethod),
-    [amount, term, monthlyInterest, repaymentMethod],
+    () => buildSchedule(amount, term, Number.isNaN(monthlyInterest) ? 0 : monthlyInterest, repaymentMethod, gracePeriod),
+    [amount, term, monthlyInterest, repaymentMethod, gracePeriod],
   )
   const totalPrincipalPaid = rows.slice(1).reduce((s, r) => s + r.principal, 0)
 
@@ -117,180 +144,130 @@ export default function CalculatorScreen() {
         <CollapsingHeader title="Loan calculator" collapse={collapse} onBack={() => navigate(-1)} />
         <CollapsingTitle collapse={collapse}>Loan calculator</CollapsingTitle>
 
+        {/* Currency toggle — top of page */}
+        <Box sx={{ px: 3, mb: 2 }}>
+          <Box sx={{ display: 'flex', bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: '3px', gap: '3px' }}>
+            {(['USD', 'KHR'] as const).map((c) => (
+              <Box key={c} role="button" onClick={() => setCurrency(c)}
+                sx={{ flex: 1, textAlign: 'center', py: '9px', borderRadius: '9px', cursor: 'pointer', bgcolor: currency === c ? BLUE : 'transparent', transition: 'all 0.15s' }}>
+                <Typography sx={{ fontSize: 14, fontWeight: 700, color: currency === c ? '#fff' : MUTED }}>
+                  {c === 'USD' ? '$ Dollar (USD)' : '៛ Riel (KHR)'}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+
         <Box sx={{ px: 3, pb: '34px', display: 'flex', flexDirection: 'column', gap: 5 }}>
           {/* ─── Inputs ───────────────────────────────────────────────────── */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <IconSelect label="Loan product" options={LOAN_PRODUCTS} value={loanProduct} onChange={setLoanProduct} locked={!!lockedProduct} />
 
-            {/* Amount */}
-            <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.5 }}>
-              <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: '16px' }}>
-                {currency === 'KHR' ? 'Amount ៛400K ~ ៛1,200M' : `Amount $${MIN_AMOUNT.toLocaleString('en-US')} ~ $${maxAmount.toLocaleString('en-US')}`}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flex: 1, minWidth: 0 }}>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED }}>{currency === 'USD' ? '$' : '៛'}</Typography>
-                  <Box
-                    component="input"
-                    type="text"
-                    inputMode="numeric"
-                    value={amount ? amount.toLocaleString('en-US') : ''}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      const digits = e.target.value.replace(/[^0-9]/g, '')
-                      setAmount(digits ? parseInt(digits, 10) : 0)
-                    }}
-                    aria-label="Loan amount"
-                    sx={{
-                      width: 0,
-                      flex: 1,
-                      minWidth: 0,
-                      border: 'none',
-                      outline: 'none',
-                      bgcolor: 'transparent',
-                      p: 0,
-                      fontSize: 16,
-                      fontWeight: 600,
-                      color: '#000',
-                      fontFamily: 'inherit',
-                    }}
-                  />
+            {/* ── 3-slider card ────────────────────────────────────────── */}
+            <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', p: '18px', display: 'flex', flexDirection: 'column', gap: 0 }}>
+
+              {/* Amount slider */}
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: MUTED }}>Amount</Typography>
+                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A' }}>
+                    {currency === 'KHR'
+                      ? `៛${(amount * 4000).toLocaleString('en-US')}`
+                      : `$${amount.toLocaleString('en-US')}`}
+                  </Typography>
                 </Box>
-                <Box
-                  role="button"
-                  aria-label="Toggle currency"
-                  onClick={() => setCurrency((c) => (c === 'USD' ? 'KHR' : 'USD'))}
-                  sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:active': { opacity: 0.6 } }}
-                >
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED }}>{currency}</Typography>
-                  <Icon name="chevronsUpDown" size={18} color={MUTED} />
+                <Slider value={amount} onChange={(_, v) => setAmount(v as number)} min={500} max={maxAmount} step={500}
+                  aria-label="Loan amount" sx={sliderSx} />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.25 }}>
+                  <Typography sx={{ fontSize: 11, color: MUTED }}>$500</Typography>
+                  <Typography sx={{ fontSize: 11, color: MUTED }}>${maxAmount.toLocaleString('en-US')}</Typography>
                 </Box>
               </Box>
-            </Box>
 
-            {/* Payment estimate (term slider) */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <SectionLabel>Payment estimate</SectionLabel>
-              <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#525252' }}>{termUnit === 'Year' ? `${Math.max(1, Math.round(minMonths / 12))} year` : `${minMonths} months`}</Typography>
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#525252' }}>{termUnit === 'Year' ? `${Math.round(maxMonths / 12)} years` : `${maxMonths} months`}</Typography>
+              <Box sx={{ height: '1px', bgcolor: '#F0F2F5', my: 2 }} />
+
+              {/* Interest rate slider */}
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: MUTED }}>Interest rate</Typography>
+                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: rateEditable ? '#0B0F1A' : MUTED }}>{monthlyInterest.toFixed(2)}% / month</Typography>
                 </Box>
                 <Slider
-                  value={term}
-                  onChange={handleTermChange}
-                  min={minMonths}
-                  max={maxMonths}
-                  step={1}
-                  valueLabelDisplay="auto"
-                  valueLabelFormat={(v) => termUnit === 'Year' ? `${Math.round(v / 12)}y` : `${v}m`}
-                  aria-label="Loan term in months"
-                  sx={{
-                    py: 1.5,
-                    color: BLUE,
-                    height: 20,
-                    '& .MuiSlider-rail': { bgcolor: '#E5E5E5', opacity: 1, borderRadius: '999px' },
-                    '& .MuiSlider-track': { border: 'none', borderRadius: '999px' },
-                    '& .MuiSlider-thumb': {
-                      width: 36,
-                      height: 28,
-                      borderRadius: '999px',
-                      bgcolor: '#fff',
-                      border: 'none',
-                      boxShadow: '0 2px 6px rgba(16,24,40,0.24)',
-                      '&::before': { display: 'none' },
-                      '&:hover, &.Mui-focusVisible, &.Mui-active': { boxShadow: '0 3px 10px rgba(16,24,40,0.3)' },
-                    },
-                    '& .MuiSlider-valueLabel': {
-                      bgcolor: '#fff',
-                      color: '#0B0F1A',
-                      fontSize: 14,
-                      fontWeight: 700,
-                      borderRadius: '999px',
-                      px: 1,
-                      py: 0.25,
-                      boxShadow: '0 4px 12px rgba(16,24,40,0.18)',
-                      '&::before': { display: 'none' },
-                    },
-                  }}
+                  value={monthlyInterest}
+                  onChange={(_, v) => { if (rateEditable) setMonthlyInterest(v as number) }}
+                  min={0.5} max={2.0} step={0.01}
+                  disabled={!rateEditable}
+                  aria-label="Monthly interest rate"
+                  sx={rateEditable ? sliderSx : { ...sliderSx, opacity: 0.45, pointerEvents: 'none' }}
                 />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.25 }}>
+                  <Typography sx={{ fontSize: 11, color: MUTED }}>0.50%</Typography>
+                  <Typography sx={{ fontSize: 11, color: MUTED }}>2.00%</Typography>
+                </Box>
               </Box>
-            </Box>
 
-            {/* Loan term + Monthly interest */}
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Box sx={{ width: 171, flexShrink: 0, bgcolor: '#F5F5F5', border: '1px solid #E8EAEE', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.5 }}>
-                <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: '16px' }}>Loan term</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Box
-                    component="input"
-                    type="text"
-                    inputMode="numeric"
-                    value={termUnit === 'Month' ? term : Math.round(term / 12)}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      const n = parseInt(e.target.value.replace(/\D/g, '') || '0', 10)
-                      const months = termUnit === 'Year' ? n * 12 : n
-                      setTerm(Math.min(Math.max(months, minMonths), maxMonths))
-                    }}
-                    aria-label="Loan term"
-                    sx={{ width: 0, flex: 1, minWidth: 0, border: 'none', outline: 'none', bgcolor: 'transparent', p: 0, fontSize: 16, fontWeight: 600, color: '#000', fontFamily: 'inherit' }}
-                  />
-                  <Box
-                    role="button"
-                    aria-label="Toggle term unit"
-                    onClick={() => setTermUnit((u) => (u === 'Month' ? 'Year' : 'Month'))}
-                    sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:active': { opacity: 0.6 } }}
-                  >
-                    <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED }}>{termUnit}</Typography>
-                    <Icon name="chevronsUpDown" size={18} color={MUTED} />
-                  </Box>
+              <Box sx={{ height: '1px', bgcolor: '#F0F2F5', my: 2 }} />
+
+              {/* Term slider */}
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: MUTED }}>Loan term</Typography>
+                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A' }}>{term} months</Typography>
+                </Box>
+                <Slider value={term} onChange={handleTermChange} min={6} max={240} step={1}
+                  aria-label="Loan term in months" sx={sliderSx} />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.25 }}>
+                  <Typography sx={{ fontSize: 11, color: MUTED }}>6 months</Typography>
+                  <Typography sx={{ fontSize: 11, color: MUTED }}>240 months</Typography>
                 </Box>
               </Box>
-              <Box sx={{ flex: 1, minWidth: 0, bgcolor: rateEditable ? '#fff' : '#E5E5E5', borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 0.5 }}>
-                <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: '16px' }}>Monthly interest</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  {rateEditable ? (
-                    <Box
-                      component="input"
-                      type="number"
-                      inputMode="decimal"
-                      step="0.01"
-                      min="0"
-                      value={Number.isNaN(monthlyInterest) ? '' : monthlyInterest}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMonthlyInterest(parseFloat(e.target.value))}
-                      aria-label="Monthly interest rate"
-                      sx={{
-                        width: 0,
-                        flex: 1,
-                        minWidth: 0,
-                        border: 'none',
-                        outline: 'none',
-                        bgcolor: 'transparent',
-                        p: 0,
-                        fontSize: 16,
-                        fontWeight: 600,
-                        color: '#000',
-                        fontFamily: 'inherit',
-                        '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': { WebkitAppearance: 'none', margin: 0 },
-                        MozAppearance: 'textfield',
-                      }}
-                    />
-                  ) : (
-                    <Typography sx={{ fontSize: 16, fontWeight: 600, color: '#000' }}>{monthlyInterest.toFixed(2)}</Typography>
-                  )}
-                  <Typography sx={{ fontSize: 16, fontWeight: 600, color: MUTED, ml: 1 }}>%</Typography>
-                </Box>
-              </Box>
+
             </Box>
           </Box>
 
           {/* ─── Results ──────────────────────────────────────────────────── */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <IconSelect
-              label="Repayment method"
-              options={REPAYMENT_METHODS}
-              value={repaymentMethod}
-              onChange={setRepaymentMethod}
-            />
+
+            {/* Payment mode grid */}
+            <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', p: '14px' }}>
+              <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', color: '#9AA3B2', mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Icon name="equal" size={13} color="#9AA3B2" /> Payment mode
+              </Typography>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+                {PAYMENT_MODES.map((m, i) => {
+                  const active = repaymentMethod === m.name
+                  return (
+                    <Box key={m.name} role="button" onClick={() => setRepaymentMethod(m.name)}
+                      sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: '14px', borderRadius: '14px', border: `1.5px solid ${active ? BLUE : '#E8EAEE'}`, bgcolor: active ? '#EEF3FC' : '#FAFAFA', cursor: 'pointer', transition: 'all 0.15s' }}>
+                      <Box sx={{ width: 38, height: 38, borderRadius: '10px', bgcolor: active ? BLUE : '#F0F2F5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Icon name={m.icon} size={20} color={active ? '#fff' : '#9AA3B2'} />
+                      </Box>
+                      <Box>
+                        <Typography sx={{ fontSize: 14, fontWeight: 700, color: active ? BLUE : '#0B0F1A', lineHeight: 1.3 }}>{m.name === 'Mix-Grace Period' ? 'Mixed' : m.name}</Typography>
+                        <Typography sx={{ fontSize: 11.5, color: '#9AA3B2', lineHeight: 1.3, whiteSpace: 'nowrap' }}>{m.sub}</Typography>
+                      </Box>
+                    </Box>
+                  )
+                })}
+              </Box>
+
+              {/* Grace period slider — visible only for Mixed */}
+              {repaymentMethod === 'Mix-Grace Period' && (
+                <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid #F0F2F5' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Icon name="clock" size={14} color={MUTED} />
+                      <Typography sx={{ fontSize: 13, fontWeight: 600, color: MUTED }}>Grace period <Typography component="span" sx={{ fontSize: 11, color: '#B0B8C8' }}>(Interest Only Payment)</Typography></Typography>
+                    </Box>
+                    <Typography sx={{ fontSize: 15, fontWeight: 700, color: BLUE }}>{gracePeriod} months</Typography>
+                  </Box>
+                  <Slider value={gracePeriod} onChange={(_, v) => setGracePeriod(v as number)} min={1} max={12} step={1} aria-label="Grace period" sx={sliderSx} />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.25 }}>
+                    <Typography sx={{ fontSize: 11, color: MUTED }}>1 month</Typography>
+                    <Typography sx={{ fontSize: 11, color: MUTED }}>12 months</Typography>
+                  </Box>
+                </Box>
+              )}
+            </Box>
 
             {/* Monthly payment summary */}
             <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', p: '26px' }}>
@@ -332,7 +309,7 @@ export default function CalculatorScreen() {
         <Button
           variant="contained"
           fullWidth
-          onClick={() => navigate(flow === 'Visitor' ? '/sign-up?next=' + encodeURIComponent('/mwl-about') : '/mwl-about')}
+          onClick={() => navigate('/all-loan')}
           sx={{ minHeight: 48, borderRadius: '8px', fontSize: 16, fontWeight: 600, bgcolor: '#275CB2', '&:hover': { bgcolor: '#1f4f9e' } }}
         >
           Apply this loan
@@ -455,7 +432,7 @@ function RepaymentTable({
   totals: { principal: number; interest: number; payable: number }
   currency: Currency
 }) {
-  const preview = rows.slice(0, 3) // months 0, 1, 2
+  const preview = rows.filter((r) => r.month > 0).slice(0, 3)
   return (
     <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
       <Box component="thead">

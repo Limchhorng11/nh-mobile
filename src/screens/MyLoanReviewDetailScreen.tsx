@@ -34,21 +34,147 @@ function MetaCol({ label, value }: { label: string; value: string }) {
   )
 }
 
+// ─── Terminal-state detail pages (not eligible / rejected / cancelled) ────────
+type TerminalDef = {
+  chipLabel: string; chipColor: string; chipBg: string
+  alertBg: string; alertBorder: string; alertTitleColor: string
+  alertTitle: string; alertBody: string
+  reasonLabel: string; reason: string
+  bullets: string[]
+  ctaLabel: string; ctaColor: string
+}
+const TERMINAL: Record<string, TerminalDef> = {
+  notEligible: {
+    chipLabel: 'Not eligible', chipColor: '#E11D48', chipBg: '#FDE7EC',
+    alertBg: '#FEF2F2', alertBorder: '#FECACA', alertTitleColor: '#B91C1C',
+    alertTitle: 'This request didn\'t meet eligibility',
+    alertBody: 'NH reviewed this request on 16 Apr 2026 and it did not meet the basic eligibility criteria for the SME Loan, so it did not move to full assessment.',
+    reasonLabel: 'WHY IT WASN\'T ELIGIBLE',
+    reason: 'The business had been operating for less than the 1 year minimum required for an SME Loan at the time of applying.',
+    bullets: [
+      'Reapply once your business reaches 12 months of operating history.',
+      'Apply for a Micro Loan, which has a shorter operating-history requirement.',
+      'Add an eligible guarantor to strengthen a future request.',
+    ],
+    ctaLabel: 'Explore eligible loans', ctaColor: '#275CB2',
+  },
+  rejected: {
+    chipLabel: 'Rejected', chipColor: '#E11D48', chipBg: '#FDE7EC',
+    alertBg: '#FEF2F2', alertBorder: '#FECACA', alertTitleColor: '#B91C1C',
+    alertTitle: 'Application not approved',
+    alertBody: 'After assessment — including the CBC credit report — NH was unable to approve this request on 25 Apr 2026.',
+    reasonLabel: 'MAIN REASON',
+    reason: 'Your current total debt-to-income ratio is above NH\'s lending limit. This was the primary factor in the decision.',
+    bullets: [
+      'Reapply after 3 months, or sooner with an eligible guarantor.',
+      'Lower existing monthly obligations to improve your ratio.',
+      'Ask your officer about a smaller amount or a longer tenure.',
+    ],
+    ctaLabel: 'Reapply for this loan', ctaColor: '#275CB2',
+  },
+  cancelled: {
+    chipLabel: 'Cancelled', chipColor: '#6B7280', chipBg: '#EDEFF2',
+    alertBg: '#F9FAFB', alertBorder: '#D1D5DB', alertTitleColor: '#374151',
+    alertTitle: 'Approved loan cancelled',
+    alertBody: 'This loan was approved on 12 Mar 2026 but later cancelled before disbursement. Nothing was disbursed and there is no impact on your credit record.',
+    reasonLabel: 'WHY IT WAS CANCELLED',
+    reason: 'The conditions of the conditional approval were not met within the validity period, so the approved loan was not disbursed.',
+    bullets: [
+      'Start a new request once you can meet the approval conditions.',
+      'Ask your branch officer which condition was outstanding.',
+      'Documents already on file can be reused for a new application.',
+    ],
+    ctaLabel: 'Start a new request', ctaColor: '#275CB2',
+  },
+}
+
+function TerminalDetail({ statusKey, title, refStr }: { statusKey: string; title: string; refStr: string }) {
+  const navigate = useNavigate()
+  const def = TERMINAL[statusKey]
+  if (!def) return null
+  const [ref, date] = refStr.split(' · ')
+  return (
+    <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
+      <Box className="scroll-content" sx={{ flex: 1, pb: '44px' }}>
+        <Box sx={{ px: 1, pt: 1 }}>
+          <IconButton onClick={() => navigate('/my-loan?tab=review')} aria-label="Back" sx={{ color: HEADING }}>
+            <Icon name="chevronLeft" size={26} color={HEADING} />
+          </IconButton>
+        </Box>
+        <Box sx={{ px: 3, pt: 1, pb: 5, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {/* Title row */}
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
+            <Typography sx={{ fontSize: 24, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.2 }}>{title}</Typography>
+            <Box sx={{ bgcolor: def.chipBg, borderRadius: '999px', px: '10px', py: '4px', flexShrink: 0, mt: '4px' }}>
+              <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: def.chipColor }}>{def.chipLabel}</Typography>
+            </Box>
+          </Box>
+          {/* Ref + date */}
+          <Typography sx={{ fontSize: 12.5, color: MUTED, mt: -1 }}>Ref: {ref}{date ? ` · Applied ${date}` : ''}</Typography>
+          {/* Alert box */}
+          <Box sx={{ bgcolor: def.alertBg, border: `1px solid ${def.alertBorder}`, borderRadius: '12px', px: 2, py: 1.75 }}>
+            <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: def.alertTitleColor, mb: 0.5 }}>{def.alertTitle}</Typography>
+            <Typography sx={{ fontSize: 13, color: def.alertTitleColor, lineHeight: 1.55, opacity: 0.85 }}>{def.alertBody}</Typography>
+          </Box>
+          {/* Reason box */}
+          <Box sx={{ bgcolor: '#F3F4F6', borderRadius: '12px', px: 2, py: 1.75 }}>
+            <Typography sx={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.6px', color: MUTED, mb: 0.75 }}>{def.reasonLabel}</Typography>
+            <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: HEADING, lineHeight: 1.55 }}>{def.reason}</Typography>
+          </Box>
+          {/* What you can do */}
+          <Box>
+            <Typography sx={{ fontSize: 15, fontWeight: 800, color: HEADING, mb: 1.25 }}>What you can do</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {def.bullets.map((b, i) => (
+                <Box key={i} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.25 }}>
+                  <Icon name="checkCircle" size={16} color="#16A34A" />
+                  <Typography sx={{ fontSize: 13.5, color: HEADING, lineHeight: 1.55, flex: 1 }}>{b}</Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+      {/* CTAs */}
+      <Box sx={{ flexShrink: 0, px: 3, pt: 2, pb: '44px', bgcolor: '#F5F5F5', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        <Button variant="contained" fullWidth onClick={() => navigate('/products')} sx={{ height: 52, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: def.ctaColor, '&:hover': { bgcolor: '#1F4F9E' } }}>
+          {def.ctaLabel}
+        </Button>
+        <Button variant="outlined" fullWidth onClick={() => navigate('/my-loan?tab=review')} sx={{ height: 52, borderRadius: '14px', fontSize: 15, fontWeight: 700, color: HEADING, borderColor: '#D1D5DB', '&:hover': { bgcolor: '#F3F4F6', borderColor: '#9CA3AF' } }}>
+          Back to Requests
+        </Button>
+      </Box>
+    </Box>
+  )
+}
+
 export default function MyLoanReviewDetailScreen() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const [callOpen, setCallOpen] = useState(false)
   const [disbursed, setDisbursed] = useState(false)
 
-  const title = params.get('title') ?? 'Request Housing Loan'
-  const amount = params.get('amount') ?? '$4,500.00'
+  const statusKey = params.get('status') ?? ''
+  if (statusKey && TERMINAL[statusKey]) {
+    return <TerminalDetail statusKey={statusKey} title={params.get('title') ?? ''} refStr={params.get('ref') ?? ''} />
+  }
+
+  const isRestructure = params.get('type') === 'restructure'
+  const isPayoff = params.get('type') === 'payoff'
+  const title = (isRestructure || isPayoff) ? 'Application in progress' : (params.get('title') ?? 'Request Housing Loan')
+  const amount = isRestructure ? '$8,000.00' : isPayoff ? '$3,200.00' : (params.get('amount') ?? '$4,500.00')
   const term = params.get('term') ?? '24 months'
   const rate = params.get('rate') ?? '1.20%/mo'
-  const ref = params.get('ref') ?? 'NH-2026-04821'
-  const requestedOn = params.get('on') ?? '12 Feb 2026'
-  const isStaff = title === 'Staff Loan'
+  const ref = isRestructure ? '026-01285956 · Restructure' : isPayoff ? '026-01285956 · Pay-off' : (params.get('ref') ?? 'NH-2026-04821')
+  const requestedOn = (isRestructure || isPayoff) ? '1 Jun 2026' : (params.get('on') ?? '12 Feb 2026')
+  const isStaff = !isRestructure && !isPayoff && title === 'Staff Loan'
 
-  const activeIndex = STAGES.findIndex((s) => s.state === 'active')
+  const stages = isRestructure
+    ? STAGES.map((s, i) => i === STAGES.length - 1 ? { ...s, label: 'New Terms\nTake Effect' } : s)
+    : isPayoff
+    ? STAGES.map((s, i) => i === STAGES.length - 1 ? { ...s, label: 'Loan\nClosed' } : s)
+    : STAGES
+  const activeIndex = stages.findIndex((s) => s.state === 'active')
   const [sel, setSel] = useState(activeIndex < 0 ? 0 : activeIndex)
 
   const disburse = () => {
@@ -93,11 +219,37 @@ export default function MyLoanReviewDetailScreen() {
         <Box sx={{ px: 3, pt: 2, pb: 5, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {/* Status + ref */}
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-            <Box sx={{ bgcolor: '#FBEBC6', borderRadius: '999px', px: '9px', py: '3px' }}>
-              <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#B7791F' }}>In review</Typography>
+            <Box sx={{ bgcolor: (isRestructure || isPayoff) ? '#EAF1FC' : '#FBEBC6', borderRadius: '999px', px: '9px', py: '3px' }}>
+              <Typography sx={{ fontSize: 11, fontWeight: 700, color: (isRestructure || isPayoff) ? BLUE : '#B7791F' }}>{(isRestructure || isPayoff) ? 'In progress' : 'In review'}</Typography>
             </Box>
             <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.5px' }}>{ref}</Typography>
           </Box>
+
+          {/* Restructure banner */}
+          {isRestructure && (
+            <Box sx={{ bgcolor: '#EFE7FB', border: '1px solid #D4C4F5', borderRadius: '12px', px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: '#7A4DD6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icon name="layers" size={18} color="#fff" />
+              </Box>
+              <Box>
+                <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.5px', color: '#5B3BA8' }}>RESTRUCTURE REQUEST</Typography>
+                <Typography sx={{ fontSize: 13, color: '#7A4DD6', mt: 0.25 }}>Modifying your existing Small Biz Loan</Typography>
+              </Box>
+            </Box>
+          )}
+
+          {/* Pay-off banner */}
+          {isPayoff && (
+            <Box sx={{ bgcolor: '#E8F6EF', border: '1px solid #A8DFC0', borderRadius: '12px', px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: GREEN, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icon name="cash" size={18} color="#fff" />
+              </Box>
+              <Box>
+                <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.5px', color: '#166534' }}>PAY-OFF REQUEST</Typography>
+                <Typography sx={{ fontSize: 13, color: GREEN, mt: 0.25 }}>Early settlement of your existing loan</Typography>
+              </Box>
+            </Box>
+          )}
 
           {/* Request amount card */}
           <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: 2.5 }}>
@@ -117,7 +269,7 @@ export default function MyLoanReviewDetailScreen() {
           <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', p: '18px' }}>
             <SectionLabel>APPLICATION TRACKER</SectionLabel>
             <Box sx={{ display: 'flex', alignItems: 'flex-start', mt: 1 }}>
-              {STAGES.map((s, i) => {
+              {stages.map((s, i) => {
                 const selected = i === sel
                 return (
                   <Fragment key={s.key}>
@@ -147,7 +299,7 @@ export default function MyLoanReviewDetailScreen() {
                       </Box>
                       <Typography sx={{ fontSize: 11, fontWeight: 600, color: s.state === 'pending' ? PEND : '#3A4256', textAlign: 'center', mt: 0.5, lineHeight: 1.2, whiteSpace: 'pre-line' }}>{s.label}</Typography>
                     </Box>
-                    {i < STAGES.length - 1 && (
+                    {i < stages.length - 1 && (
                       <Box sx={{ flex: 1, height: 3, mt: '16px', mx: 0.25, borderRadius: '2px', position: 'relative', bgcolor: s.state === 'done' ? GREEN : '#E2E6EC' }}>
                         {s.state === 'active' && (
                           <Box
@@ -177,7 +329,7 @@ export default function MyLoanReviewDetailScreen() {
             {/* Selected stage info */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, bgcolor: '#EAF1FC', borderRadius: '10px', px: 1.5, py: 1.25 }}>
               <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: BLUE, flexShrink: 0 }} />
-              <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#2B4A7E' }}>{STAGES[sel].info}</Typography>
+              <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#2B4A7E' }}>{stages[sel].info}</Typography>
             </Box>
             <Typography sx={{ fontSize: 12, color: MUTED, textAlign: 'center', mt: 1.5 }}>Tap a stage to preview the tracker</Typography>
           </Box>

@@ -163,16 +163,6 @@ export default function PortfolioSummaryScreen() {
           </Box>
         </Box>
 
-        {/* ── Loan breakdown ──────────────────────────────────────────────── */}
-        <Box>
-          <SectionHeader icon="layers" label="Loan breakdown" />
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <ActiveStyleLoanCard title="Small Biz Loan" icon="store" restructured />
-            <ActiveStyleLoanCard title="Housing Loan" icon="home" />
-            <ActiveStyleLoanCard title="Micro Loan" icon="sprout" status="overdue" />
-          </Box>
-        </Box>
-
         {/* ── Payment performance ─────────────────────────────────────────── */}
         <Box>
           <SectionHeader icon="checkCircle" label="Payment performance" />
@@ -211,16 +201,6 @@ export default function PortfolioSummaryScreen() {
                 </Box>
               ))}
             </Box>
-          </Box>
-        </Box>
-
-        {/* ── Loan breakdown ──────────────────────────────────────────────── */}
-        <Box>
-          <SectionHeader icon="layers" label="Loan breakdown" />
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <ActiveStyleLoanCard title="Small Biz Loan" icon="store" restructured />
-            <ActiveStyleLoanCard title="Housing Loan" icon="home" />
-            <ActiveStyleLoanCard title="Micro Loan" icon="sprout" status="overdue" />
           </Box>
         </Box>
 

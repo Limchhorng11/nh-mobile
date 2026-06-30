@@ -142,6 +142,7 @@ export function SettingsSections() {
   return (
     <>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+
         {!isVisitor && (
           <Box>
             <SectionLabel>MY OFFICER</SectionLabel>
@@ -201,10 +202,8 @@ export function SettingsSections() {
         <Box>
           <SectionLabel>ABOUT</SectionLabel>
           <Card>
-            <NavRow icon="phone" label="NHFC Hotline" divider onClick={() => navigate('/contact-us')} />
             <NavRow icon="faq" label="FAQ" divider onClick={() => navigate('/faq')} />
-            <NavRow icon="appPolicy" label="App policy & terms" divider onClick={() => navigate('/terms-privacy')} />
-            <NavRow icon="aboutNhfc" label="About NHFC" onClick={() => navigate('/about')} />
+            <NavRow icon="appPolicy" label="App policy & terms" onClick={() => navigate('/terms-privacy')} />
           </Card>
         </Box>
 
@@ -255,7 +254,7 @@ export default function SettingsScreen() {
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Top icon row — back + chat + bell */}
-        <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#fff', px: 3, pt: 3, pb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: '#F5F5F5', px: 3, pt: 3, pb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <IconButton onClick={() => navigate(-1)} aria-label="Back" sx={{ ml: -1, color: '#0B0F1A' }}>
             <Icon name="chevronLeft" size={26} color="#0B0F1A" />
           </IconButton>
@@ -306,14 +305,6 @@ export default function SettingsScreen() {
                 Krong Kampuchea
               </Typography>
             </Box>
-            <IconButton
-              onClick={(e) => { e.stopPropagation(); navigate('/app-settings') }}
-              size="small"
-              aria-label="App settings"
-              sx={{ color: '#1A1A1A' }}
-            >
-              <Icon name="appSettings" size={24} color="#1A1A1A" />
-            </IconButton>
           </Box>
         )}
 

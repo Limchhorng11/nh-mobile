@@ -16,6 +16,14 @@ const MUTED = '#8A94A6'
 const BLUE = '#275CB2'
 const DANGER = '#D63B3B'
 
+const RESIDENTIAL: { label: string; value: string }[] = [
+  { label: 'City / Province', value: 'Phnom Penh' },
+  { label: 'District / Khan', value: 'Khan Toul Kork' },
+  { label: 'Commune / Sangkat', value: 'Sangkat Toul Kork' },
+  { label: 'Village', value: 'Phum Toul Kork' },
+  { label: 'House No · Street No', value: 'No. 45 · Street 315' },
+]
+
 const EMPLOYMENT: { label: string; value: string }[] = [
   { label: 'Employment Type', value: 'Employed · Private sector' },
   { label: 'Occupation / Position', value: 'Senior accountant' },
@@ -27,7 +35,7 @@ const EMPLOYMENT: { label: string; value: string }[] = [
   { label: 'Monthly Range', value: '$500.00' },
 ]
 
-// ─── Profile identity card — photo, name, NID + blue detail panel ────────────
+// ─── Profile identity card — photo + field rows ──────────────────────────────
 function IdentityCard({ isStaff }: { isStaff?: boolean }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [photo, setPhoto] = useState<string | null>(null)
@@ -38,87 +46,39 @@ function IdentityCard({ isStaff }: { isStaff?: boolean }) {
   }
 
   return (
-    <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-        <Box sx={{ position: 'relative', flexShrink: 0 }}>
-          <Box sx={{ width: 126, height: 126, borderRadius: '14px', overflow: 'hidden', bgcolor: '#EDF1F6' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+      {/* Avatar */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 0.5 }}>
+        <Box sx={{ position: 'relative' }}>
+          <Box sx={{ width: 88, height: 88, borderRadius: '50%', overflow: 'hidden', bgcolor: '#EDF1F6', border: '3px solid #fff', boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}>
             {photo ? (
               <Box component="img" src={photo} alt="profile photo" sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             ) : (
               <AssetImg src={ILLUS.avatar01} alt="profile photo" sx={{ width: '100%', height: '100%', objectFit: 'cover' }} fallback={<AvatarArt />} />
             )}
           </Box>
-          {/* Hidden capture input — opens the device camera on mobile */}
-          <Box
-            component="input"
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            capture="user"
-            onChange={onPick}
-            sx={{ display: 'none' }}
-          />
-          <Box
-            onClick={() => fileRef.current?.click()}
-            role="button"
-            aria-label="Take photo"
-            sx={{
-              position: 'absolute',
-              right: -6,
-              bottom: -6,
-              width: 28,
-              height: 28,
-              borderRadius: '50%',
-              bgcolor: BLUE,
-              border: '2px solid #fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-            }}
-          >
-            <Icon name="camera" size={14} color="#fff" />
+          <Box component="input" ref={fileRef} type="file" accept="image/*" capture="user" onChange={onPick} sx={{ display: 'none' }} />
+          <Box onClick={() => fileRef.current?.click()} role="button" aria-label="Take photo"
+            sx={{ position: 'absolute', right: 0, bottom: 0, width: 26, height: 26, borderRadius: '50%', bgcolor: BLUE, border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <Icon name="camera" size={13} color="#fff" />
           </Box>
-        </Box>
-        <Box sx={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <Box>
-            <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: 1.3 }}>Full Name</Typography>
-            <Typography sx={{ fontSize: 15, fontWeight: 800, color: HEADING, lineHeight: 1.25 }} noWrap>
-              Krong Kampuchea
-            </Typography>
-          </Box>
-          <Box>
-            <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: 1.3 }}>National ID</Typography>
-            <Typography sx={{ fontSize: 15, fontWeight: 700, color: HEADING }}>28012026001</Typography>
-          </Box>
-          {isStaff && (
-            <Box>
-              <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: 1.3 }}>Staff ID</Typography>
-              <Typography sx={{ fontSize: 15, fontWeight: 700, color: HEADING }}>NH-000123456</Typography>
-            </Box>
-          )}
         </Box>
       </Box>
 
-      {/* Blue detail panel */}
-      <Box sx={{ bgcolor: BLUE, borderRadius: '12px', p: '14px', color: '#fff' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-          <Box>
-            <Typography sx={{ fontSize: 11.5, color: 'rgba(255,255,255,0.7)', lineHeight: 1.3 }}>Birth Date</Typography>
-            <Typography sx={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>12 May 1988</Typography>
-          </Box>
-          <Box sx={{ textAlign: 'right' }}>
-            <Typography sx={{ fontSize: 11.5, color: 'rgba(255,255,255,0.7)', lineHeight: 1.3 }}>Mobile</Typography>
-            <Typography sx={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>010 234 5678</Typography>
-          </Box>
-        </Box>
-        <Box sx={{ mt: 1.5 }}>
-          <Typography sx={{ fontSize: 11.5, color: 'rgba(255,255,255,0.7)', lineHeight: 1.3 }}>Address</Typography>
-          <Typography sx={{ fontSize: 14, fontWeight: 600, lineHeight: 1.4, color: '#fff' }}>
-            No. 28C, Street 308, Phum 14, Tonle Bassac, Chamkar Mon, Phnom Penh
-          </Typography>
+      {/* Field rows — same style as Residential Address */}
+      <FieldCard label="First Name" value="Krong" />
+      <FieldCard label="Last Name" value="Kampuchea" />
+      <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: '14px 16px' }}>
+        <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: 1.3, mb: 0.5 }}>National ID</Typography>
+        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, bgcolor: '#EDFAF3', borderRadius: '6px', px: '8px', py: '3px' }}>
+          <Icon name="checkCircle" size={13} color="#16A34A" />
+          <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#16A34A', lineHeight: 1 }}>Verified</Typography>
         </Box>
       </Box>
+      {isStaff && <FieldCard label="Staff ID" value="NH-000123456" />}
+      <FieldCard label="Birth Date" value="12 May 1988" />
+      <FieldCard label="Mobile" value="010 234 5678" />
+      <FieldCard label="Address" value="No. 28C, Street 308, Phum 14, Tonle Bassac, Chamkar Mon, Phnom Penh" />
     </Box>
   )
 }
@@ -170,6 +130,20 @@ export default function ProfileScreen() {
             <IdentityCard isStaff={isStaff} />
           </Box>
 
+          {/* Residential address */}
+          <Box>
+            <Box sx={{ py: 0.5, mb: 1 }}>
+              <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', color: MUTED }}>
+                RESIDENTIAL ADDRESS
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+              {RESIDENTIAL.map((f) => (
+                <FieldCard key={f.label} label={f.label} value={f.value} />
+              ))}
+            </Box>
+          </Box>
+
           {/* Employment details — always visible */}
           <Box>
             <Box sx={{ py: 0.5, mb: 1 }}>
@@ -184,18 +158,6 @@ export default function ProfileScreen() {
             </Box>
           </Box>
 
-
-          {/* Delete account */}
-          <Box sx={{ pt: '60px', pb: '8px', display: 'flex', justifyContent: 'center' }}>
-            <Box
-              role="button"
-              onClick={() => setDeleteOpen(true)}
-              sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, cursor: 'pointer', '&:active': { opacity: 0.6 } }}
-            >
-              <Icon name="trash" size={20} color={MUTED} />
-              <Typography sx={{ fontSize: 16, fontWeight: 800, color: MUTED }}>Delete account</Typography>
-            </Box>
-          </Box>
         </Box>
       </Box>
 

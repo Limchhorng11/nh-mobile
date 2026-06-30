@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Switch from '@mui/material/Switch'
+import Button from '@mui/material/Button'
 import { Icon, type IconName } from '../../components/Icon'
 import { CollapsingHeader, CollapsingTitle, useCollapse } from '../../components/CollapsingHeader'
+import { BottomSheet } from '../mwl/MwlParts'
+import PinGateScreen from '../PinGateScreen'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Account Security — sign-in methods + active sessions (opened from Settings).
@@ -110,6 +113,9 @@ export default function AccountSecurityScreen() {
   const navigate = useNavigate()
   const { collapse, onScroll } = useCollapse()
   const [faceId, setFaceId] = useState(true)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [pinStep, setPinStep] = useState(false)
+  const [deleted, setDeleted] = useState(false)
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -188,14 +194,70 @@ export default function AccountSecurityScreen() {
           {/* Delete account */}
           <Box
             role="button"
-            onClick={() => {}}
-            sx={{ mt: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, py: 1.75, borderRadius: '12px', border: `1.5px solid ${DANGER}33`, bgcolor: '#FFF1F4', cursor: 'pointer', '&:active': { opacity: 0.7 } }}
+            onClick={() => setDeleteOpen(true)}
+            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, py: 1.75, px: '30px', mt: '30px', borderRadius: '12px', border: `1.5px solid ${DANGER}33`, bgcolor: '#FFF1F4', cursor: 'pointer', '&:active': { opacity: 0.7 } }}
           >
             <Icon name="trash" size={20} color={DANGER} />
             <Typography sx={{ fontSize: 15, fontWeight: 800, color: DANGER }}>Delete Account</Typography>
           </Box>
+
         </Box>
       </Box>
+
+      {/* PIN overlay — full screen, shown above everything */}
+      {pinStep && (
+        <Box sx={{ position: 'absolute', inset: 0, zIndex: 1400, bgcolor: '#F5F5F5' }}>
+          <PinGateScreen onSuccess={() => { setPinStep(false); setDeleteOpen(false); navigate('/flow-select') }} />
+        </Box>
+      )}
+
+      {/* Delete account confirmation sheet */}
+      <BottomSheet open={deleteOpen && !pinStep} onClose={() => { setDeleteOpen(false); setDeleted(false); setPinStep(false) }}>
+        {deleted ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, pb: 1 }}>
+            <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="trash" size={26} color={DANGER} />
+            </Box>
+            <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px', mt: 0.5 }}>Account Deleted</Typography>
+            <Typography sx={{ fontSize: 14, color: MUTED, textAlign: 'center', lineHeight: 1.55 }}>
+              Your account has been permanently deleted. We're sorry to see you go.
+            </Typography>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={() => navigate('/flow-select')}
+              sx={{ mt: 1, height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' } }}
+            >
+              Back to Home
+            </Button>
+          </Box>
+        ) : (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, pb: 1 }}>
+            <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="trash" size={26} color={DANGER} />
+            </Box>
+            <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px', mt: 0.5 }}>Delete Account?</Typography>
+            <Typography sx={{ fontSize: 14, color: MUTED, textAlign: 'center', lineHeight: 1.55 }}>
+              This will permanently remove your account and all associated data. This action cannot be undone.
+            </Typography>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={() => setPinStep(true)}
+              sx={{ mt: 1, height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: DANGER, '&:hover': { bgcolor: '#B52E2E' } }}
+            >
+              Yes, delete my account
+            </Button>
+            <Typography
+              role="button"
+              onClick={() => setDeleteOpen(false)}
+              sx={{ textAlign: 'center', fontSize: 14, fontWeight: 600, color: MUTED, cursor: 'pointer', pb: 0.5, '&:active': { opacity: 0.6 } }}
+            >
+              Cancel
+            </Typography>
+          </Box>
+        )}
+      </BottomSheet>
     </Box>
   )
 }

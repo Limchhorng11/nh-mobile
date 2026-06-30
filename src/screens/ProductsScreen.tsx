@@ -19,8 +19,9 @@ const PRODUCTS: Product[] = [
   { name: 'Small Biz Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.smallS1, icon: 'store' },
   { name: 'Housing Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.housingS1, icon: 'globe' },
   { name: 'SME Loan', amount: 'USD ≤ 3,000', rate: '1.2%', img: BANNERS.smeS1, icon: 'briefcase' },
-  { name: 'Staff Loan', amount: 'USD ≤ 10,000', rate: '1.0%', img: BANNERS.staffLoan, icon: 'idCard' },
 ]
+
+const STAFF_LOAN: Product = { name: 'Staff Loan', amount: 'USD ≤ 10,000', rate: '1.0%', img: BANNERS.staffLoan, icon: 'idCard' }
 
 const MIGRATION: Product = { name: 'Migration Worker Loan', amount: 'USD ≤ 15,000', rate: '1.2%', img: BANNERS.mwlS1, icon: 'plane' }
 
@@ -88,7 +89,7 @@ function ProductCard({ p, height, showRate = false }: { p: Product; height: numb
 }
 
 // Exported product data + card so the dedicated All Loan screen can reuse them.
-export { ProductCard, PRODUCTS, MIGRATION }
+export { ProductCard, PRODUCTS, STAFF_LOAN, MIGRATION }
 export type { Product }
 
 // ─── Discover — horizontal carousel of shortcuts + news under "All Loan" ─────
@@ -344,7 +345,7 @@ function ProductsTopBar() {
         position: 'sticky',
         top: 0,
         zIndex: 10,
-        bgcolor: '#fff',
+        bgcolor: 'transparent',
       }}
     >
       <Box

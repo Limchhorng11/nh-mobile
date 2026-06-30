@@ -63,20 +63,10 @@ export default function TermsPrivacyScreen() {
             ))}
           </Box>
 
-          {/* Version + PDF */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
-            <Box>
-              <Typography sx={{ fontSize: 14, fontWeight: 700, color: HEADING }}>Version 3.2</Typography>
-              <Typography sx={{ fontSize: 12, color: MUTED, mt: 0.25 }}>Updated 12 May 2026</Typography>
-            </Box>
-            <Box
-              role="button"
-              onClick={() => {}}
-              sx={{ display: 'flex', alignItems: 'center', gap: 0.75, px: 1.75, py: 1, borderRadius: '10px', bgcolor: '#fff', border: '1px solid #E7ECF2', cursor: 'pointer', '&:active': { opacity: 0.7 } }}
-            >
-              <Icon name="download" size={18} color={BLUE} />
-              <Typography sx={{ fontSize: 13, fontWeight: 700, color: BLUE }}>PDF</Typography>
-            </Box>
+          {/* Version */}
+          <Box sx={{ mt: 2 }}>
+            <Typography sx={{ fontSize: 14, fontWeight: 700, color: HEADING }}>Version 3.2</Typography>
+            <Typography sx={{ fontSize: 12, color: MUTED, mt: 0.25 }}>Updated 12 May 2026</Typography>
           </Box>
 
           {/* Sections */}

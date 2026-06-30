@@ -38,6 +38,7 @@ const WelcomeScreen    = lazy(() => import('../screens/WelcomeScreen'))
 const StaffLoanScreen  = lazy(() => import('../screens/StaffLoanScreen'))
 const QrSignInScreen   = lazy(() => import('../screens/visitor/QrSignInScreen'))
 const OtpScreen        = lazy(() => import('../screens/visitor/OtpScreen'))
+const EnterNameScreen  = lazy(() => import('../screens/visitor/EnterNameScreen'))
 const CreatePinScreen  = lazy(() => import('../screens/visitor/CreatePinScreen'))
 const ConfirmPinScreen = lazy(() => import('../screens/visitor/ConfirmPinScreen'))
 const AdvanceAccountScreen = lazy(() => import('../screens/AdvanceAccountScreen'))
@@ -156,6 +157,7 @@ export default function AppRouter() {
         <Route path="/sign-up" element={<SignUpScreen />} />
         <Route path="/qr-signin" element={<QrSignInScreen />} />
         <Route path="/otp" element={<OtpScreen />} />
+        <Route path="/enter-name" element={<EnterNameScreen />} />
         <Route path="/create-pin" element={<CreatePinScreen />} />
         <Route path="/confirm-pin" element={<ConfirmPinScreen />} />
         <Route path="/staff-signup-info" element={<StaffInfoScreen />} />

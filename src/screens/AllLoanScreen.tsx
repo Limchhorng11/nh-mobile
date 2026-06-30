@@ -4,7 +4,8 @@ import Box from '@mui/material/Box'
 import { Icon } from '../components/Icon'
 import { CollapsingHeader, CollapsingTitle, useCollapse } from '../components/CollapsingHeader'
 import CallSheet from '../components/CallSheet'
-import { ProductCard, PRODUCTS, MIGRATION } from './ProductsScreen'
+import { ProductCard, PRODUCTS, STAFF_LOAN, MIGRATION } from './ProductsScreen'
+import { useFlow } from '../workspace/FlowContext'
 
 const HEADING = '#0B0F1A'
 
@@ -13,6 +14,7 @@ const HEADING = '#0B0F1A'
 // ─────────────────────────────────────────────────────────────────────────────
 export default function AllLoanScreen() {
   const navigate = useNavigate()
+  const { flow } = useFlow()
   const { collapse, onScroll } = useCollapse()
   const [callOpen, setCallOpen] = useState(false)
 
@@ -37,9 +39,9 @@ export default function AllLoanScreen() {
         <CollapsingTitle collapse={collapse}>{"All Loan"}</CollapsingTitle>
 
         <Box sx={{ px: 3, pb: '44px' }}>
-          {/* Two columns × three rows — all six products in one grid. */}
+          {/* Staff sees 6 products (incl. Staff Loan); all other flows see 5. */}
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5 }}>
-            {[...PRODUCTS, MIGRATION].map((p) => (
+            {[...PRODUCTS, ...(flow === 'Staff' ? [STAFF_LOAN] : []), MIGRATION].map((p) => (
               <ProductCard key={p.name} p={p} height={152} />
             ))}
           </Box>

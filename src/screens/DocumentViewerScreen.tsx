@@ -1,6 +1,7 @@
 ﻿import { useNavigate, useSearchParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import { Icon } from '../components/Icon'
 
@@ -14,42 +15,37 @@ const BRAND = '#2B53A8'
 const HEAD_ORANGE = '#C2700C'
 const BORDER = '#C9CDD4'
 
-type Row = [string, string, string, string, string, string, string, string]
+type Row = { cells: [string, string, string, string, string, string, string, string]; paid: boolean }
 
 // No, Date, Principal, Interest, Admin Fee, Unpaid Int, Total Amount, Loan Outstanding
+// Rows 1–8 are paid (strikethrough), rows 9–24 are upcoming
 const ROWS: Row[] = [
-  ['1', '19/12/2023', '100.00', '82.50', '16.50', '0.00', '199.00', '2,900.00'],
-  ['2', '19/01/2024', '100.00', '44.95', '8.99', '0.00', '153.94', '2,800.00'],
-  ['3', '19/02/2024', '100.00', '43.40', '8.68', '0.00', '152.08', '2,700.00'],
-  ['4', '19/03/2024', '100.00', '39.15', '7.83', '0.00', '146.98', '2,600.00'],
-  ['5', '19/04/2024', '100.00', '40.30', '8.06', '0.00', '148.36', '2,500.00'],
-  ['6', '20/05/2024', '100.00', '38.75', '7.75', '0.00', '146.50', '2,400.00'],
-  ['7', '19/06/2024', '100.00', '36.00', '7.20', '0.00', '143.20', '2,300.00'],
-  ['8', '19/07/2024', '100.00', '34.50', '6.90', '0.00', '141.40', '2,200.00'],
-  ['9', '18/08/2024', '100.00', '34.10', '6.82', '0.00', '140.92', '2,100.00'],
-  ['10', '19/09/2024', '100.00', '32.55', '6.51', '0.00', '139.06', '2,000.00'],
-  ['11', '21/10/2024', '100.00', '32.00', '6.40', '0.00', '138.40', '1,900.00'],
-  ['12', '19/11/2024', '100.00', '27.55', '5.51', '0.00', '133.06', '1,800.00'],
-  ['13', '19/12/2024', '100.00', '27.00', '5.40', '0.00', '132.40', '1,700.00'],
-  ['14', '20/01/2025', '100.00', '27.20', '5.44', '0.00', '132.64', '1,600.00'],
-  ['15', '19/02/2025', '100.00', '24.00', '4.80', '0.00', '128.80', '1,500.00'],
-  ['16', '19/03/2025', '100.00', '21.00', '4.20', '0.00', '125.20', '1,400.00'],
-  ['17', '21/04/2025', '100.00', '23.10', '4.62', '0.00', '127.72', '1,300.00'],
-  ['18', '19/05/2025', '100.00', '18.20', '3.64', '0.00', '121.84', '1,200.00'],
-  ['19', '19/06/2025', '100.00', '18.60', '3.72', '0.00', '122.32', '1,100.00'],
-  ['20', '21/07/2025', '100.00', '17.60', '3.52', '0.00', '121.12', '1,000.00'],
-  ['21', '19/08/2025', '100.00', '14.50', '2.90', '0.00', '117.40', '900.00'],
-  ['22', '19/09/2025', '100.00', '13.95', '2.79', '0.00', '116.74', '800.00'],
-  ['23', '20/10/2025', '100.00', '12.40', '2.48', '0.00', '114.88', '700.00'],
-  ['24', '19/11/2025', '100.00', '10.50', '2.10', '0.00', '112.60', '600.00'],
-  ['25', '19/12/2025', '100.00', '9.00', '1.80', '0.00', '110.80', '500.00'],
-  ['26', '19/01/2026', '100.00', '7.75', '1.55', '0.00', '109.30', '400.00'],
-  ['27', '19/02/2026', '100.00', '6.20', '1.24', '0.00', '107.44', '300.00'],
-  ['28', '19/03/2026', '100.00', '4.20', '0.84', '0.00', '105.04', '200.00'],
-  ['29', '20/04/2026', '100.00', '3.20', '0.64', '0.00', '103.84', '100.00'],
-  ['30', '19/05/2026', '100.00', '1.45', '0.29', '0.00', '101.74', '0.00'],
+  { cells: ['1',  '5/01/26', '39.46', '3.99', '1.54', '0.00', '44.99', '4,460.54'], paid: true  },
+  { cells: ['2',  '5/02/26', '39.46', '3.99', '1.54', '0.00', '44.99', '4,421.08'], paid: true  },
+  { cells: ['3',  '5/03/26', '39.46', '3.99', '1.54', '0.00', '44.99', '4,381.62'], paid: true  },
+  { cells: ['4',  '5/04/26', '39.46', '3.99', '1.54', '0.00', '44.99', '4,342.16'], paid: true  },
+  { cells: ['5',  '5/05/26', '39.46', '3.99', '1.54', '0.00', '44.99', '4,302.70'], paid: true  },
+  { cells: ['6',  '5/06/26', '39.46', '3.99', '1.54', '0.00', '44.99', '4,263.24'], paid: true  },
+  { cells: ['7',  '5/07/26', '39.46', '3.99', '1.54', '0.00', '44.99', '4,223.78'], paid: true  },
+  { cells: ['8',  '5/08/26', '39.46', '3.99', '1.54', '0.00', '44.99', '4,184.32'], paid: true  },
+  { cells: ['9',  '5/09/26', '39.93', '3.59', '1.47', '0.00', '44.99', '4,144.39'], paid: false },
+  { cells: ['10', '5/10/26', '39.93', '3.59', '1.47', '0.00', '44.99', '4,104.46'], paid: false },
+  { cells: ['11', '5/11/26', '39.93', '3.59', '1.47', '0.00', '44.99', '4,064.53'], paid: false },
+  { cells: ['12', '5/12/26', '39.93', '3.59', '1.47', '0.00', '44.99', '4,024.60'], paid: false },
+  { cells: ['13', '5/01/27', '39.93', '3.59', '1.47', '0.00', '44.99', '3,984.67'], paid: false },
+  { cells: ['14', '5/02/27', '39.93', '3.59', '1.47', '0.00', '44.99', '3,944.74'], paid: false },
+  { cells: ['15', '5/03/27', '39.93', '3.59', '1.47', '0.00', '44.99', '3,904.81'], paid: false },
+  { cells: ['16', '5/04/27', '39.93', '3.59', '1.47', '0.00', '44.99', '3,864.88'], paid: false },
+  { cells: ['17', '5/05/27', '39.93', '3.59', '1.47', '0.00', '44.99', '3,824.95'], paid: false },
+  { cells: ['18', '5/06/27', '39.93', '3.59', '1.47', '0.00', '44.99', '3,785.02'], paid: false },
+  { cells: ['19', '5/07/27', '39.93', '3.59', '1.47', '0.00', '44.99', '3,745.09'], paid: false },
+  { cells: ['20', '5/08/27', '39.93', '3.59', '1.47', '0.00', '44.99', '3,705.16'], paid: false },
+  { cells: ['21', '5/09/27', '39.93', '3.59', '1.47', '0.00', '44.99', '3,665.23'], paid: false },
+  { cells: ['22', '5/10/27', '39.93', '3.59', '1.47', '0.00', '44.99', '3,625.30'], paid: false },
+  { cells: ['23', '5/11/27', '39.93', '3.59', '1.47', '0.00', '44.99', '3,585.37'], paid: false },
+  { cells: ['24', '5/12/27', '39.93', '3.59', '1.47', '0.00', '44.99', '3,545.44'], paid: false },
 ]
-const TOTAL: Row = ['', 'Total', '3,000.00', '745.60', '149.12', '0.00', '3,894.72', '']
+const TOTAL_CELLS: [string, string, string, string, string, string, string, string] = ['', 'Total', '950.75', '86.52', '35.73', '0.00', '1,079.76', '']
 const HEAD = ['No', 'Installment Date', 'Principal', 'Interest', 'Admin Fee', 'Unpaid Int', 'Total Amount', 'Loan Outstanding']
 const COL_W = [20, 52, 44, 42, 40, 38, 50, 52]
 
@@ -100,6 +96,7 @@ export default function DocumentViewerScreen() {
   const [params] = useSearchParams()
   const name = params.get('name') ?? 'Actual Payment'
   const contract = CONTRACTS[name]
+  const isGuaranteeDownload = params.get('guarantee') === 'true'
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -122,7 +119,8 @@ export default function DocumentViewerScreen() {
         </Box>
       ) : (
       /* Document body — repayment schedule */
-      <Box className="scroll-content" sx={{ flex: 1, overflow: 'auto', bgcolor: '#fff' }}>
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <Box className="scroll-content" sx={{ flex: 1, overflow: 'auto', bgcolor: '#fff' }}>
         <Box sx={{ px: 1.5, py: 3 }}>
           {/* Title block */}
           <Box sx={{ textAlign: 'center', mb: 2.5 }}>
@@ -133,6 +131,18 @@ export default function DocumentViewerScreen() {
               Customer History
             </Typography>
           </Box>
+
+          {/* Guarantor notice */}
+          {isGuaranteeDownload && (
+            <Box sx={{ mb: 2.5, bgcolor: '#FBF6EC', border: '1px solid #E8C97A', borderRadius: '12px', px: 2, py: 1.5, display: 'flex', alignItems: 'flex-start', gap: 1.25 }}>
+              <Box sx={{ mt: '1px', flexShrink: 0 }}>
+                <Icon name="info" size={16} color="#C47F11" />
+              </Box>
+              <Typography sx={{ fontSize: 13, color: '#7A5A12', lineHeight: 1.55 }}>
+                You are viewing this document as a <Box component="span" sx={{ fontWeight: 700 }}>guarantor</Box>. You are jointly responsible if the primary borrower defaults on this loan.
+              </Typography>
+            </Box>
+          )}
 
           {/* Metadata — two columns */}
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 3, rowGap: 1 }}>
@@ -165,19 +175,35 @@ export default function DocumentViewerScreen() {
             </Box>
             {/* Rows */}
             {ROWS.map((r) => (
-              <Box key={r[0]} sx={{ display: 'flex', borderBottom: `1px solid ${BORDER}` }}>
-                {r.map((c, i) => (
-                  <Cell key={i} w={COL_W[i]} align={i === 0 || i === 1 ? 'left' : 'right'} last={i === r.length - 1}>{c}</Cell>
+              <Box key={r.cells[0]} sx={{ position: 'relative', display: 'flex', borderBottom: `1px solid ${BORDER}` }}>
+                {r.cells.map((c, i) => (
+                  <Cell key={i} w={COL_W[i]} align={i === 0 || i === 1 ? 'left' : 'right'} paid={r.paid} last={i === r.cells.length - 1}>{c}</Cell>
                 ))}
+                {r.paid && (
+                  <Box sx={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', bgcolor: '#A0A8B5', pointerEvents: 'none' }} />
+                )}
               </Box>
             ))}
             {/* Total */}
             <Box sx={{ display: 'flex' }}>
-              {TOTAL.map((c, i) => (
-                <Cell key={i} w={COL_W[i]} align={i === 1 ? 'center' : 'right'} last={i === TOTAL.length - 1} bold>{c}</Cell>
+              {TOTAL_CELLS.map((c, i) => (
+                <Cell key={i} w={COL_W[i]} align={i === 1 ? 'center' : 'right'} last={i === TOTAL_CELLS.length - 1} bold>{c}</Cell>
               ))}
             </Box>
           </Box>
+        </Box>
+        </Box>
+
+        {/* Sticky download button */}
+        <Box sx={{ flexShrink: 0, px: 3, pt: 2, pb: '36px', bgcolor: '#fff', borderTop: '1px solid #EDEFF2' }}>
+          <Button
+            variant="contained"
+            fullWidth
+            startIcon={<Icon name="download" size={18} color="#fff" />}
+            sx={{ height: 52, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1e4a9a' } }}
+          >
+            Download PDF
+          </Button>
         </Box>
       </Box>
       )}
@@ -257,7 +283,7 @@ function Meta({ label, value, inline }: { label: string; value: string; inline?:
   )
 }
 
-function Cell({ children, w, head, bold, align = 'left', last }: { children: React.ReactNode; w: number; head?: boolean; bold?: boolean; align?: 'left' | 'right' | 'center'; last?: boolean }) {
+function Cell({ children, w, head, bold, paid, align = 'left', last }: { children: React.ReactNode; w: number; head?: boolean; bold?: boolean; paid?: boolean; align?: 'left' | 'right' | 'center'; last?: boolean }) {
   return (
     <Box
       sx={{
@@ -269,7 +295,7 @@ function Cell({ children, w, head, bold, align = 'left', last }: { children: Rea
         textAlign: align,
       }}
     >
-      <Typography sx={{ fontSize: 8.5, fontWeight: head || bold ? 700 : 400, color: head ? HEAD_ORANGE : HEADING, lineHeight: 1.3 }}>
+      <Typography sx={{ fontSize: 8.5, fontWeight: head || bold ? 700 : 400, color: head ? HEAD_ORANGE : paid ? '#A0A8B5' : HEADING, lineHeight: 1.3, textDecoration: paid ? 'line-through' : 'none' }}>
         {children}
       </Typography>
     </Box>

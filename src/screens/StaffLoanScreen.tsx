@@ -133,7 +133,7 @@ export default function StaffLoanScreen() {
           <Button
             variant="contained"
             fullWidth
-            onClick={() => navigate('/my-loan-review')}
+            onClick={() => navigate('/my-loan?tab=review')}
             endIcon={<Icon name="arrowRight" size={18} />}
             sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' } }}
           >

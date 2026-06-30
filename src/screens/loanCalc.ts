@@ -6,11 +6,10 @@
 
 export type Currency = 'USD' | 'KHR'
 
-// Format a number in the selected currency. KHR shows whole riel (no decimals);
-// USD shows cents.
+// Format a number in the selected currency. KHR converts at 1 USD = 4,000 KHR.
 export const money = (n: number, currency: Currency = 'USD') =>
   currency === 'KHR'
-    ? '៛' + Math.round(n).toLocaleString('en-US')
+    ? '៛' + Math.round(n * 4000).toLocaleString('en-US')
     : '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export type ScheduleRow = { month: number; principal: number; interest: number; payment: number; balance: number }
@@ -35,7 +34,7 @@ export function termStopsForProduct(product?: string): number[] {
 
 // Build the full repayment schedule for the chosen method. Each method shapes the
 // principal/interest split differently, so the headline payment and totals follow.
-export function buildSchedule(amount: number, months: number, monthlyRatePct: number, method: string) {
+export function buildSchedule(amount: number, months: number, monthlyRatePct: number, method: string, gracePeriodMonths = 3) {
   const r = monthlyRatePct / 100
   const rows: ScheduleRow[] = [{ month: 0, principal: 0, interest: 0, payment: 0, balance: amount }]
   let balance = amount
@@ -64,7 +63,7 @@ export function buildSchedule(amount: number, months: number, monthlyRatePct: nu
     }
   } else if (method === 'Mix-Grace Period') {
     // First few months interest-only (grace), then annuity over the remaining term.
-    const grace = Math.min(3, Math.max(0, months - 1))
+    const grace = Math.min(gracePeriodMonths, Math.max(0, months - 1))
     const payAfter = annuityPayment(amount, months - grace)
     for (let m = 1; m <= months; m++) {
       const interest = balance * r
