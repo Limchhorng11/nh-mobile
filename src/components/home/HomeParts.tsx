@@ -278,15 +278,14 @@ const BLOG_POSTS = [
 ]
 
 function BlogGrid() {
+  const navigate = useNavigate()
   return (
     <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 0.5, mx: -3, px: 3, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
       {BLOG_POSTS.map((p) => (
         <Box
           key={p.videoId}
-          component="a"
-          href={`https://www.youtube.com/watch?v=${p.videoId}`}
-          target="_blank"
-          rel="noopener noreferrer"
+          role="button"
+          onClick={() => navigate('/blogs')}
           sx={{ flexShrink: 0, width: 200, bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '14px', overflow: 'hidden', textDecoration: 'none', display: 'block', cursor: 'pointer', '&:active': { opacity: 0.85 } }}
         >
           <Box sx={{ position: 'relative', height: 112, bgcolor: '#000', overflow: 'hidden' }}>
