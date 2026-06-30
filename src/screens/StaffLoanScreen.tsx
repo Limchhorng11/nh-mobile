@@ -256,10 +256,29 @@ export default function StaffLoanScreen() {
                 months={months}
                 onMonthsChange={setMonths}
                 minMonths={3}
-                maxMonths={12}
+                maxMonths={24}
                 ratePct={activeLoan.rate}
                 label=""
-              />
+                paymentNote={(pmt) => (
+                  <Typography sx={{ fontSize: 12, color: '#5B7299', mt: 0.5 }}>
+                    {((pmt / BASE_SALARY) * 100).toFixed(1)}% of salary
+                  </Typography>
+                )}
+              >
+                {/* Fee breakdown — inside the repayment card */}
+                <Box sx={{ borderTop: '1px dashed #D6DCE5', mt: 2, pt: 1 }}>
+                  {([
+                    ['Upfront Fee (1%)', `-$${(principal * 0.01).toFixed(2)}`, false],
+                    ['CBC Fee', '-$5.00', false],
+                    ['Net Amount', `$${(principal - principal * 0.01 - 5).toFixed(2)}`, true],
+                  ] as [string, string, boolean][]).map(([label, value, hi]) => (
+                    <Box key={label} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: '8px' }}>
+                      <Typography sx={{ fontSize: 13.5, color: hi ? '#0B0F1A' : '#8A94A6', fontWeight: hi ? 700 : 400 }}>{label}</Typography>
+                      <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: hi ? '#0B0F1A' : '#D92D20' }}>{value}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </RepaymentEstimate>
             </Box>
           </Box>
 

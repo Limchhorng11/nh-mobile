@@ -26,6 +26,8 @@ export default function RepaymentEstimate({
   graceMonths = 0,
   label = 'ESTIMATE YOUR REPAYMENT',
   scheduleTitle,
+  children,
+  paymentNote,
 }: {
   product: string
   principal: number
@@ -40,6 +42,10 @@ export default function RepaymentEstimate({
   label?: string
   /** Override the schedule sheet heading (e.g. destination name for MWL). */
   scheduleTitle?: string
+  /** Optional content rendered inside the card, after the footnote. */
+  children?: React.ReactNode
+  /** Optional note rendered below the estimated monthly payment amount. Receives the computed payment value. */
+  paymentNote?: (payment: number) => React.ReactNode
 }) {
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const yrsLabel = Number.isInteger(months / 12) ? months / 12 : (months / 12).toFixed(1)
@@ -196,6 +202,7 @@ export default function RepaymentEstimate({
             <Box sx={{ minWidth: 0, flex: 1 }}>
               <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#5B7299' }}>Estimated monthly payment</Typography>
               <Typography sx={{ fontSize: 26, fontWeight: 800, color: BLUE, letterSpacing: '-0.5px', mt: 0.25 }}>{money(payment, currency)}</Typography>
+              {paymentNote?.(payment)}
             </Box>
             <Box role="button" onClick={() => setScheduleOpen(true)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
               <Icon name="eye" size={18} color={BLUE} />
@@ -209,6 +216,8 @@ export default function RepaymentEstimate({
           <Box sx={{ mt: '1px' }}><Icon name="info" size={15} color="#9AA3B2" /></Box>
           <Typography sx={{ fontSize: 12, color: '#8A94A6', lineHeight: 1.45 }}>Final rate, tenure, &amp; terms are subject to credit approval.</Typography>
         </Box>
+
+        {children}
       </Box>
 
       {/* Full repayment schedule */}

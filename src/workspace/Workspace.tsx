@@ -15,8 +15,8 @@ const FLOW_LABELS: Record<UserFlow, string> = {
   Visitor: 'Visitor',
   Applicant: 'Applicant',
   Borrower: 'Borrower',
-  'Co-Borrower': 'Co-Borrower',
-  Guarantee: 'Guarantee',
+  'Co-Borrower': 'Borrower + Co-Borrower + Guarantor',
+  Guarantee: 'Sole Guarantor (multiple loans)',
   Staff: 'Staff',
 }
 
