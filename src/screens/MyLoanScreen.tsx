@@ -106,7 +106,7 @@ export default function MyLoanScreen() {
                   <Button
                     variant="contained"
                     fullWidth
-                    onClick={() => navigate('/products')}
+                    onClick={() => navigate('/all-loan')}
                     sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
                   >
                     Visit &amp; Apply Loans
@@ -122,7 +122,7 @@ export default function MyLoanScreen() {
                   <Button
                     variant="contained"
                     fullWidth
-                    onClick={() => navigate('/products')}
+                    onClick={() => navigate('/all-loan')}
                     sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
                   >
                     Visit &amp; Apply Loans
@@ -138,7 +138,7 @@ export default function MyLoanScreen() {
                   <Button
                     variant="contained"
                     fullWidth
-                    onClick={() => navigate('/products')}
+                    onClick={() => navigate('/all-loan')}
                     sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
                   >
                     Visit &amp; Apply Loans
@@ -153,7 +153,7 @@ export default function MyLoanScreen() {
                   <Button
                     variant="contained"
                     fullWidth
-                    onClick={() => navigate('/products')}
+                    onClick={() => navigate('/all-loan')}
                     sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
                   >
                     Visit &amp; Apply Loans
@@ -215,7 +215,7 @@ function EmptyState({ label, hint, showApplyButtons }: { label: string; hint?: s
         <Button
           variant="contained"
           fullWidth
-          onClick={() => navigate('/products')}
+          onClick={() => navigate('/all-loan')}
           sx={{ mt: 4, height: 52, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
         >
           Visit &amp; Apply Loans
@@ -346,7 +346,7 @@ function GuarantorView() {
         <Button
           variant="contained"
           fullWidth
-          onClick={() => navigate('/products')}
+          onClick={() => navigate('/all-loan')}
           sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
         >
           Visit &amp; Apply Loans

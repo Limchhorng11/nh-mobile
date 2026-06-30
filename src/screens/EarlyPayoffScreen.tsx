@@ -6,6 +6,7 @@ import Button from '@mui/material/Button'
 import { Icon } from '../components/Icon'
 import { MwlHeader, MwlTitle, BLUE } from './mwl/MwlParts'
 import { StatusChip } from '../components/home/HomeParts'
+import PayLoanSheet from '../components/PayLoanSheet'
 
 const HEADING = '#0B0F1A'
 const LABEL = '#8A94A6'
@@ -43,6 +44,7 @@ export default function EarlyPayoffScreen() {
   const [reason, setReason] = useState('')
   const [agreed, setAgreed] = useState(false)
   const [settleMethod, setSettleMethod] = useState<'qr' | 'salary' | ''>('')
+  const [payOpen, setPayOpen] = useState(false)
 
   return (
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -126,7 +128,7 @@ export default function EarlyPayoffScreen() {
               {/* Option 1: Pay now via QR */}
               <Box
                 role="button"
-                onClick={() => setSettleMethod('qr')}
+                onClick={() => { setSettleMethod('qr'); setPayOpen(true) }}
                 sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: '18px', py: '14px', borderTop: '1px solid #F0F2F5', cursor: 'pointer', bgcolor: settleMethod === 'qr' ? '#F4F7FF' : 'transparent' }}
               >
                 <Box sx={{ width: 40, height: 40, borderRadius: '10px', bgcolor: '#EEF1FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -230,6 +232,7 @@ export default function EarlyPayoffScreen() {
           {isStaff ? 'Confirm Payoff' : 'Submit Notice'}
         </Button>
       </Box>
+      <PayLoanSheet open={payOpen} onClose={() => setPayOpen(false)} />
     </Box>
   )
 }
