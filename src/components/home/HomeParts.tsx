@@ -1012,11 +1012,11 @@ export function ProductScroller() {
 // News & promotions — carousel of real promo banners (swipe / tap dots)
 // ─────────────────────────────────────────────────────────────────────────────
 const NEWS_SLIDES = [
-  { src: BANNERS.bannerSme, hue: 205, label: 'SME Loan' },
-  { src: BANNERS.bannerSbl, hue: 210, label: 'Small Business Loan' },
-  { src: BANNERS.bannerMicro, hue: 95, label: 'Micro Loan' },
-  { src: BANNERS.bannerMwl, hue: 210, label: 'Migrant Worker Loan' },
-  { src: BANNERS.bannerHousing, hue: 215, label: 'Housing Loan' },
+  { src: BANNERS.bannerSme,    hue: 205, label: 'SME Loan',            route: '/announcement' },
+  { src: BANNERS.bannerSbl,    hue: 210, label: 'Small Business Loan', route: '/announcement' },
+  { src: BANNERS.bannerMicro,  hue: 95,  label: 'Micro Loan',          route: '/announcement' },
+  { src: BANNERS.bannerMwl,    hue: 210, label: 'Migrant Worker Loan', route: '/mwl-about' },
+  { src: BANNERS.bannerHousing,hue: 215, label: 'Housing Loan',        route: '/announcement' },
 ]
 
 export function NewsBanner() {
@@ -1056,7 +1056,7 @@ export function NewsBanner() {
           <Box
             key={slide.label}
             role="button"
-            onClick={() => navigate('/announcement')}
+            onClick={() => navigate(slide.route)}
             sx={{ flex: '0 0 100%', width: '100%', aspectRatio: '2.9 / 1', scrollSnapAlign: 'start', position: 'relative', cursor: 'pointer' }}
           >
             <AssetImg
