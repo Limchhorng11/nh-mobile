@@ -23,7 +23,7 @@ const OUTSTANDING = '#8CC919'
 export default function MyLoanDetailScreen() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const [payOpen, setPayOpen] = useState(false)
+  const [payOpen, setPayOpen] = useState(() => searchParams.get('pay') === '1')
   const [infoOpen, setInfoOpen] = useState(false)
   const overdue = searchParams.get('overdue') === 'true'
   const product = searchParams.get('product') ?? 'Small Business Loan'

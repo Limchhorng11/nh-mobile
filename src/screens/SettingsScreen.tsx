@@ -11,6 +11,7 @@ import { AvatarArt } from '../components/home/illustrations'
 import { useFlow } from '../workspace/FlowContext'
 import { BottomSheet } from './mwl/MwlParts'
 import CallSheet from '../components/CallSheet'
+import PinGateScreen from './PinGateScreen'
 
 const HEADING = '#0B0F1A'
 const MUTED = '#8A94A6'
@@ -137,6 +138,8 @@ export function SettingsSections() {
   const [theme, setTheme] = useState<ThemeId>('System')
   const [picker, setPicker] = useState<'language' | 'theme' | null>(null)
   const [callOpen, setCallOpen] = useState(false)
+  const [signOutOpen, setSignOutOpen] = useState(false)
+  const [signOutPin, setSignOutPin] = useState(false)
   const activeLang = LANGUAGES.find((l) => l.id === language) ?? LANGUAGES[0]
 
   return (
@@ -211,7 +214,7 @@ export function SettingsSections() {
         {!isVisitor && (
           <Box
             role="button"
-            onClick={() => navigate('/flow-select')}
+            onClick={() => setSignOutOpen(true)}
             sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, pt: '28px', pb: '8px', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
           >
             <Icon name="signOut" size={20} color={DANGER} />
@@ -231,6 +234,42 @@ export function SettingsSections() {
       />
 
       <CallSheet open={callOpen} onClose={() => setCallOpen(false)} />
+
+      {/* PIN overlay for sign out */}
+      {signOutPin && (
+        <Box sx={{ position: 'fixed', inset: 0, zIndex: 1400, bgcolor: '#F5F5F5' }}>
+          <PinGateScreen onSuccess={() => { setSignOutPin(false); setSignOutOpen(false); navigate('/splash') }} />
+        </Box>
+      )}
+
+      {/* Sign out confirmation sheet */}
+      <BottomSheet open={signOutOpen && !signOutPin} onClose={() => setSignOutOpen(false)}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, pb: 1 }}>
+          <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="signOut" size={26} color={DANGER} />
+          </Box>
+          <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px', mt: 0.5 }}>Sign out?</Typography>
+          <Typography sx={{ fontSize: 14, color: MUTED, textAlign: 'center', lineHeight: 1.55 }}>
+            Are you sure you want to sign out of your account?
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }}>
+          <Box
+            role="button"
+            onClick={() => setSignOutPin(true)}
+            sx={{ height: 54, borderRadius: '14px', bgcolor: DANGER, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', '&:active': { opacity: 0.85 } }}
+          >
+            <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Sign out</Typography>
+          </Box>
+          <Typography
+            role="button"
+            onClick={() => setSignOutOpen(false)}
+            sx={{ textAlign: 'center', fontSize: 14, fontWeight: 600, color: MUTED, cursor: 'pointer', pb: 0.5, '&:active': { opacity: 0.6 } }}
+          >
+            Cancel
+          </Typography>
+        </Box>
+      </BottomSheet>
 
       {/* Theme picker */}
       <PickerSheet

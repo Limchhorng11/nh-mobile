@@ -337,6 +337,21 @@ function GuarantorView() {
 
       {/* Guaranteed loans list */}
       <GuaranteeTab count={3} />
+
+      {/* Apply loan */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5, pt: '50px' }}>
+        <Typography sx={{ fontSize: 13, color: MUTED, textAlign: 'center', lineHeight: 1.6 }}>
+          Ready to grow? As a guarantor you can also apply for your own loan — explore our products and get started in minutes.
+        </Typography>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={() => navigate('/products')}
+          sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
+        >
+          Visit &amp; Apply Loans
+        </Button>
+      </Box>
     </Box>
   )
 }
@@ -434,7 +449,7 @@ function ActiveLoanCard({ title, icon, status, restructured, coBorrower, salaryD
         {guaranteeNav && (
           <Box
             component="button"
-            onClick={(e: React.MouseEvent) => { e.stopPropagation(); navigate(destination) }}
+            onClick={(e: React.MouseEvent) => { e.stopPropagation(); navigate(destination + '&pay=1') }}
             sx={{ mt: 1.5, width: '100%', height: 42, borderRadius: '10px', bgcolor: BLUE, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', '&:active': { opacity: 0.85 } }}
           >
             <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Pay {payAmount ?? '$360.00'}</Typography>
