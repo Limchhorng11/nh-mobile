@@ -68,13 +68,7 @@ function IdentityCard({ isStaff }: { isStaff?: boolean }) {
       {/* Field rows — same style as Residential Address */}
       <FieldCard label="First Name" value="Krong" />
       <FieldCard label="Last Name" value="Kampuchea" />
-      <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: '14px 16px' }}>
-        <Typography sx={{ fontSize: 12, color: MUTED, lineHeight: 1.3, mb: 0.5 }}>National ID</Typography>
-        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, bgcolor: '#EDFAF3', borderRadius: '6px', px: '8px', py: '3px' }}>
-          <Icon name="checkCircle" size={13} color="#16A34A" />
-          <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#16A34A', lineHeight: 1 }}>Verified</Typography>
-        </Box>
-      </Box>
+      <FieldCard label="National ID" value="012345678" />
       {isStaff && <FieldCard label="Staff ID" value="NH-000123456" />}
       <FieldCard label="Birth Date" value="12 May 1988" />
       <FieldCard label="Mobile" value="010 234 5678" />
