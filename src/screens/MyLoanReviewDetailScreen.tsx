@@ -275,7 +275,12 @@ export default function MyLoanReviewDetailScreen() {
                   <Fragment key={s.key}>
                     <Box
                       role="button"
-                      onClick={() => setSel(i)}
+                      onClick={() => {
+                        setSel(i)
+                        if (isStaff && i === stages.length - 1) {
+                          navigate(`/staff-loan-approved?amount=${encodeURIComponent(amount)}&term=${encodeURIComponent(term)}&rate=${encodeURIComponent(rate)}&ref=${encodeURIComponent(ref)}`)
+                        }
+                      }}
                       sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, flexShrink: 0, cursor: 'pointer' }}
                     >
                       <Box
@@ -391,20 +396,6 @@ export default function MyLoanReviewDetailScreen() {
         </Box>
       </Box>
 
-      {/* Staff Loan: disbursement CTA */}
-      {isStaff && (
-        <Box sx={{ flexShrink: 0, px: 3, pt: 2.5, pb: '44px', bgcolor: '#F5F5F5' }}>
-          <Button
-            variant="contained"
-            fullWidth
-            onClick={disburse}
-            endIcon={<Icon name="arrowRight" size={18} />}
-            sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' } }}
-          >
-            Loan disbursement happen
-          </Button>
-        </Box>
-      )}
 
       <CallSheet open={callOpen} onClose={() => setCallOpen(false)} />
 

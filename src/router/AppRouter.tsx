@@ -36,6 +36,7 @@ const SplashScreen     = lazy(() => import('../screens/SplashScreen'))
 const FlowSelectScreen = lazy(() => import('../screens/FlowSelectScreen'))
 const WelcomeScreen    = lazy(() => import('../screens/WelcomeScreen'))
 const StaffLoanScreen  = lazy(() => import('../screens/StaffLoanScreen'))
+const StaffLoanApprovedScreen = lazy(() => import('../screens/StaffLoanApprovedScreen'))
 const QrSignInScreen   = lazy(() => import('../screens/visitor/QrSignInScreen'))
 const OtpScreen        = lazy(() => import('../screens/visitor/OtpScreen'))
 const EnterNameScreen  = lazy(() => import('../screens/visitor/EnterNameScreen'))
@@ -142,6 +143,7 @@ export default function AppRouter() {
         <Route path="/nonmwl-review" element={<MwlReviewScreen nonMwl />} />
         <Route path="/nonmwl-success" element={<MwlSuccessScreen product="Non-MWL Loan" />} />
         <Route path="/staff-loan" element={<RequirePin><StaffLoanScreen /></RequirePin>} />
+        <Route path="/staff-loan-approved" element={<RequirePin><StaffLoanApprovedScreen /></RequirePin>} />
         <Route path="/more" element={<MoreScreen />} />
         <Route path="/settings" element={<SettingsScreen />} />
         <Route path="/notifications" element={<RequirePin><NotificationsScreen /></RequirePin>} />

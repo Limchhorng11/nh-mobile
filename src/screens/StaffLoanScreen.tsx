@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
 import { Icon } from '../components/Icon'
-import { AssetImg, asset } from '../components/home/media'
 import { MwlHeader, MwlTitle, GroupLabel, FieldCard, SelectField, PhoneField, DiscardSheet, BLUE } from './mwl/MwlParts'
 import RepaymentEstimate from './mwl/RepaymentEstimate'
-import { addApplication, type LoanApplication } from '../workspace/applications'
+import { addApplication, reviewQuery } from '../workspace/applications'
 import { buildGraceSchedule, money } from './loanCalc'
 
 const BANKS = ['ABA Bank', 'ACLEDA Bank', 'Canadia Bank', 'Wing Bank', 'PPCBank']
@@ -71,12 +71,19 @@ export default function StaffLoanScreen() {
   const term = `${months} months`
   // Credit bureau consent
   const [agree, setAgree] = useState(false)
-  const [submitted, setSubmitted] = useState<LoanApplication | null>(null)
+  const [reviewing, setReviewing] = useState(false)
+  const [reviewAgree, setReviewAgree] = useState(false)
+  const [verifying, setVerifying] = useState(false)
+  const [faceState, setFaceState] = useState<'scanning' | 'success'>('scanning')
 
   const principal = parseFloat(amount.replace(/[^0-9.]/g, '')) || 0
   const overMax = principal > activeLoan.maxAmount
   const { payment: monthlyPayment } = buildGraceSchedule(principal, months, activeLoan.rate, 0)
   const overPayment = principal > 0 && monthlyPayment >= principal * 0.25
+
+  const upfrontFee = principal * 0.01
+  const cbcFee = 5
+  const netAmount = principal - upfrontFee - cbcFee
 
   const submit = () => {
     const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -89,56 +96,240 @@ export default function StaffLoanScreen() {
       on: today,
     }
     addApplication(app)
-    setSubmitted(app)
+    navigate(`/my-loan-review?${reviewQuery(app)}`)
   }
 
-  if (submitted) {
+  if (reviewing && true) {
     return (
-      <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#fff' }}>
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', px: 3, pb: 4 }}>
-          {/* Mascot */}
-          <Box sx={{ height: 220, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
-            <AssetImg
-              src={asset('illustrations/mascot_done.png')}
-              alt=""
-              sx={{ height: '100%', width: '100%', objectFit: 'contain' }}
-              fallback={
-                <Box sx={{ width: 110, height: 110, borderRadius: '50%', bgcolor: '#E6F4EA', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Box component="img" src="/assets/brand/ico_success.svg" alt="" sx={{ width: 60, height: 60 }} />
-                </Box>
-              }
-            />
-          </Box>
-
-          <Typography sx={{ fontSize: 34, fontWeight: 800, color: HEADING, letterSpacing: '-1px', textAlign: 'center', lineHeight: 1.1 }}>
-            Congratulations!
-          </Typography>
-
-          {/* Ref + status badge */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1.5 }}>
-            <Box sx={{ bgcolor: '#E6F4EA', borderRadius: '999px', px: '10px', py: '4px' }}>
-              <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#15803D' }}>Submitted</Typography>
+      <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
+        <Box className="scroll-content" sx={{ flex: 1 }}>
+          {/* Header — matches MwlHeader style */}
+          <Box sx={{ px: 3, pt: 3, pb: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ ml: -1 }}>
+              <IconButton onClick={() => setReviewing(false)} aria-label="Back" sx={{ color: HEADING }}>
+                <Icon name="chevronLeft" size={26} color={HEADING} />
+              </IconButton>
             </Box>
-            <Typography sx={{ fontSize: 13, fontWeight: 600, color: MUTED }}>{submitted.ref}</Typography>
+            <Typography sx={{ fontSize: 17, fontWeight: 800, color: HEADING, letterSpacing: '-0.4px' }}>Review & confirm</Typography>
+            <Box sx={{ width: 40 }} />
           </Box>
 
-          <Typography sx={{ fontSize: 15, color: '#6B7280', lineHeight: 1.65, textAlign: 'center', mt: 2.5, maxWidth: 290 }}>
-            Your {isLoan2 ? 'Loan 2' : 'Staff Loan'} request of{' '}
-            <Box component="span" sx={{ fontWeight: 800, color: HEADING }}>{submitted.amount}</Box>{' '}
-            has been submitted and is now under review. Track its status anytime in My Loans.
-          </Typography>
+          <Box sx={{ px: 3, pb: 3, pt: 0.5, display: 'flex', flexDirection: 'column', gap: 2 }}>
+
+            {/* YOUR LOAN summary card */}
+            <Box>
+              <GroupLabel>YOUR LOAN</GroupLabel>
+              <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '14px', overflow: 'hidden' }}>
+                {/* Fee rows */}
+                <Box sx={{ px: '18px', pt: '16px', pb: '4px', display: 'flex', flexDirection: 'column', gap: 0 }}>
+                  {[
+                    { label: 'Loan amount', value: money(principal, 'USD'), highlight: false },
+                    { label: `Upfront fee · ${activeLoan.rate === 1.0 ? '1.00' : '1.20'}%`, value: `-${money(upfrontFee, 'USD')}`, highlight: false },
+                    { label: 'CBC fee', value: `-${money(cbcFee, 'USD')}`, highlight: false },
+                  ].map((row) => (
+                    <Box key={row.label} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '10px', borderBottom: '1px solid #F2F4F7' }}>
+                      <Typography sx={{ fontSize: 14, color: '#5B6473' }}>{row.label}</Typography>
+                      <Typography sx={{ fontSize: 14, fontWeight: 600, color: '#3A4256' }}>{row.value}</Typography>
+                    </Box>
+                  ))}
+                  {/* Net released row — highlighted */}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '12px' }}>
+                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#166534' }}>Released to your payroll account</Typography>
+                    <Typography sx={{ fontSize: 15, fontWeight: 800, color: GREEN }}>{money(netAmount, 'USD')}</Typography>
+                  </Box>
+                </Box>
+
+                {/* Divider */}
+                <Box sx={{ mx: '18px', borderTop: '1px dashed #D6DCE5' }} />
+
+                {/* Term / payment rows */}
+                <Box sx={{ px: '18px', pt: '4px', pb: '16px', display: 'flex', flexDirection: 'column', gap: 0 }}>
+                  {[
+                    { label: 'Term', value: `${months} months · ${activeLoan.rate}%/mo` },
+                    { label: 'Monthly repayment (auto-deducted)', value: money(monthlyPayment, 'USD') },
+                    { label: '1st Payroll Deduction', value: 'Next payday' },
+                  ].map((row) => (
+                    <Box key={row.label} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '10px', borderBottom: '1px solid #F2F4F7', '&:last-child': { borderBottom: 'none' } }}>
+                      <Typography sx={{ fontSize: 14, color: '#5B6473' }}>{row.label}</Typography>
+                      <Typography sx={{ fontSize: 14, fontWeight: 700, color: HEADING }}>{row.value}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Disbursement notice */}
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.25, bgcolor: '#EAF4EE', border: '1px solid #B7DFCA', borderRadius: '12px', p: '14px 16px' }}>
+              <Box sx={{ flexShrink: 0, mt: '1px' }}>
+                <Icon name="info" size={17} color="#1A7A45" strokeWidth={1.8} />
+              </Box>
+              <Box>
+                <Typography sx={{ fontSize: 13, fontWeight: 700, color: '#145C33', lineHeight: 1.4 }}>
+                  Disbursed to your payroll account
+                </Typography>
+                <Typography sx={{ fontSize: 12, color: '#2D6A48', mt: 0.4, lineHeight: 1.5 }}>
+                  Your approved loan amount will be automatically transferred to your registered NongHyup payroll account.
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Final consent */}
+            <Box
+              role="checkbox"
+              aria-checked={reviewAgree}
+              onClick={() => setReviewAgree((v) => !v)}
+              sx={{ display: 'flex', gap: 1.5, bgcolor: '#fff', border: `1.5px solid ${reviewAgree ? BLUE : '#E8EAEE'}`, borderRadius: '12px', p: '16px', cursor: 'pointer', alignItems: 'flex-start', transition: 'border-color 0.15s', '&:active': { opacity: 0.85 } }}
+            >
+              <Box sx={{ mt: '1px', width: 22, height: 22, borderRadius: '6px', flexShrink: 0, border: `2px solid ${reviewAgree ? BLUE : '#CBD3DF'}`, bgcolor: reviewAgree ? BLUE : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.12s' }}>
+                {reviewAgree && <Icon name="check" size={14} color="#fff" />}
+              </Box>
+              <Typography sx={{ fontSize: 13.5, color: '#3A4256', lineHeight: 1.55 }}>
+                I have read and agree to the{' '}
+                <Box component="span" sx={{ fontWeight: 700, color: HEADING }}>Loan Terms &amp; Conditions</Box>
+                {' '}and authorise{' '}
+                <Box component="span" sx={{ fontWeight: 700, color: HEADING }}>salary deduction</Box>
+                . I consent to the{' '}
+                <Box component="span" sx={{ fontWeight: 700, color: HEADING }}>CBC credit check</Box>
+                {' '}and to{' '}
+                <Box component="span" sx={{ fontWeight: 700, color: HEADING }}>e-sign</Box>
+                {' '}the digital loan contract.
+              </Typography>
+            </Box>
+          </Box>
         </Box>
 
-        <Box sx={{ flexShrink: 0, px: 3, pb: '44px' }}>
+        {/* CTA */}
+        <Box sx={{ flexShrink: 0, px: 3, pt: 2, pb: '44px', bgcolor: '#F5F5F5' }}>
           <Button
             variant="contained"
             fullWidth
-            onClick={() => navigate('/my-loan?tab=review')}
-            endIcon={<Icon name="arrowRight" size={18} />}
-            sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' } }}
+            disabled={!reviewAgree}
+            onClick={() => { setFaceState('scanning'); setReviewing(false); setVerifying(true) }}
+            sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: GREEN, '&:hover': { bgcolor: '#178a4a' }, '&.Mui-disabled': { bgcolor: '#C8D2E0', color: '#fff' } }}
           >
-            View my loans
+            Agree &amp; get my money
           </Button>
+          <Typography sx={{ fontSize: 12, color: MUTED, textAlign: 'center', mt: 1.5, lineHeight: 1.5 }}>
+            Next: confirm it's you with Face ID + PIN, then we fund instantly.
+          </Typography>
+        </Box>
+      </Box>
+    )
+  }
+
+  if (verifying && true) {
+    const isSuccess = faceState === 'success'
+    return (
+      <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#0B0F1A' }}>
+        {/* Back button — only shown while scanning, not after success */}
+        {!isSuccess && (
+          <Box sx={{ px: 2, pt: 2, flexShrink: 0 }}>
+            <IconButton
+              onClick={() => { setVerifying(false); setReviewing(true) }}
+              aria-label="Back"
+              sx={{ color: '#fff' }}
+            >
+              <Icon name="chevronLeft" size={26} color="#fff" />
+            </IconButton>
+          </Box>
+        )}
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', px: 3, gap: 0 }}>
+          {/* Face scan frame */}
+          <Box sx={{ position: 'relative', width: 220, height: 260, mb: 4 }}>
+            {/* Corner brackets */}
+            {[
+              { top: 0, left: 0, borderTop: '3px solid', borderLeft: '3px solid', borderRadius: '12px 0 0 0' },
+              { top: 0, right: 0, borderTop: '3px solid', borderRight: '3px solid', borderRadius: '0 12px 0 0' },
+              { bottom: 0, left: 0, borderBottom: '3px solid', borderLeft: '3px solid', borderRadius: '0 0 0 12px' },
+              { bottom: 0, right: 0, borderBottom: '3px solid', borderRight: '3px solid', borderRadius: '0 0 12px 0' },
+            ].map((s, i) => (
+              <Box key={i} sx={{ position: 'absolute', width: 32, height: 32, borderColor: isSuccess ? '#1FA85C' : BLUE, transition: 'border-color 0.4s', ...s }} />
+            ))}
+            {/* Face silhouette */}
+            <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="120" height="150" viewBox="0 0 120 150" fill="none">
+                {/* Head oval */}
+                <ellipse cx="60" cy="60" rx="46" ry="54" stroke={isSuccess ? '#1FA85C' : '#2A3A5C'} strokeWidth="2" fill="none" />
+                {/* Eyes */}
+                <ellipse cx="40" cy="52" rx="7" ry="8" fill={isSuccess ? '#1FA85C' : '#2A4080'} opacity="0.7" />
+                <ellipse cx="80" cy="52" rx="7" ry="8" fill={isSuccess ? '#1FA85C' : '#2A4080'} opacity="0.7" />
+                {/* Nose */}
+                <path d="M60 62 Q56 72 58 76 Q60 78 62 76 Q64 72 60 62" stroke={isSuccess ? '#1FA85C' : '#2A3A5C'} strokeWidth="1.5" fill="none" />
+                {/* Mouth */}
+                <path d="M46 88 Q60 98 74 88" stroke={isSuccess ? '#1FA85C' : '#2A3A5C'} strokeWidth="2" fill="none" strokeLinecap="round" />
+                {/* Scan line */}
+                {!isSuccess && (
+                  <line x1="14" y1="75" x2="106" y2="75" stroke={BLUE} strokeWidth="1.5" opacity="0.6">
+                    <animateTransform attributeName="transform" type="translate" values="0,-40;0,40;0,-40" dur="2s" repeatCount="indefinite" />
+                  </line>
+                )}
+                {/* Checkmark on success */}
+                {isSuccess && (
+                  <g>
+                    <circle cx="60" cy="60" r="22" fill="#1FA85C" opacity="0.15" />
+                    <path d="M48 60 L57 69 L73 52" stroke="#1FA85C" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <animate attributeName="stroke-dasharray" from="0 50" to="50 0" dur="0.4s" fill="freeze" />
+                    </path>
+                  </g>
+                )}
+              </svg>
+            </Box>
+          </Box>
+
+          {/* Status text */}
+          <Typography sx={{ fontSize: 24, fontWeight: 800, color: '#fff', letterSpacing: '-0.5px', textAlign: 'center', lineHeight: 1.2 }}>
+            {isSuccess ? 'Identity Verified' : 'Face ID'}
+          </Typography>
+          <Typography sx={{ fontSize: 14, color: isSuccess ? '#1FA85C' : '#8A94A6', textAlign: 'center', mt: 1, lineHeight: 1.5, transition: 'color 0.4s' }}>
+            {isSuccess ? 'Submitting your application…' : 'Look at your camera to verify your identity'}
+          </Typography>
+
+          {/* Dot indicators */}
+          {!isSuccess && (
+            <Box sx={{ display: 'flex', gap: 1, mt: 4 }}>
+              {[0, 1, 2].map((i) => (
+                <Box key={i} sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: BLUE, opacity: 0.4,
+                  animation: `pulse-dot 1.2s ${i * 0.2}s infinite ease-in-out`,
+                  '@keyframes pulse-dot': { '0%,100%': { opacity: 0.3, transform: 'scale(1)' }, '50%': { opacity: 1, transform: 'scale(1.3)' } },
+                }} />
+              ))}
+            </Box>
+          )}
+        </Box>
+
+        {/* Bottom actions */}
+        <Box sx={{ flexShrink: 0, px: 3, pb: '44px', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          {!isSuccess ? (
+            <>
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={() => {
+                  setFaceState('success')
+                  setTimeout(submit, 1200)
+                }}
+                sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' } }}
+              >
+                Scan Face
+              </Button>
+              <Button
+                variant="text"
+                fullWidth
+                onClick={() => setVerifying(false)}
+                sx={{ height: 44, borderRadius: '14px', fontSize: 14, fontWeight: 600, color: '#8A94A6' }}
+              >
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <Box sx={{ height: 54, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+              <Box sx={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid #1FA85C', borderTopColor: 'transparent',
+                animation: 'spin 0.8s linear infinite',
+                '@keyframes spin': { from: { transform: 'rotate(0deg)' }, to: { transform: 'rotate(360deg)' } },
+              }} />
+              <Typography sx={{ fontSize: 14, color: '#1FA85C', fontWeight: 600 }}>Processing…</Typography>
+            </Box>
+          )}
         </Box>
       </Box>
     )
@@ -181,14 +372,28 @@ export default function StaffLoanScreen() {
 
         <Box sx={{ px: 3, pb: 3, pt: '20px', display: 'flex', flexDirection: 'column', gap: 3 }}>
 
-          {/* Your information */}
+          {/* Your information — profile card */}
           <Box>
             <GroupLabel>YOUR INFORMATION</GroupLabel>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <FieldCard label="First name" required value={firstName} onChange={setFirstName} />
-              <FieldCard label="Last name" required value={lastName} onChange={setLastName} />
-              <FieldCard label="Staff ID" required value={staffId} onChange={formatStaffId} placeholder="NH-000000000" />
-              <PhoneField label="Phone number" code={phoneCode} number={phone} onCodeChange={setPhoneCode} onNumberChange={setPhone} />
+            <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', p: '16px 18px', display: 'flex', alignItems: 'center', gap: 2 }}>
+              {/* Avatar */}
+              <Box sx={{ width: 50, height: 50, borderRadius: '50%', bgcolor: '#1C3A7A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Typography sx={{ fontSize: 17, fontWeight: 800, color: '#fff', letterSpacing: '-0.5px' }}>
+                  {firstName.charAt(0)}{lastName.charAt(0)}
+                </Typography>
+              </Box>
+              {/* Details */}
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography sx={{ fontSize: 15, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px', lineHeight: 1.25 }}>
+                  {firstName} {lastName}
+                </Typography>
+                <Typography sx={{ fontSize: 12, color: MUTED, mt: 0.35, lineHeight: 1.5 }}>HQ · Marketing &amp; Operations Dept.</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.25 }}>
+                  <Typography sx={{ fontSize: 12, color: MUTED }}>{staffId}</Typography>
+                  <Box sx={{ width: 3, height: 3, borderRadius: '50%', bgcolor: '#C8D0DC' }} />
+                  <Typography sx={{ fontSize: 12, color: MUTED }}>${BASE_SALARY.toLocaleString()}/mo</Typography>
+                </Box>
+              </Box>
             </Box>
           </Box>
 
@@ -259,25 +464,69 @@ export default function StaffLoanScreen() {
                 maxMonths={24}
                 ratePct={activeLoan.rate}
                 label=""
+                onPrincipalChange={(p) => setAmount(String(p))}
+                minAmount={50}
+                maxAmount={activeLoan.maxAmount}
                 paymentNote={(pmt) => (
                   <Typography sx={{ fontSize: 12, color: '#5B7299', mt: 0.5 }}>
                     {((pmt / BASE_SALARY) * 100).toFixed(1)}% of salary
                   </Typography>
                 )}
               >
-                {/* Fee breakdown — inside the repayment card */}
-                <Box sx={{ borderTop: '1px dashed #D6DCE5', mt: 2, pt: 1 }}>
-                  {([
-                    ['Upfront Fee (1%)', `-$${(principal * 0.01).toFixed(2)}`, false],
-                    ['CBC Fee', '-$5.00', false],
-                    ['Net Amount', `$${(principal - principal * 0.01 - 5).toFixed(2)}`, true],
-                  ] as [string, string, boolean][]).map(([label, value, hi]) => (
-                    <Box key={label} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: '8px' }}>
-                      <Typography sx={{ fontSize: 13.5, color: hi ? '#0B0F1A' : '#8A94A6', fontWeight: hi ? 700 : 400 }}>{label}</Typography>
-                      <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: hi ? '#0B0F1A' : '#D92D20' }}>{value}</Typography>
+                {/* Fee breakdown — donut chart */}
+                {(() => {
+                  const upfront = principal * 0.01
+                  const cbc = 5
+                  const net = principal - upfront - cbc
+                  const C = 226.19
+                  const s1 = (net / principal) * C
+                  const s2 = (upfront / principal) * C
+                  const s3 = (cbc / principal) * C
+                  const ORANGE = '#F97316'
+                  const PURPLE = '#A855F7'
+                  const items = [
+                    { label: 'Loan amount', value: `$${principal.toFixed(0)}`, color: BLUE },
+                    { label: 'Upfront fee (1%)', value: `-$${upfront.toFixed(2)}`, color: ORANGE },
+                    { label: 'CBC fee', value: `-$${cbc.toFixed(2)}`, color: PURPLE },
+                    { label: 'Net amount', value: `$${net.toFixed(2)}`, color: HEADING, bold: true },
+                  ]
+                  return (
+                    <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2.5 }}>
+                      {/* Donut */}
+                      <Box sx={{ position: 'relative', flexShrink: 0, width: '40%', aspectRatio: '1' }}>
+                        <svg width="100%" height="100%" viewBox="0 0 88 88">
+                          <circle cx="44" cy="44" r="36" fill="none" stroke="#EEF1FC" strokeWidth="10" />
+                          <circle cx="44" cy="44" r="36" fill="none" stroke={BLUE} strokeWidth="10"
+                            strokeDasharray={`${s1} ${C}`} strokeDashoffset={0}
+                            transform="rotate(-90 44 44)" strokeLinecap="butt" />
+                          <circle cx="44" cy="44" r="36" fill="none" stroke={ORANGE} strokeWidth="10"
+                            strokeDasharray={`${s2} ${C}`} strokeDashoffset={-s1}
+                            transform="rotate(-90 44 44)" strokeLinecap="butt" />
+                          <circle cx="44" cy="44" r="36" fill="none" stroke={PURPLE} strokeWidth="10"
+                            strokeDasharray={`${s3} ${C}`} strokeDashoffset={-(s1 + s2)}
+                            transform="rotate(-90 44 44)" strokeLinecap="butt" />
+                        </svg>
+                        <Box sx={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                          <Typography sx={{ fontSize: 11, fontWeight: 700, color: MUTED, letterSpacing: '0.3px', textTransform: 'uppercase' }}>You get</Typography>
+                          <Typography sx={{ fontSize: 20, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.1 }}>${net.toFixed(0)}</Typography>
+                          <Typography sx={{ fontSize: 11, color: MUTED }}>net amount</Typography>
+                        </Box>
+                      </Box>
+                      {/* Legend */}
+                      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                        {items.map((item) => (
+                          <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: item.color, flexShrink: 0 }} />
+                              <Typography sx={{ fontSize: 12, color: MUTED }}>{item.label}</Typography>
+                            </Box>
+                            <Typography sx={{ fontSize: 12, fontWeight: item.bold ? 800 : 600, color: item.bold ? HEADING : '#3A4256' }}>{item.value}</Typography>
+                          </Box>
+                        ))}
+                      </Box>
                     </Box>
-                  ))}
-                </Box>
+                  )
+                })()}
               </RepaymentEstimate>
             </Box>
           </Box>
@@ -297,23 +546,6 @@ export default function StaffLoanScreen() {
             </Box>
           </Box>
 
-          {/* Credit bureau consent */}
-          <Box>
-            <GroupLabel>CREDIT BUREAU CONSENT</GroupLabel>
-            <Box
-              onClick={() => setAgree((v) => !v)}
-              role="checkbox"
-              aria-checked={agree}
-              sx={{ display: 'flex', gap: 1.5, bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: '16px', cursor: 'pointer', alignItems: 'flex-start', '&:active': { opacity: 0.85 } }}
-            >
-              <Box sx={{ mt: '1px', width: 22, height: 22, borderRadius: '6px', flexShrink: 0, border: `2px solid ${agree ? BLUE : '#CBD3DF'}`, bgcolor: agree ? BLUE : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.12s' }}>
-                {agree && <Icon name="check" size={14} color="#fff" />}
-              </Box>
-              <Typography sx={{ fontSize: 13.5, color: '#3A4256', lineHeight: 1.5 }}>
-                I authorize NongHyup Finance to obtain and check my credit history from the Credit Bureau of Cambodia (CBC) to assess this application.
-              </Typography>
-            </Box>
-          </Box>
         </Box>
       </Box>
 
@@ -322,8 +554,8 @@ export default function StaffLoanScreen() {
         <Button
           variant="contained"
           fullWidth
-          disabled={!agree || overMax || overPayment}
-          onClick={submit}
+          disabled={overMax || overPayment}
+          onClick={() => setReviewing(true)}
           endIcon={<Icon name="arrowRight" size={18} />}
           sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, '&.Mui-disabled': { bgcolor: '#C8D2E0', color: '#fff' } }}
         >
