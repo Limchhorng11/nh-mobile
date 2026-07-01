@@ -28,7 +28,7 @@ export function termStopsForProduct(product?: string): number[] {
     case 'Housing Loan':
       return [12, 24, 60, 120, 240, 360]
     default: // None / Migration Worker Loan
-      return [6, 12, 24, 36, 60, 120, 180, 240, 360]
+      return [6, 12, 24, 36, 60, 120, 180, 240]
   }
 }
 

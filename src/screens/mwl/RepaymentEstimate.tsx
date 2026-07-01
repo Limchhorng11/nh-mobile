@@ -28,6 +28,9 @@ export default function RepaymentEstimate({
   scheduleTitle,
   children,
   paymentNote,
+  onPrincipalChange,
+  minAmount,
+  maxAmount,
 }: {
   product: string
   principal: number
@@ -46,6 +49,10 @@ export default function RepaymentEstimate({
   children?: React.ReactNode
   /** Optional note rendered below the estimated monthly payment amount. Receives the computed payment value. */
   paymentNote?: (payment: number) => React.ReactNode
+  /** If provided, renders an Amount slider above the Loan tenure slider. */
+  onPrincipalChange?: (p: number) => void
+  minAmount?: number
+  maxAmount?: number
 }) {
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const yrsLabel = Number.isInteger(months / 12) ? months / 12 : (months / 12).toFixed(1)
@@ -148,7 +155,7 @@ export default function RepaymentEstimate({
         <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mt: 2 }}>
           <Typography sx={{ fontSize: 14, fontWeight: 600, color: '#525252' }}>Loan tenure</Typography>
           <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#0B0F1A' }}>
-            {months} months · {yrsLabel} yrs
+            {months} months
           </Typography>
         </Box>
         <Box sx={{ px: 0.5 }}>
@@ -173,41 +180,100 @@ export default function RepaymentEstimate({
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>{minMonths} mo</Typography>
           <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>
-            {maxMonths % 12 === 0 ? `${maxMonths / 12} yr` : `${maxMonths} mo`}
+            {maxMonths} mo
           </Typography>
         </Box>
+
+        {/* Amount slider — only when onPrincipalChange is provided */}
+        {onPrincipalChange && minAmount !== undefined && maxAmount !== undefined && (
+          <>
+            <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mt: 2 }}>
+              <Typography sx={{ fontSize: 14, fontWeight: 600, color: '#525252' }}>Amount</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#0B0F1A' }}>
+                ${principal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </Typography>
+            </Box>
+            <Box sx={{ px: 0.5 }}>
+              <Slider
+                value={Math.min(Math.max(principal, minAmount), maxAmount)}
+                onChange={(_, v) => onPrincipalChange(v as number)}
+                step={50}
+                min={minAmount}
+                max={maxAmount}
+                aria-label="Loan amount"
+                valueLabelDisplay="auto"
+                valueLabelFormat={(v) => `$${v}`}
+                sx={{
+                  mt: 1,
+                  color: BLUE,
+                  height: 6,
+                  '& .MuiSlider-rail': { bgcolor: '#E7ECF2', opacity: 1 },
+                  '& .MuiSlider-thumb': { width: 20, height: 20, boxShadow: '0 0 0 4px rgba(39,92,178,0.15)' },
+                }}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>${minAmount}</Typography>
+              <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>${maxAmount.toLocaleString()}</Typography>
+            </Box>
+          </>
+        )}
 
         {/* Estimated monthly payment */}
         {grace > 0 ? (
           // With a grace period: two rows — interest-only vs regular repayment.
           <Box sx={{ bgcolor: '#EEF3FC', borderRadius: '12px', p: '14px 16px', mt: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-              <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#5B7299' }}>Estimated monthly payment</Typography>
-              <Box role="button" onClick={() => setScheduleOpen(true)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
-                <Icon name="eye" size={18} color={BLUE} />
-                <Typography sx={{ fontSize: 14, fontWeight: 700, color: BLUE }}>View schedule</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#5B7299' }}>Estimated monthly payment</Typography>
+            <Box sx={{ borderTop: '1px dashed #C8D4E8', mt: 1.25, pt: 1.25 }}>
+              {/* Interest Only row */}
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                <Typography sx={{ fontSize: 12, color: '#5B7299' }}>Interest Only <Typography component="span" sx={{ fontSize: 11, color: '#8AA4C8' }}>({graceMonths} mo grace)</Typography></Typography>
+                <Typography sx={{ fontSize: 14, fontWeight: 700, color: BLUE }}>{money(interestOnlyPay, currency)}</Typography>
               </Box>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1.25 }}>
-              <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#0B0F1A' }}>Interest Only</Typography>
-              <Typography sx={{ fontSize: 18, fontWeight: 800, color: BLUE }}>{money(interestOnlyPay, currency)}</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 0.75 }}>
-              <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#0B0F1A' }}>Regular Repayment</Typography>
-              <Typography sx={{ fontSize: 18, fontWeight: 800, color: BLUE }}>{money(payment, currency)}</Typography>
+              {/* Regular Repayment row */}
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 0.75 }}>
+                <Box>
+                  <Typography sx={{ fontSize: 26, fontWeight: 800, color: BLUE, letterSpacing: '-0.5px', lineHeight: 1.1 }}>{money(payment, currency)}</Typography>
+                  <Typography sx={{ fontSize: 12, color: '#5B7299', mt: 0.25 }}>Regular repayment / mo</Typography>
+                </Box>
+                <Box role="button" onClick={() => setScheduleOpen(true)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
+                  <Icon name="eye" size={18} color={BLUE} />
+                  <Typography sx={{ fontSize: 14, fontWeight: 700, color: BLUE }}>View schedule</Typography>
+                </Box>
+              </Box>
             </Box>
           </Box>
         ) : (
-          <Box sx={{ bgcolor: '#EEF3FC', borderRadius: '12px', p: '14px 16px', mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-            <Box sx={{ minWidth: 0, flex: 1 }}>
-              <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#5B7299' }}>Estimated monthly payment</Typography>
-              <Typography sx={{ fontSize: 26, fontWeight: 800, color: BLUE, letterSpacing: '-0.5px', mt: 0.25 }}>{money(payment, currency)}</Typography>
-              {paymentNote?.(payment)}
-            </Box>
-            <Box role="button" onClick={() => setScheduleOpen(true)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
-              <Icon name="eye" size={18} color={BLUE} />
-              <Typography sx={{ fontSize: 14, fontWeight: 700, color: BLUE }}>View schedule</Typography>
-            </Box>
+          <Box sx={{ bgcolor: '#EEF3FC', borderRadius: '12px', p: '14px 16px', mt: 2 }}>
+            {children ? (
+              <>
+                <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#5B7299' }}>Estimated monthly payment</Typography>
+                {children}
+                <Box sx={{ borderTop: '1px dashed #D6DCE5', mt: 1.5, pt: 1.5 }} />
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box>
+                    <Typography sx={{ fontSize: 26, fontWeight: 800, color: BLUE, letterSpacing: '-0.5px' }}>{money(payment, currency)}</Typography>
+                    {paymentNote?.(payment)}
+                  </Box>
+                  <Box role="button" onClick={() => setScheduleOpen(true)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
+                    <Icon name="eye" size={18} color={BLUE} />
+                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: BLUE }}>View schedule</Typography>
+                  </Box>
+                </Box>
+              </>
+            ) : (
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                <Box sx={{ minWidth: 0, flex: 1 }}>
+                  <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#5B7299' }}>Estimated monthly payment</Typography>
+                  <Typography sx={{ fontSize: 26, fontWeight: 800, color: BLUE, letterSpacing: '-0.5px', mt: 0.25 }}>{money(payment, currency)}</Typography>
+                  {paymentNote?.(payment)}
+                </Box>
+                <Box role="button" onClick={() => setScheduleOpen(true)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
+                  <Icon name="eye" size={18} color={BLUE} />
+                  <Typography sx={{ fontSize: 14, fontWeight: 700, color: BLUE }}>View schedule</Typography>
+                </Box>
+              </Box>
+            )}
           </Box>
         )}
 
@@ -216,8 +282,6 @@ export default function RepaymentEstimate({
           <Box sx={{ mt: '1px' }}><Icon name="info" size={15} color="#9AA3B2" /></Box>
           <Typography sx={{ fontSize: 12, color: '#8A94A6', lineHeight: 1.45 }}>Final rate, tenure, &amp; terms are subject to credit approval.</Typography>
         </Box>
-
-        {children}
       </Box>
 
       {/* Full repayment schedule */}

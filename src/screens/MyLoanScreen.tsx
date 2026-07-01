@@ -46,8 +46,8 @@ function CreditGaugeSvg({ size = 200 }: { size?: number }) {
 type Tab = 'active' | 'review' | 'complete'
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: 'review', label: 'Requests' },
   { id: 'active', label: 'Active' },
+  { id: 'review', label: 'Requests' },
   { id: 'complete', label: 'Paid off' },
 ]
 
@@ -322,16 +322,21 @@ function GuarantorView() {
           </Box>
         </Box>
 
-        {/* Repaid / Left legend row */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, borderTop: '1px solid #F0F2F5', px: '18px', py: '12px' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-            <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#2E9E5B', flexShrink: 0 }} />
-            <Typography sx={{ fontSize: 12.5, color: MUTED }}>Repaid <Box component="span" sx={{ fontWeight: 700, color: HEADING }}>≈ $26,070</Box></Typography>
+        {/* Next payment + Pay now */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #F0F2F5', px: '18px', py: '12px' }}>
+          <Box>
+            <Typography sx={{ fontSize: 11, color: MUTED, fontWeight: 600 }}>Total payment</Typography>
+            <Typography sx={{ fontSize: 20, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.2 }}>$320.00</Typography>
+            <Typography sx={{ fontSize: 11.5, color: MUTED, mt: 0.25 }}>Due 16 May · in 9 days</Typography>
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-            <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#EDEFF3', border: '1.5px solid #C9D2DE', flexShrink: 0 }} />
-            <Typography sx={{ fontSize: 12.5, color: MUTED }}>Left <Box component="span" sx={{ fontWeight: 700, color: HEADING }}>≈ $81,970</Box></Typography>
-          </Box>
+          <Button
+            variant="contained"
+            startIcon={<Icon name="cash" size={16} />}
+            onClick={() => navigate('/my-loan-detail?guarantee=true&pay=1')}
+            sx={{ height: 40, borderRadius: '10px', px: '14px', fontSize: 13, fontWeight: 700, bgcolor: '#345EAC', '&:hover': { bgcolor: '#2B4F92' }, textTransform: 'none', flexShrink: 0 }}
+          >
+            Pay now
+          </Button>
         </Box>
       </Box>
 
@@ -359,9 +364,9 @@ function GuarantorView() {
 // ─── Guarantee tab ───────────────────────────────────────────────────────────
 function GuaranteeTab({ count = 1 }: { count?: number }) {
   const cards = [
-    <ActiveLoanCard key="mwl" title="Migrant Worker Loan" icon="plane" statusLabel="Guarantee" statusColor="#C2870F" statusBg="#FEF3C7" guaranteeNav payAmount="$360.00" />,
-    <ActiveLoanCard key="hl"  title="Housing Loan"        icon="home"  statusLabel="Guarantee" statusColor="#C2870F" statusBg="#FEF3C7" guaranteeNav payAmount="$520.00" />,
-    <ActiveLoanCard key="ml"  title="Micro Loan"          icon="sprout" statusLabel="Guarantee" statusColor="#C2870F" statusBg="#FEF3C7" guaranteeNav payAmount="$180.00" />,
+    <ActiveLoanCard key="mwl" title="Migrant Worker Loan" icon="plane" guaranteeNav />,
+    <ActiveLoanCard key="hl"  title="Housing Loan"        icon="home"  guaranteeNav />,
+    <ActiveLoanCard key="ml"  title="Micro Loan"          icon="sprout" guaranteeNav />,
   ].slice(0, count)
   return (
     <Box>
@@ -401,7 +406,7 @@ function ActiveLoanCard({ title, icon, status, restructured, coBorrower, salaryD
           <Box sx={{ width: 44, height: 44, borderRadius: '12px', bgcolor: '#EEF1FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Icon name={icon} size={22} color={BLUE} />
           </Box>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#0B0F1A' }} noWrap>{title}</Typography>
             {(restructured || status === 'overdue' || guaranteeNav || coBorrower || salaryDeduction) && (
               <Box sx={{ mt: '4px', display: 'inline-flex', gap: 0.5 }}>
@@ -412,14 +417,9 @@ function ActiveLoanCard({ title, icon, status, restructured, coBorrower, salaryD
                     <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#15803D' }}>Salary deduction</Typography>
                   </Box>
                 )}
-                {coBorrower && (
-                  <Box sx={{ display: 'inline-flex', alignItems: 'center', bgcolor: '#E8F0FE', borderRadius: '6px', px: '8px', py: '3px' }}>
-                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: BLUE }}>Co-Borrower</Typography>
-                  </Box>
-                )}
-                {guaranteeNav && (
+                {guaranteeNav && statusLabel && (
                   <Box sx={{ display: 'inline-flex', alignItems: 'center', bgcolor: statusBg ?? '#FEF3C7', borderRadius: '6px', px: '8px', py: '3px' }}>
-                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: statusColor ?? '#C2870F' }}>{statusLabel ?? 'Guarantee'}</Typography>
+                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: statusColor ?? '#C2870F' }}>{statusLabel}</Typography>
                   </Box>
                 )}
               </Box>
@@ -445,14 +445,14 @@ function ActiveLoanCard({ title, icon, status, restructured, coBorrower, salaryD
           <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A' }}>$4,500.00 left</Typography>
         </Box>
 
-        {/* Pay button — Guarantee cards only */}
-        {guaranteeNav && (
+        {/* Pay button — Guarantee cards only when payAmount provided */}
+        {guaranteeNav && payAmount && (
           <Box
             component="button"
             onClick={(e: React.MouseEvent) => { e.stopPropagation(); navigate(destination + '&pay=1') }}
             sx={{ mt: 1.5, width: '100%', height: 42, borderRadius: '10px', bgcolor: BLUE, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', '&:active': { opacity: 0.85 } }}
           >
-            <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Pay {payAmount ?? '$360.00'}</Typography>
+            <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Pay {payAmount}</Typography>
           </Box>
         )}
       </Box>

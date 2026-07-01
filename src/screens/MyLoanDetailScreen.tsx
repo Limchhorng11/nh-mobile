@@ -42,7 +42,7 @@ export default function MyLoanDetailScreen() {
 
 
         <Box sx={{ px: 3, pt: 2.5, pb: 6, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          <DetailsTab onPay={() => setPayOpen(true)} overdue={overdue} onInfo={() => setInfoOpen(true)} isGuaranteeView={isGuaranteeView} isCoBorrower={isCoBorrower} />
+          <DetailsTab onPay={() => setPayOpen(true)} overdue={overdue} onInfo={() => setInfoOpen(true)} isGuaranteeView={isGuaranteeView} isCoBorrower={isCoBorrower} isStaffLoan={product === 'Staff Loan'} />
           <OthersTab isGuaranteeView={isGuaranteeView} product={product} />
         </Box>
       </Box>
@@ -54,7 +54,7 @@ export default function MyLoanDetailScreen() {
 }
 
 // ─── DETAILS tab ─────────────────────────────────────────────────────────────
-function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower }: { onPay: () => void; overdue: boolean; onInfo: () => void; isGuaranteeView?: boolean; isCoBorrower?: boolean }) {
+function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isStaffLoan }: { onPay: () => void; overdue: boolean; onInfo: () => void; isGuaranteeView?: boolean; isCoBorrower?: boolean; isStaffLoan?: boolean }) {
   const [showAllRows, setShowAllRows] = useState(false)
   const navigate = useNavigate()
   const isGuarantee = !!isGuaranteeView
@@ -82,7 +82,7 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower }: {
       </Box>
 
       {/* Overview card — donut + legend + progress + next payment */}
-      <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', p: 2, pb: isStaffLoan ? 3 : 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
         {/* Donut + legend */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Donut />
@@ -104,8 +104,8 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower }: {
           </Box>
         </Box>
 
-        {/* Next payment due — inside overview card */}
-        <Box sx={{ borderTop: '1px solid #F0F0F0', pt: 2, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+        {/* Next payment due — hidden for Staff Loan */}
+        {!isStaffLoan && <Box sx={{ borderTop: '1px solid #F0F0F0', pt: 2, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <Icon name="clock" size={14} color={LABEL} />
@@ -123,16 +123,18 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower }: {
               <Typography sx={{ fontSize: 30, fontWeight: 800, color: VALUE, letterSpacing: '-1px', lineHeight: 1.1 }}>$320.00</Typography>
               <Typography sx={{ fontSize: 12, color: LABEL, mt: 0.5 }}>Due 16 May · in 9 days</Typography>
             </Box>
-            <Button
-              variant="contained"
-              onClick={onPay}
-              startIcon={<Icon name="cash" size={17} />}
-              sx={{ height: 44, minWidth: 0, borderRadius: '12px', px: '18px', fontSize: 14, fontWeight: 700, bgcolor: ACCENT, '&:hover': { bgcolor: '#2B4F92' }, textTransform: 'none' }}
-            >
-              Pay now
-            </Button>
+            {!isStaffLoan && (
+              <Button
+                variant="contained"
+                onClick={onPay}
+                startIcon={<Icon name="cash" size={17} />}
+                sx={{ height: 44, minWidth: 0, borderRadius: '12px', px: '18px', fontSize: 14, fontWeight: 700, bgcolor: ACCENT, '&:hover': { bgcolor: '#2B4F92' }, textTransform: 'none' }}
+              >
+                Pay now
+              </Button>
+            )}
           </Box>
-        </Box>
+        </Box>}
       </Box>
 
 
@@ -355,8 +357,8 @@ function OthersTab({ isGuaranteeView, product }: { isGuaranteeView?: boolean; pr
       {<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
         <SectionLabel>My Documents</SectionLabel>
         <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', px: '14px' }}>
-          {DOCS.map((d, i) => (
-            <DocRow key={d.title} {...d} last={i === DOCS.length - 1} />
+          {DOCS.filter(d => !isStaffLoan || (d.title !== '1st Restructured Contract' && d.title !== 'Hypothec Contract' && d.title !== 'Guarantee Contract')).map((d, i, arr) => (
+            <DocRow key={d.title} {...d} last={i === arr.length - 1} />
           ))}
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.25, pl: 0.5 }}>
@@ -366,7 +368,7 @@ function OthersTab({ isGuaranteeView, product }: { isGuaranteeView?: boolean; pr
       </Box>}
 
       {/* My officer */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+      {!isStaffLoan && <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
         <SectionLabel>My Officer</SectionLabel>
         <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
@@ -392,7 +394,7 @@ function OthersTab({ isGuaranteeView, product }: { isGuaranteeView?: boolean; pr
             </Box>
           </Box>
         </Box>
-      </Box>
+      </Box>}
 
       <CallSheet open={callOpen} onClose={() => setCallOpen(false)} />
     </Box>
@@ -603,8 +605,8 @@ function ProductFeaturesSheet({ open, onClose, product, isCoBorrower, isBorrower
           <Typography sx={{ fontSize: 13, color: LABEL, mt: 0.25 }}>{info.tagline}</Typography>
         </Box>
 
-        {/* Loan parties list — shown for all flows */}
-        {(() => {
+        {/* Loan parties list — hidden for Staff Loan */}
+        {product !== 'Staff Loan' && (() => {
           const allParties = isCoBorrower
             ? [
                 { role: 'Borrower',     initials: 'KK', name: 'Krong Kampuchea' },
