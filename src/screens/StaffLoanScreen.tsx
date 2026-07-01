@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton'
 import { Icon } from '../components/Icon'
 import { MwlHeader, MwlTitle, GroupLabel, FieldCard, SelectField, PhoneField, DiscardSheet, BLUE } from './mwl/MwlParts'
 import RepaymentEstimate from './mwl/RepaymentEstimate'
-import { addApplication, reviewQuery } from '../workspace/applications'
+import { addApplication, reviewQuery, type LoanApplication } from '../workspace/applications'
 import { buildGraceSchedule, money } from './loanCalc'
 
 const BANKS = ['ABA Bank', 'ACLEDA Bank', 'Canadia Bank', 'Wing Bank', 'PPCBank']
