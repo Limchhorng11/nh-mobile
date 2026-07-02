@@ -138,6 +138,7 @@ export function SettingsSections() {
   const [theme, setTheme] = useState<ThemeId>('System')
   const [picker, setPicker] = useState<'language' | 'theme' | null>(null)
   const [callOpen, setCallOpen] = useState(false)
+  const [officerCallOpen, setOfficerCallOpen] = useState(false)
   const [signOutOpen, setSignOutOpen] = useState(false)
   const [signOutPin, setSignOutPin] = useState(false)
   const activeLang = LANGUAGES.find((l) => l.id === language) ?? LANGUAGES[0]
@@ -157,10 +158,10 @@ export function SettingsSections() {
                   <Typography sx={{ fontSize: 12, color: MUTED, mt: 0.25 }}>Riverside Branch</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Box role="button" aria-label="Chat with officer" onClick={() => navigate('/chat')} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', '&:active': { bgcolor: 'rgba(0,0,0,0.06)' } }}>
+                  <Box role="button" aria-label="Chat with officer" onClick={() => navigate('/chat-thread')} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', '&:active': { bgcolor: 'rgba(0,0,0,0.06)' } }}>
                     <Icon name="message" size={22} color="#0B0F1A" />
                   </Box>
-                  <Box role="button" aria-label="Call officer" onClick={() => setCallOpen(true)} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', '&:active': { bgcolor: 'rgba(0,0,0,0.06)' } }}>
+                  <Box role="button" aria-label="Call officer" onClick={() => setOfficerCallOpen(true)} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', '&:active': { bgcolor: 'rgba(0,0,0,0.06)' } }}>
                     <Icon name="phone" size={22} color="#0B0F1A" />
                   </Box>
                 </Box>
@@ -234,6 +235,26 @@ export function SettingsSections() {
       />
 
       <CallSheet open={callOpen} onClose={() => setCallOpen(false)} />
+
+      {/* Officer call sheet */}
+      <>
+        <Box onClick={() => setOfficerCallOpen(false)} sx={{ position: 'absolute', inset: 0, zIndex: 100, bgcolor: 'rgba(11,15,26,0.45)', opacity: officerCallOpen ? 1 : 0, pointerEvents: officerCallOpen ? 'auto' : 'none', transition: 'opacity 0.25s ease' }} />
+        <Box sx={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 101, bgcolor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, transform: officerCallOpen ? 'translateY(0)' : 'translateY(100%)', transition: 'transform 0.3s cubic-bezier(0.32,0.72,0,1)', boxShadow: '0 -8px 30px rgba(11,15,26,0.18)', px: 3, pt: 1.25, pb: '32px', display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', pb: 2 }}>
+            <Box sx={{ width: 40, height: 4, borderRadius: 2, bgcolor: '#D6DBE2' }} />
+          </Box>
+          <Typography sx={{ fontSize: 20, fontWeight: 800, color: '#0B0F1A', textAlign: 'center' }}>Call Mr. Pisey Sok</Typography>
+          <Typography sx={{ fontSize: 13.5, color: '#8A94A6', textAlign: 'center', mt: 0.5 }}>Your person in charge · Riverside Branch</Typography>
+          <Box component="a" href="tel:017666036" sx={{ mt: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.25, minHeight: 60, borderRadius: '14px', bgcolor: '#EEF3FC', textDecoration: 'none', cursor: 'pointer', '&:active': { opacity: 0.85 } }}>
+            <Icon name="phone" size={22} color="#275CB2" />
+            <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#275CB2', letterSpacing: '0.5px' }}>017 666 036</Typography>
+          </Box>
+          <Typography sx={{ fontSize: 12, color: '#8A94A6', textAlign: 'center', mt: 1.25 }}>Tap the number to call your officer directly</Typography>
+          <Box role="button" onClick={() => setOfficerCallOpen(false)} sx={{ mt: 2, minHeight: 52, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', '&:active': { opacity: 0.7 } }}>
+            <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A' }}>Cancel</Typography>
+          </Box>
+        </Box>
+      </>
 
       {/* PIN overlay for sign out */}
       {signOutPin && (
@@ -331,9 +352,7 @@ export default function SettingsScreen() {
           </Box>
         ) : (
           <Box
-            role="button"
-            onClick={() => navigate('/profile')}
-            sx={{ px: 3, pt: 1, pb: 2, display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', '&:active': { opacity: 0.7 } }}
+            sx={{ px: 3, pt: 1, pb: 2, display: 'flex', alignItems: 'center', gap: 2 }}
           >
             <Box sx={{ width: 52, height: 52, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}>
               <AssetImg src={ILLUS.avatar01} alt="avatar" sx={{ width: '100%', height: '100%', objectFit: 'cover' }} fallback={<AvatarArt />} />

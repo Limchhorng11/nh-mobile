@@ -75,6 +75,8 @@ export default function StaffLoanScreen() {
   const [reviewAgree, setReviewAgree] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const [faceState, setFaceState] = useState<'scanning' | 'success'>('scanning')
+  const [pinStep, setPinStep] = useState(false)
+  const [pinValue, setPinValue] = useState('')
 
   const principal = parseFloat(amount.replace(/[^0-9.]/g, '')) || 0
   const overMax = principal > activeLoan.maxAmount
@@ -217,6 +219,60 @@ export default function StaffLoanScreen() {
     )
   }
 
+  if (pinStep) {
+    const BLUE = '#275CB2'
+    const MUTED = '#8A94A6'
+    const INK = '#0B1437'
+    const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'back']
+    const press = (k: string) => {
+      if (k === 'C') return setPinValue('')
+      if (k === 'back') return setPinValue(p => p.slice(0, -1))
+      if (pinValue.length >= 4) return
+      const next = pinValue + k
+      setPinValue(next)
+      if (next.length === 4) setTimeout(() => { setPinStep(false); setPinValue(''); submit() }, 400)
+    }
+    return (
+      <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
+        <Box sx={{ px: 3, pt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+          <IconButton onClick={() => { setPinStep(false); setVerifying(true); setFaceState('success') }} aria-label="Close" sx={{ mr: -1, color: '#0B0F1A' }}>
+            <Icon name="close" size={26} color="#0B0F1A" />
+          </IconButton>
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', px: 3, mt: 1 }}>
+          <Icon name="accountSecurity" size={40} color={INK} />
+          <Typography sx={{ fontSize: 16, fontWeight: 800, color: INK, letterSpacing: 2, mt: 0.5, mb: 1.5 }}>***</Typography>
+          <Typography sx={{ fontSize: 26, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', textAlign: 'center' }}>
+            Enter PIN to continue
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
+            {[0, 1, 2, 3].map((i) => (
+              <Box key={i} sx={{ width: 16, height: 16, borderRadius: '50%', bgcolor: i < pinValue.length ? BLUE : 'transparent', border: `2px solid ${i < pinValue.length ? BLUE : '#CBD3DF'}` }} />
+            ))}
+          </Box>
+        </Box>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+          <Box sx={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', rowGap: 1, px: 3 }}>
+            {KEYS.map((k) => (
+              <Box key={k} component="button" type="button" onClick={() => press(k)} aria-label={k === 'back' ? 'Delete' : k === 'C' ? 'Clear' : k}
+                sx={{ height: 64, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'transparent', border: 'none', fontFamily: 'inherit', fontSize: 30, fontWeight: 500, color: k === 'C' ? MUTED : '#0B0F1A', cursor: 'pointer', borderRadius: '50%', '&:active': { bgcolor: 'rgba(11,15,26,0.06)' } }}>
+                {k === 'back' ? <Icon name="backspace" size={26} color="#5B6473" /> : k}
+              </Box>
+            ))}
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5, pt: 1.5, pb: '36px' }}>
+            <IconButton aria-label="Use Face ID" sx={{ color: MUTED }}>
+              <Icon name="faceId" size={30} color={MUTED} />
+            </IconButton>
+            <Typography role="button" sx={{ fontSize: 15, fontWeight: 600, color: MUTED, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
+              Forgot PIN?
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+    )
+  }
+
   if (verifying && true) {
     const isSuccess = faceState === 'success'
     return (
@@ -236,44 +292,51 @@ export default function StaffLoanScreen() {
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', px: 3, gap: 0 }}>
           {/* Face scan frame */}
           <Box sx={{ position: 'relative', width: 220, height: 260, mb: 4 }}>
+            {/* Face photo */}
+            <Box sx={{
+              position: 'absolute', inset: 0,
+              borderRadius: '16px',
+              overflow: 'hidden',
+              bgcolor: '#1A2035',
+            }}>
+              <Box
+                component="img"
+                src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80"
+                alt="Face sample"
+                sx={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', opacity: isSuccess ? 1 : 0.85 }}
+              />
+              {/* Scan line overlay */}
+              {!isSuccess && (
+                <Box sx={{
+                  position: 'absolute', left: 0, right: 0, height: '3px',
+                  background: `linear-gradient(90deg, transparent, ${BLUE}, transparent)`,
+                  boxShadow: `0 0 12px 4px ${BLUE}55`,
+                  animation: 'scanLine 2s ease-in-out infinite',
+                  '@keyframes scanLine': {
+                    '0%': { top: '10%' },
+                    '50%': { top: '85%' },
+                    '100%': { top: '10%' },
+                  },
+                }} />
+              )}
+              {/* Success green overlay */}
+              {isSuccess && (
+                <Box sx={{ position: 'absolute', inset: 0, bgcolor: 'rgba(31,168,92,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Box sx={{ width: 60, height: 60, borderRadius: '50%', bgcolor: '#1FA85C', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 24px rgba(31,168,92,0.5)' }}>
+                    <Icon name="check" size={30} color="#fff" />
+                  </Box>
+                </Box>
+              )}
+            </Box>
             {/* Corner brackets */}
             {[
-              { top: 0, left: 0, borderTop: '3px solid', borderLeft: '3px solid', borderRadius: '12px 0 0 0' },
-              { top: 0, right: 0, borderTop: '3px solid', borderRight: '3px solid', borderRadius: '0 12px 0 0' },
-              { bottom: 0, left: 0, borderBottom: '3px solid', borderLeft: '3px solid', borderRadius: '0 0 0 12px' },
-              { bottom: 0, right: 0, borderBottom: '3px solid', borderRight: '3px solid', borderRadius: '0 0 12px 0' },
+              { top: -4, left: -4, borderTop: '3px solid', borderLeft: '3px solid', borderRadius: '10px 0 0 0' },
+              { top: -4, right: -4, borderTop: '3px solid', borderRight: '3px solid', borderRadius: '0 10px 0 0' },
+              { bottom: -4, left: -4, borderBottom: '3px solid', borderLeft: '3px solid', borderRadius: '0 0 0 10px' },
+              { bottom: -4, right: -4, borderBottom: '3px solid', borderRight: '3px solid', borderRadius: '0 0 10px 0' },
             ].map((s, i) => (
-              <Box key={i} sx={{ position: 'absolute', width: 32, height: 32, borderColor: isSuccess ? '#1FA85C' : BLUE, transition: 'border-color 0.4s', ...s }} />
+              <Box key={i} sx={{ position: 'absolute', width: 36, height: 36, borderColor: isSuccess ? '#1FA85C' : BLUE, transition: 'border-color 0.4s', zIndex: 2, ...s }} />
             ))}
-            {/* Face silhouette */}
-            <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="120" height="150" viewBox="0 0 120 150" fill="none">
-                {/* Head oval */}
-                <ellipse cx="60" cy="60" rx="46" ry="54" stroke={isSuccess ? '#1FA85C' : '#2A3A5C'} strokeWidth="2" fill="none" />
-                {/* Eyes */}
-                <ellipse cx="40" cy="52" rx="7" ry="8" fill={isSuccess ? '#1FA85C' : '#2A4080'} opacity="0.7" />
-                <ellipse cx="80" cy="52" rx="7" ry="8" fill={isSuccess ? '#1FA85C' : '#2A4080'} opacity="0.7" />
-                {/* Nose */}
-                <path d="M60 62 Q56 72 58 76 Q60 78 62 76 Q64 72 60 62" stroke={isSuccess ? '#1FA85C' : '#2A3A5C'} strokeWidth="1.5" fill="none" />
-                {/* Mouth */}
-                <path d="M46 88 Q60 98 74 88" stroke={isSuccess ? '#1FA85C' : '#2A3A5C'} strokeWidth="2" fill="none" strokeLinecap="round" />
-                {/* Scan line */}
-                {!isSuccess && (
-                  <line x1="14" y1="75" x2="106" y2="75" stroke={BLUE} strokeWidth="1.5" opacity="0.6">
-                    <animateTransform attributeName="transform" type="translate" values="0,-40;0,40;0,-40" dur="2s" repeatCount="indefinite" />
-                  </line>
-                )}
-                {/* Checkmark on success */}
-                {isSuccess && (
-                  <g>
-                    <circle cx="60" cy="60" r="22" fill="#1FA85C" opacity="0.15" />
-                    <path d="M48 60 L57 69 L73 52" stroke="#1FA85C" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                      <animate attributeName="stroke-dasharray" from="0 50" to="50 0" dur="0.4s" fill="freeze" />
-                    </path>
-                  </g>
-                )}
-              </svg>
-            </Box>
           </Box>
 
           {/* Status text */}
@@ -281,7 +344,7 @@ export default function StaffLoanScreen() {
             {isSuccess ? 'Identity Verified' : 'Face ID'}
           </Typography>
           <Typography sx={{ fontSize: 14, color: isSuccess ? '#1FA85C' : '#8A94A6', textAlign: 'center', mt: 1, lineHeight: 1.5, transition: 'color 0.4s' }}>
-            {isSuccess ? 'Submitting your application…' : 'Look at your camera to verify your identity'}
+            {isSuccess ? 'Verification successful. Continue to confirm with your PIN.' : 'Look at your camera to verify your identity'}
           </Typography>
 
           {/* Dot indicators */}
@@ -306,7 +369,6 @@ export default function StaffLoanScreen() {
                 fullWidth
                 onClick={() => {
                   setFaceState('success')
-                  setTimeout(submit, 1200)
                 }}
                 sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' } }}
               >
@@ -322,13 +384,14 @@ export default function StaffLoanScreen() {
               </Button>
             </>
           ) : (
-            <Box sx={{ height: 54, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-              <Box sx={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid #1FA85C', borderTopColor: 'transparent',
-                animation: 'spin 0.8s linear infinite',
-                '@keyframes spin': { from: { transform: 'rotate(0deg)' }, to: { transform: 'rotate(360deg)' } },
-              }} />
-              <Typography sx={{ fontSize: 14, color: '#1FA85C', fontWeight: 600 }}>Processing…</Typography>
-            </Box>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={() => { setVerifying(false); setPinStep(true) }}
+              sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: '#1FA85C', '&:hover': { bgcolor: '#178a4d' } }}
+            >
+              Continue to PIN
+            </Button>
           )}
         </Box>
       </Box>

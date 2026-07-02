@@ -82,7 +82,7 @@ export default function StaffLoanApprovedScreen() {
 
           {/* Disbursement amount hero */}
           <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '14px', p: '20px' }}>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: LABEL }}>AMOUNT DISBURSED TO YOUR PAYROLL</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: LABEL }}>TRANSFERRED TO YOUR PAYROLL ACCOUNT</Typography>
             <Typography sx={{ fontSize: 38, fontWeight: 800, color: GREEN, letterSpacing: '-1.5px', lineHeight: 1.1, mt: 0.5 }}>
               {fmt(netDisbursed)}
             </Typography>
