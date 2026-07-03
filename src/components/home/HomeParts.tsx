@@ -285,7 +285,7 @@ function BlogGrid() {
         <Box
           key={p.videoId}
           role="button"
-          onClick={() => navigate('/blogs')}
+          onClick={() => navigate('/blog-detail', { state: { cat: p.cat, title: p.title, tint: p.tint, videoId: p.videoId, day: '1 Jul 2026', author: 'NongHyup Finance' } })}
           sx={{ flexShrink: 0, width: 200, bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '14px', overflow: 'hidden', textDecoration: 'none', display: 'block', cursor: 'pointer', '&:active': { opacity: 0.85 } }}
         >
           <Box sx={{ position: 'relative', height: 112, bgcolor: '#000', overflow: 'hidden' }}>
@@ -450,7 +450,10 @@ export function MoreMenuBody({
 
         {/* Blog Posts */}
         <Box>
-          <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6', mb: 1.5 }}>BLOG POST</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6' }}>BLOG POST</Typography>
+            <Typography role="button" onClick={() => navigate('/blogs')} sx={{ fontSize: 13, fontWeight: 600, color: '#275CB2', cursor: 'pointer', '&:active': { opacity: 0.6 } }}>See all</Typography>
+          </Box>
           <BlogGrid />
         </Box>
 
@@ -574,49 +577,39 @@ export function SummaryCard({ children, loanCount = 3, defaultExpanded = false, 
 
   return (
     <Card>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 3 }}>
+      {/* Summary link — top right of card */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 0.5 }}>
+        <Box
+          onClick={() => navigate('/portfolio-summary')}
+          role="button"
+          sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.25, cursor: 'pointer' }}
+        >
+          <Typography sx={{ fontSize: 13, fontWeight: 700, color: BLUE }}>Summary</Typography>
+          <Box component="svg" width={14} height={14} viewBox="0 0 14 14" fill="none" sx={{ ml: 0.25, flexShrink: 0 }}>
+            <path d="M3 11L11 3M11 3H5M11 3V9" stroke={BLUE} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+          </Box>
+        </Box>
+      </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
         <OutstandingDonut pct={55} centerText="55%" blurred={hidden} />
-        <Box sx={{ flex: 1, ml: '34px' }}>
-          <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6' }}>
-            TOTAL OUTSTANDING
+        <Box sx={{ flex: 1, ml: '24px' }}>
+          <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#8A94A6', mb: 0.5 }}>
+            Total Outstanding
           </Typography>
-          {/* Total amount */}
-          <Box sx={{ mt: 0.5 }}>
-            <Typography
-              sx={{
-                fontSize: 20,
-                fontWeight: 800,
-                color: '#0B0F1A',
-                letterSpacing: '-0.5px',
-                lineHeight: 1.2,
-              }}
-            >
+          {/* USD amount */}
+          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+            <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', lineHeight: 1.4 }}>
               {total}
             </Typography>
+            <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#B0B8C8' }}>2 loans</Typography>
           </Box>
-          {/* KHR/USD secondary amount — same currency denomination, not a rate conversion */}
-          <Typography
-            sx={{
-              fontSize: 20,
-              fontWeight: 800,
-              color: '#0B0F1A',
-              letterSpacing: '-0.5px',
-              lineHeight: 1.2,
-            }}
-          >
-            {isKHR ? '$4,780.00' : '៛19,598,000'}
-          </Typography>
-          <Box
-            onClick={() => navigate('/portfolio-summary')}
-            role="button"
-            sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.25, mt: 1.5, cursor: 'pointer' }}
-          >
-            <Typography sx={{ fontSize: 13, fontWeight: 700, color: BLUE }}>View summary</Typography>
-            <Box component="span" sx={{ display: 'inline-flex', color: BLUE }}>
-              <Icon name="chevronRight" size={18} />
-            </Box>
+          {/* KHR amount */}
+          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+            <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', lineHeight: 1.4 }}>
+              {isKHR ? '$4,780.00' : '៛19,598,000'}
+            </Typography>
+            <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#B0B8C8' }}>1 loan</Typography>
           </Box>
-
         </Box>
       </Box>
 

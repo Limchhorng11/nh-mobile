@@ -116,6 +116,11 @@ export default function AccountSecurityScreen() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [pinStep, setPinStep] = useState(false)
   const [deleted, setDeleted] = useState(false)
+  const [changePinOpen, setChangePinOpen] = useState(false)
+  const [changePinStep, setChangePinStep] = useState<'current' | 'new' | 'confirm' | 'success'>('current')
+  const [currentPin, setCurrentPin] = useState('')
+  const [newPin, setNewPin] = useState('')
+  const [confirmPin, setConfirmPin] = useState('')
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -147,7 +152,7 @@ export default function AccountSecurityScreen() {
               label="Change PIN"
               sub="Last changed 23 Apr 2026"
               divider
-              onClick={() => {}}
+              onClick={() => { setChangePinStep('current'); setCurrentPin(''); setNewPin(''); setConfirmPin(''); setChangePinOpen(true) }}
               right={<Icon name="chevronRight" size={20} color="#C2C9D4" />}
             />
             <Row
@@ -210,6 +215,74 @@ export default function AccountSecurityScreen() {
           <PinGateScreen onSuccess={() => { setPinStep(false); setDeleteOpen(false); navigate('/flow-select') }} />
         </Box>
       )}
+
+      {/* Change PIN sheet */}
+      <BottomSheet open={changePinOpen} onClose={() => setChangePinOpen(false)}>
+        {changePinStep === 'success' ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, pb: 1 }}>
+            <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: '#E6F7EE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="check" size={28} color={GREEN} />
+            </Box>
+            <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px', mt: 0.5 }}>PIN Updated</Typography>
+            <Typography sx={{ fontSize: 14, color: MUTED, textAlign: 'center', lineHeight: 1.55 }}>
+              Your PIN has been changed successfully.
+            </Typography>
+            <Button variant="contained" fullWidth onClick={() => setChangePinOpen(false)}
+              sx={{ mt: 1, height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: BLUE }}>
+              Done
+            </Button>
+          </Box>
+        ) : (
+          <Box sx={{ pb: 1 }}>
+            <Typography sx={{ fontSize: 20, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px', mb: 0.5 }}>
+              {changePinStep === 'current' ? 'Enter current PIN' : changePinStep === 'new' ? 'Enter new PIN' : 'Confirm new PIN'}
+            </Typography>
+            <Typography sx={{ fontSize: 13.5, color: MUTED, mb: 2.5, lineHeight: 1.5 }}>
+              {changePinStep === 'current' ? 'Enter your current 6-digit PIN to continue.' : changePinStep === 'new' ? 'Choose a new 6-digit PIN.' : 'Re-enter your new PIN to confirm.'}
+            </Typography>
+            {/* PIN dots */}
+            {(() => {
+              const val = changePinStep === 'current' ? currentPin : changePinStep === 'new' ? newPin : confirmPin
+              const setter = changePinStep === 'current' ? setCurrentPin : changePinStep === 'new' ? setNewPin : setConfirmPin
+              return (
+                <>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 3 }}>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <Box key={i} sx={{ width: 14, height: 14, borderRadius: '50%', bgcolor: i < val.length ? BLUE : '#E2E6EC', transition: 'background-color 0.15s' }} />
+                    ))}
+                  </Box>
+                  {/* Numpad */}
+                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1.5 }}>
+                    {['1','2','3','4','5','6','7','8','9','','0','⌫'].map((k) => (
+                      <Box
+                        key={k}
+                        role={k ? 'button' : undefined}
+                        onClick={() => {
+                          if (!k) return
+                          if (k === '⌫') { setter(v => v.slice(0, -1)); return }
+                          if (val.length >= 6) return
+                          const next = val + k
+                          setter(next)
+                          if (next.length === 6) {
+                            setTimeout(() => {
+                              if (changePinStep === 'current') setChangePinStep('new')
+                              else if (changePinStep === 'new') setChangePinStep('confirm')
+                              else setChangePinStep('success')
+                            }, 200)
+                          }
+                        }}
+                        sx={{ height: 56, borderRadius: '12px', bgcolor: k ? '#F5F7FA' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 600, color: HEADING, cursor: k ? 'pointer' : 'default', '&:active': k ? { bgcolor: '#E2E8F5' } : {} }}
+                      >
+                        {k}
+                      </Box>
+                    ))}
+                  </Box>
+                </>
+              )
+            })()}
+          </Box>
+        )}
+      </BottomSheet>
 
       {/* Delete account confirmation sheet */}
       <BottomSheet open={deleteOpen && !pinStep} onClose={() => { setDeleteOpen(false); setDeleted(false); setPinStep(false) }}>

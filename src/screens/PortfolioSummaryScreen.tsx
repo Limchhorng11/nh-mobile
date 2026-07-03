@@ -42,11 +42,15 @@ function Stat({ label, value, sub, valueColor = HEADING, bg = '#F5F7FA' }: {
 }
 
 // ── Upcoming due item ────────────────────────────────────────────────────────
-function DueItem({ day, month, dotColor, title, sub, amount, amountColor }: {
-  day: string; month: string; dotColor: string; title: string; sub: string; amount: string; amountColor: string
+function DueItem({ day, month, dotColor, title, sub, amount, amountColor, overdue, onClick }: {
+  day: string; month: string; dotColor: string; title: string; sub: string; amount: string; amountColor: string; overdue?: boolean; onClick?: () => void
 }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+    <Box
+      role="button"
+      onClick={onClick}
+      sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer', '&:active': { opacity: 0.7 } }}
+    >
       <Box sx={{ width: 42, height: 42, borderRadius: '10px', bgcolor: dotColor, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         <Typography sx={{ fontSize: 15, fontWeight: 900, color: '#fff', lineHeight: 1 }}>{day}</Typography>
         <Typography sx={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(255,255,255,0.85)', lineHeight: 1.3 }}>{month}</Typography>
@@ -56,6 +60,7 @@ function DueItem({ day, month, dotColor, title, sub, amount, amountColor }: {
         <Typography sx={{ fontSize: 11.5, color: LABEL }}>{sub}</Typography>
       </Box>
       <Typography sx={{ fontSize: 14, fontWeight: 800, color: amountColor, flexShrink: 0 }}>{amount}</Typography>
+      <Icon name="chevronRight" size={16} color="#C9D2DE" />
     </Box>
   )
 }
@@ -136,29 +141,37 @@ export default function PortfolioSummaryScreen() {
                   <Typography sx={{ fontSize: 8.5, color: LABEL, lineHeight: 1.3, textAlign: 'center' }}>outstanding</Typography>
                 </Box>
               </Box>
-              <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.875 }}>
+              <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {[
-                  { dot: '#EAECF0', label: 'Total approved', value: '≈ $108,040' },
-                  { dot: BLUE,      label: 'Paid to date',   value: '≈ $44,070'  },
-                  { dot: GREEN,     label: 'Outstanding',    value: '≈ $63,970'  },
+                  { dot: '#C8CDD6', label: 'Total approved', usd: '$108,040', khr: '៛442,964,000' },
+                  { dot: BLUE,      label: 'Paid to date',   usd: '$44,070',  khr: '៛180,687,000' },
+                  { dot: GREEN,     label: 'Outstanding',    usd: '$63,970',  khr: '៛262,277,000' },
                 ].map((r) => (
-                  <Box key={r.label} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                  <Box key={r.label} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0 }}>
                       <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: r.dot, flexShrink: 0 }} />
-                      <Typography sx={{ fontSize: 11.5, color: '#3A4256' }}>{r.label}</Typography>
+                      <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#8A94A6' }}>{r.label}</Typography>
                     </Box>
-                    <Typography sx={{ fontSize: 12, fontWeight: 700, color: HEADING }}>{r.value}</Typography>
+                    <Box sx={{ textAlign: 'right' }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 800, color: HEADING, lineHeight: 1.3 }}>{r.usd}</Typography>
+                    </Box>
                   </Box>
                 ))}
               </Box>
             </Box>
 
-            {/* Stats grid */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-              <Stat label="ACTIVE LOANS"       value="3"           sub="SBL · MWL · MB"              valueColor={BLUE}      bg="#EEF3FC" />
-              <Stat label="PORTFOLIO HEALTH"   value="Good"        sub="1 restructuring in review"   valueColor="#1A8A4C"   bg="#EAF6EF" />
-              <Stat label="TOTAL INSTALLMENTS" value="22"          sub="of 66 paid"                  valueColor={HEADING}  bg="#F5F7FA" />
-              <Stat label="DUE THIS MONTH"     value="៛1,107,000" sub="1 payment pending"            valueColor="#C0392B"  bg="#FDF0EF" />
+            {/* Stats strip — 1 row 3 columns */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1 }}>
+              {[
+                { label: 'Active loans',   value: '3',    valueColor: BLUE },
+                { label: 'Installments',   value: '22',   valueColor: HEADING },
+                { label: 'Due this month', value: '$270', valueColor: '#C0392B' },
+              ].map((s) => (
+                <Box key={s.label} sx={{ bgcolor: '#F5F7FA', borderRadius: '12px', p: '12px 8px', textAlign: 'center' }}>
+                  <Typography sx={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.5px', color: '#8A94A6', mb: 0.75 }}>{s.label.toUpperCase()}</Typography>
+                  <Typography sx={{ fontSize: 18, fontWeight: 800, color: s.valueColor, lineHeight: 1.1 }}>{s.value}</Typography>
+                </Box>
+              ))}
             </Box>
           </Box>
         </Box>
@@ -195,9 +208,9 @@ export default function PortfolioSummaryScreen() {
                 { label: 'On time',       value: '22', color: GREEN   },
                 { label: 'Missed / late', value: '0',  color: LABEL   },
               ].map((s) => (
-                <Box key={s.label} sx={{ bgcolor: '#F5F7FA', borderRadius: '10px', p: '10px', textAlign: 'center' }}>
-                  <Typography sx={{ fontSize: 17, fontWeight: 800, color: s.color, lineHeight: 1.2 }}>{s.value}</Typography>
-                  <Typography sx={{ fontSize: 10.5, color: LABEL, mt: 0.25, lineHeight: 1.3 }}>{s.label}</Typography>
+                <Box key={s.label} sx={{ bgcolor: '#F5F7FA', borderRadius: '12px', p: '12px 8px', textAlign: 'center' }}>
+                  <Typography sx={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.5px', color: '#8A94A6', mb: 0.75 }}>{s.label.toUpperCase()}</Typography>
+                  <Typography sx={{ fontSize: 18, fontWeight: 800, color: s.color, lineHeight: 1.1 }}>{s.value}</Typography>
                 </Box>
               ))}
             </Box>
@@ -208,14 +221,20 @@ export default function PortfolioSummaryScreen() {
         <Box>
           <SectionHeader icon="calendar" label="Upcoming obligations" />
           <Box sx={CARD_SX}>
-            <Typography sx={{ fontSize: 12, color: LABEL, mb: 1.5 }}>Next 3 due payments</Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <DueItem day="20" month="JUN" dotColor={GREEN}   title="Migrant Worker Loan" sub="Installment 6 of 18"   amount="$270.00"   amountColor={GREEN}   />
-              <DueItem day="05" month="JUL" dotColor="#E8770B" title="Housing Loan"         sub="Installment 49 of 120" amount="$1,083.00" amountColor="#C0392B" />
-              <DueItem day="15" month="JUL" dotColor={BLUE}    title="Small Biz Loan"       sub="Installment 9 of 24"  amount="$350.00"   amountColor={BLUE}    />
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.5, pt: 1.5, borderTop: '1px solid #F0F2F5' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+              <Typography sx={{ fontSize: 12, color: LABEL }}>Next 3 due payments</Typography>
               <Typography sx={{ fontSize: 13, fontWeight: 800, color: HEADING }}>Total: $1,703.00</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              {[
+                { day: '20', month: 'JUN', dotColor: GREEN,      title: 'Migrant Worker Loan', sub: 'Installment 6 of 18',   amount: '$270.00',   amountColor: GREEN,      onClick: () => navigate('/my-loan-detail') },
+                { day: '05', month: 'JUL', dotColor: '#E8770B',  title: 'Housing Loan',        sub: 'Installment 49 of 120', amount: '$1,083.00', amountColor: '#C0392B', onClick: () => navigate('/my-loan-detail?overdue=true') },
+                { day: '15', month: 'JUL', dotColor: BLUE,       title: 'Small Biz Loan',      sub: 'Installment 9 of 24',  amount: '$350.00',   amountColor: BLUE,       onClick: () => navigate('/my-loan-detail') },
+              ].map((item, i) => (
+                <Box key={item.title} sx={{ py: 1.5, borderTop: i > 0 ? '1px solid #F0F2F5' : 'none' }}>
+                  <DueItem {...item} />
+                </Box>
+              ))}
             </Box>
           </Box>
         </Box>

@@ -77,6 +77,7 @@ const AboutScreen      = lazy(() => import('../screens/settings/AboutScreen'))
 const TermsPrivacyScreen = lazy(() => import('../screens/settings/TermsPrivacyScreen'))
 const BranchLocatorScreen = lazy(() => import('../screens/settings/BranchLocatorScreen'))
 const BlogsScreen      = lazy(() => import('../screens/settings/BlogsScreen'))
+const BlogDetailScreen = lazy(() => import('../screens/settings/BlogDetailScreen'))
 const SendFeedbackScreen = lazy(() => import('../screens/settings/SendFeedbackScreen'))
 const FeedbackHistoryScreen = lazy(() => import('../screens/settings/FeedbackHistoryScreen'))
 const FaqScreen        = lazy(() => import('../screens/settings/FaqScreen'))
@@ -190,6 +191,7 @@ export default function AppRouter() {
         <Route path="/terms-privacy" element={<TermsPrivacyScreen />} />
         <Route path="/branch-locator" element={<BranchLocatorScreen />} />
         <Route path="/blogs" element={<BlogsScreen />} />
+        <Route path="/blog-detail" element={<BlogDetailScreen />} />
         <Route path="/send-feedback" element={<SendFeedbackScreen />} />
         <Route path="/feedback-history" element={<FeedbackHistoryScreen />} />
         <Route path="/faq" element={<FaqScreen />} />

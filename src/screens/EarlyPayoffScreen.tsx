@@ -81,7 +81,7 @@ export default function EarlyPayoffScreen() {
                   $1,792.48
                 </Typography>
                 <Typography sx={{ fontSize: 13, color: LABEL, mt: 0.75 }}>
-                  Acct 026-01285971 · settles your loan in full
+                  Acct ••••{' '}5971 · settles your loan in full
                 </Typography>
               </>
             ) : (
@@ -122,17 +122,6 @@ export default function EarlyPayoffScreen() {
           </Box>
 
 
-          {/* Early payoff warning — Staff only */}
-          {isStaff && (
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, bgcolor: '#FFFBEA', border: '1px solid #F5D76E', borderRadius: '12px', p: '12px 14px' }}>
-              <Box sx={{ mt: '1px', flexShrink: 0 }}>
-                <Icon name="alert" size={14} color="#C47F11" />
-              </Box>
-              <Typography sx={{ fontSize: 13, color: '#7A5A12', lineHeight: 1.5 }}>
-                Paying off early stops all future salary deductions for this loan.
-              </Typography>
-            </Box>
-          )}
 
           {/* Notice details — hidden for Staff */}
           {!isStaff && (
@@ -163,21 +152,21 @@ export default function EarlyPayoffScreen() {
             </Box>
           )}
 
-          {/* Confirmation */}
-          <Box
-            role="button"
-            onClick={() => setAgreed((a) => !a)}
-            sx={{ display: 'flex', gap: 1.25, alignItems: 'flex-start', bgcolor: '#F4F6F9', borderRadius: '12px', p: '14px 16px', cursor: 'pointer' }}
-          >
-            <Box sx={{ width: 22, height: 22, borderRadius: '6px', flexShrink: 0, mt: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: agreed ? BLUE : '#fff', border: agreed ? 'none' : '1.5px solid #C9D2DE', transition: 'background-color 0.15s' }}>
-              {agreed && <Icon name="check" size={15} color="#fff" />}
+          {/* Confirmation — non-staff only */}
+          {!isStaff && (
+            <Box
+              role="button"
+              onClick={() => setAgreed((a) => !a)}
+              sx={{ display: 'flex', gap: 1.25, alignItems: 'flex-start', bgcolor: '#F4F6F9', borderRadius: '12px', p: '14px 16px', cursor: 'pointer' }}
+            >
+              <Box sx={{ width: 22, height: 22, borderRadius: '6px', flexShrink: 0, mt: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: agreed ? BLUE : '#fff', border: agreed ? 'none' : '1.5px solid #C9D2DE', transition: 'background-color 0.15s' }}>
+                {agreed && <Icon name="check" size={15} color="#fff" />}
+              </Box>
+              <Typography sx={{ fontSize: 13, color: '#5B6473', lineHeight: 1.5 }}>
+                I confirm this is my genuine intent to fully repay this loan, and I understand the final payoff amount, any penalty, and collateral release are completed at the branch.
+              </Typography>
             </Box>
-            <Typography sx={{ fontSize: 13, color: '#5B6473', lineHeight: 1.5 }}>
-              {isStaff
-                ? 'I authorise NH Finance to settle Staff Loan 026-01285971 in full today, and I understand future salary deductions for this loan will stop.'
-                : 'I confirm this is my genuine intent to fully repay this loan, and I understand the final payoff amount, any penalty, and collateral release are completed at the branch.'}
-            </Typography>
-          </Box>
+          )}
         </Box>
       </Box>
 
@@ -185,11 +174,11 @@ export default function EarlyPayoffScreen() {
         <Button
           variant="contained"
           fullWidth
-          disabled={!agreed}
+          disabled={isStaff ? false : !agreed}
           onClick={() => isStaff ? setPayOpen(true) : navigate('/early-payoff-success')}
           sx={{ height: 48, borderRadius: '12px', fontSize: 14, fontWeight: 700, bgcolor: BLUE, '&.Mui-disabled': { bgcolor: '#B9C3D2', color: '#fff' } }}
         >
-          {isStaff ? 'Confirm Payoff' : 'Submit Notice'}
+          {isStaff ? 'Payoff total $1,792.48' : 'Submit Notice'}
         </Button>
       </Box>
       <PayLoanSheet open={payOpen} onClose={() => setPayOpen(false)} />

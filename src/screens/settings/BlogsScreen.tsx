@@ -14,22 +14,29 @@ const BLUE = '#275CB2'
 
 const TABS = ['All', 'Blog', 'News', 'Tips', 'EDU', 'CSR']
 
-type Post = { id: string; cat: string; title: string; body: string; day: string; tint: string }
+type Post = { id: string; cat: string; title: string; body: string; day: string; tint: string; videoId?: string }
 type Group = { date: string; posts: Post[] }
 
 const GROUPS: Group[] = [
   {
+    date: '1 Jul 2026',
+    posts: [
+      { id: 'p0', cat: 'FINANCIAL BASICS', title: 'Unlicensed Online Loan', body: 'Learn how to identify and avoid unlicensed online lenders that charge hidden fees and exploit borrowers.', day: '1 Jul 2026', tint: '#275CB2', videoId: 'RT2taL5xxWU' },
+      { id: 'p1', cat: "CUSTOMER'S STORY", title: "Sophea's rice farm: from harvest to growth", body: 'How a small rice farmer in Kampong Cham used an NHFC loan to triple her harvest and support her family.', day: '1 Jul 2026', tint: '#1FA85C', videoId: 'VIIclHZEkco' },
+    ],
+  },
+  {
     date: '15 May 2026',
     posts: [
-      { id: 'p1', cat: 'News', title: 'Khmer New Year promotion', body: 'Special interest rates on migrant worker loans throughout the holiday season.', day: 'Wed, 14 May', tint: '#275CB2' },
-      { id: 'p2', cat: 'Tips', title: 'How to plan your repayments', body: 'Five simple habits that keep your loan healthy and your credit score strong.', day: 'Wed, 14 May', tint: '#1FA85C' },
+      { id: 'p2', cat: 'News', title: 'Khmer New Year promotion', body: 'Special interest rates on migrant worker loans throughout the holiday season.', day: 'Wed, 14 May', tint: '#275CB2' },
+      { id: 'p3', cat: 'Tips', title: 'How to plan your repayments', body: 'Five simple habits that keep your loan healthy and your credit score strong.', day: 'Wed, 14 May', tint: '#1FA85C' },
     ],
   },
   {
     date: '12 May 2026',
     posts: [
-      { id: 'p3', cat: 'EDU', title: 'Understanding interest rates', body: 'A short guide to flat vs. reducing-balance interest and what it means for you.', day: 'Mon, 12 May', tint: '#7A3FF2' },
-      { id: 'p4', cat: 'CSR', title: 'Supporting rural farmers', body: 'NHFC partners with local cooperatives to fund the new harvest season.', day: 'Mon, 12 May', tint: '#E08A1E' },
+      { id: 'p4', cat: 'EDU', title: 'Understanding interest rates', body: 'A short guide to flat vs. reducing-balance interest and what it means for you.', day: 'Mon, 12 May', tint: '#7A3FF2', videoId: 'bk4pBXKyW3M' },
+      { id: 'p5', cat: 'CSR', title: 'Supporting rural farmers', body: 'NHFC partners with local cooperatives to fund the new harvest season.', day: 'Mon, 12 May', tint: '#E08A1E' },
     ],
   },
 ]
@@ -83,12 +90,26 @@ export default function BlogsScreen() {
                   <Box
                     key={p.id}
                     role="button"
-                    onClick={() => {}}
+                    onClick={() => navigate('/blog-detail', { state: { cat: p.cat, title: p.title, tint: p.tint, body: p.body, day: p.day, author: 'NongHyup Finance' } })}
                     sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', overflow: 'hidden', cursor: 'pointer', '&:active': { opacity: 0.85 } }}
                   >
                     {/* Thumbnail */}
-                    <Box sx={{ height: 130, background: `linear-gradient(135deg, ${p.tint}26, ${p.tint}0D)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Icon name="blogs" size={36} color={p.tint} />
+                    <Box sx={{ position: 'relative', height: 160, bgcolor: '#000', overflow: 'hidden' }}>
+                      {p.videoId ? (
+                        <>
+                          <Box component="img" src={`https://img.youtube.com/vi/${p.videoId}/hqdefault.jpg`} alt={p.title}
+                            sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', opacity: 0.88 }} />
+                          <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Box sx={{ width: 44, height: 44, borderRadius: '50%', bgcolor: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.6)' }}>
+                              <Icon name="play" size={18} color="#fff" />
+                            </Box>
+                          </Box>
+                        </>
+                      ) : (
+                        <Box sx={{ height: '100%', background: `linear-gradient(135deg, ${p.tint}26, ${p.tint}0D)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Icon name="blogs" size={36} color={p.tint} />
+                        </Box>
+                      )}
                     </Box>
                     <Box sx={{ p: '12px' }}>
                       <Box sx={{ display: 'inline-block', fontSize: 11, fontWeight: 700, px: 1, py: 0.25, borderRadius: 1, color: p.tint, bgcolor: `${p.tint}1A`, mb: 0.75 }}>{p.cat}</Box>

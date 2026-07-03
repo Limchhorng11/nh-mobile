@@ -120,6 +120,8 @@ export default function CalculatorScreen() {
     setTerm((t) => Math.min(Math.max(t, minMonths), maxMonths))
   }, [maxAmount, minMonths, maxMonths])
 
+  const [showAllRows, setShowAllRows] = useState(false)
+
   const { payment, totalPayable, totalInterest, rows } = useMemo(
     () => buildSchedule(amount, term, Number.isNaN(monthlyInterest) ? 0 : monthlyInterest, repaymentMethod, gracePeriod),
     [amount, term, monthlyInterest, repaymentMethod, gracePeriod],
@@ -288,17 +290,37 @@ export default function CalculatorScreen() {
 
             {/* Repayment preview */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <SectionLabel>Repayment preview</SectionLabel>
-              <Box sx={{ bgcolor: '#fff', borderRadius: '10px', overflow: 'hidden' }}>
+              {/* Section header — outside card */}
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 0.5 }}>
+                <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.7px', color: LABEL }}>REPAYMENT PREVIEW</Typography>
+                <Box
+                  component="span"
+                  onClick={() => navigate('/calculator-schedule', { state: { rows, totals: { principal: totalPrincipalPaid, interest: totalInterest, payable: totalPayable }, currency, term } })}
+                  sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 12, fontWeight: 700, color: BLUE, cursor: 'pointer', '&:active': { opacity: 0.7 } }}
+                >
+                  <Icon name="download" size={13} color={BLUE} />
+                  Download
+                </Box>
+              </Box>
+              {/* Table card */}
+              <Box sx={{ bgcolor: '#fff', borderRadius: '12px', overflow: 'hidden', border: '1px solid #F0F0F0' }}>
                 <RepaymentTable
                   rows={rows}
                   totals={{ principal: totalPrincipalPaid, interest: totalInterest, payable: totalPayable }}
                   currency={currency}
+                  showAll={showAllRows}
                 />
               </Box>
-              <Typography sx={{ fontSize: 14, color: LABEL, textAlign: 'center', py: 1.5 }}>
-                Showing 3 of {term} · <Box component="span" onClick={() => navigate('/calculator-schedule', { state: { rows, totals: { principal: totalPrincipalPaid, interest: totalInterest, payable: totalPayable }, currency, term } })} sx={{ color: BLUE, fontWeight: 700, cursor: 'pointer' }}>Download</Box> for full view
-              </Typography>
+              {/* Footer link — outside card */}
+              <Box
+                onClick={() => setShowAllRows((v) => !v)}
+                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, cursor: 'pointer', '&:active': { opacity: 0.7 } }}
+              >
+                <Icon name={showAllRows ? 'chevronUp' : 'eye'} size={14} color={BLUE} />
+                <Typography sx={{ fontSize: 13, fontWeight: 700, color: BLUE }}>
+                  {showAllRows ? 'See less' : 'View full schedule'}
+                </Typography>
+              </Box>
             </Box>
           </Box>
         </Box>
@@ -427,12 +449,15 @@ function RepaymentTable({
   rows,
   totals,
   currency,
+  showAll = false,
 }: {
   rows: ScheduleRow[]
   totals: { principal: number; interest: number; payable: number }
   currency: Currency
+  showAll?: boolean
 }) {
-  const preview = rows.filter((r) => r.month > 0).slice(0, 3)
+  const allRows = rows.filter((r) => r.month > 0)
+  const preview = showAll ? allRows : allRows.slice(0, 3)
   return (
     <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
       <Box component="thead">

@@ -38,6 +38,7 @@ export default function AdvanceAccountScreen() {
   // Sample 2 (?v=2) opens the Top-up sheet by default for review.
   const [topUpOpen, setTopUpOpen] = useState((params.get('v') ?? '1') === '2')
   const [detailMove, setDetailMove] = useState<Move | null>(null)
+  const [showAllMoves, setShowAllMoves] = useState(false)
   const [method, setMethod] = useState('ppcb')
   const [amount, setAmount] = useState('')
   const [cur, setCur] = useState<'USD' | 'KHR'>('USD')
@@ -121,9 +122,20 @@ export default function AdvanceAccountScreen() {
                 <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6', textAlign: 'right' }}>BALANCE</Typography>
                 <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6', textAlign: 'right' }}>VIEW</Typography>
               </Box>
-              {MOVEMENTS.map((m, i) => (
-                <MovementRow key={i} m={m} last={i === MOVEMENTS.length - 1} onView={() => setDetailMove(m)} />
+              {(showAllMoves ? MOVEMENTS : MOVEMENTS.slice(0, 3)).map((m, i, arr) => (
+                <MovementRow key={i} m={m} last={i === arr.length - 1} onView={() => setDetailMove(m)} />
               ))}
+              {/* See more / See less */}
+              <Box
+                role="button"
+                onClick={() => setShowAllMoves(v => !v)}
+                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, py: '11px', borderTop: '1px solid #F1F4F8', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
+              >
+                <Typography sx={{ fontSize: 13, fontWeight: 700, color: BLUE }}>
+                  {showAllMoves ? 'See less' : 'See more'}
+                </Typography>
+                <Icon name={showAllMoves ? 'chevronUp' : 'chevronDown'} size={15} color={BLUE} />
+              </Box>
             </Box>
           </Box>
 
