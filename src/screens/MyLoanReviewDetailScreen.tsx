@@ -97,7 +97,7 @@ function TerminalDetail({ statusKey, title, refStr }: { statusKey: string; title
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1, pb: '44px' }}>
         <Box sx={{ px: 1, pt: 1 }}>
-          <IconButton onClick={() => navigate('/my-loan?tab=review')} aria-label="Back" sx={{ color: HEADING }}>
+          <IconButton onClick={() => navigate('/loan-requests')} aria-label="Back" sx={{ color: HEADING }}>
             <Icon name="chevronLeft" size={26} color={HEADING} />
           </IconButton>
         </Box>
@@ -140,7 +140,7 @@ function TerminalDetail({ statusKey, title, refStr }: { statusKey: string; title
         <Button variant="contained" fullWidth onClick={() => navigate('/products')} sx={{ height: 52, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: def.ctaColor, '&:hover': { bgcolor: '#1F4F9E' } }}>
           {def.ctaLabel}
         </Button>
-        <Button variant="outlined" fullWidth onClick={() => navigate('/my-loan?tab=review')} sx={{ height: 52, borderRadius: '14px', fontSize: 15, fontWeight: 700, color: HEADING, borderColor: '#D1D5DB', '&:hover': { bgcolor: '#F3F4F6', borderColor: '#9CA3AF' } }}>
+        <Button variant="outlined" fullWidth onClick={() => navigate('/loan-requests')} sx={{ height: 52, borderRadius: '14px', fontSize: 15, fontWeight: 700, color: HEADING, borderColor: '#D1D5DB', '&:hover': { bgcolor: '#F3F4F6', borderColor: '#9CA3AF' } }}>
           Back to Requests
         </Button>
       </Box>
@@ -192,7 +192,7 @@ export default function MyLoanReviewDetailScreen() {
       <Box className="scroll-content" sx={{ flex: 1, pb: '44px' }}>
         {/* Header */}
         <Box sx={{ px: 1, pt: 1 }}>
-          <IconButton onClick={() => navigate('/my-loan?tab=review')} aria-label="Back" sx={{ color: HEADING }}>
+          <IconButton onClick={() => navigate('/loan-requests')} aria-label="Back" sx={{ color: HEADING }}>
             <Icon name="chevronLeft" size={26} color={HEADING} />
           </IconButton>
         </Box>

@@ -30,7 +30,7 @@ export default function MwlSuccessScreen({ product: productProp = 'Migration Wor
   const goToLoans = () => {
     if (!hasApplication(app.ref)) addApplication(app)
     setFlow('Borrower')
-    navigate('/my-loan?tab=review')
+    navigate('/loan-requests')
   }
 
   return (

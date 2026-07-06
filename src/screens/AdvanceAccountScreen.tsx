@@ -8,6 +8,7 @@ import { Icon } from '../components/Icon'
 import { MwlHeader, BottomSheet, BLUE } from './mwl/MwlParts'
 import { AssetImg, BANKS } from '../components/home/media'
 import { CurrencyToggle } from '../components/home/HomeParts'
+import { useT, useTd } from '../i18n/LangContext'
 
 // ─── Advance account movement ledger ─────────────────────────────────────────
 type Move = { type: 'Top Up' | 'Settlement'; date: string; sign: '+' | '-'; amount: string; balance: string; beginning: string; ref: string }
@@ -34,6 +35,7 @@ const ACCOUNTS = { USD: '026-00052501', KHR: '026-00052502' } as const
 
 export default function AdvanceAccountScreen() {
   const navigate = useNavigate()
+  const t = useT()
   const [params] = useSearchParams()
   // Sample 2 (?v=2) opens the Top-up sheet by default for review.
   const [topUpOpen, setTopUpOpen] = useState((params.get('v') ?? '1') === '2')
@@ -55,7 +57,7 @@ export default function AdvanceAccountScreen() {
       <Box className="scroll-content" sx={{ flex: 1 }}>
         <MwlHeader onBack={() => navigate(-1)} kebab={false} />
         <Typography sx={{ fontSize: 30, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', px: 3, mt: 0.5, mb: 2 }}>
-          Advance Account
+          {t('advanceAccount')}
         </Typography>
 
         <Box sx={{ px: 3, pb: 3, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
@@ -63,7 +65,7 @@ export default function AdvanceAccountScreen() {
           <Box sx={{ bgcolor: '#fff', borderRadius: '16px', border: '1px solid #ECEFF3', boxShadow: '0 1px 3px rgba(16,24,40,0.04)', overflow: 'hidden' }}>
             {/* Balance section label */}
             <Box sx={{ px: 2.5, pt: 2.5, pb: 1.25 }}>
-              <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#8A94A6', letterSpacing: '0.5px' }}>BALANCE</Typography>
+              <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#8A94A6', letterSpacing: '0.5px' }}>{t('balanceLabel')}</Typography>
             </Box>
             {/* USD row */}
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2.5, pb: 1 }}>
@@ -84,7 +86,7 @@ export default function AdvanceAccountScreen() {
                 startIcon={<Icon name="plus" size={18} />}
                 sx={{ height: 48, borderRadius: '12px', fontSize: 15, fontWeight: 700 }}
               >
-                Top-up Advance
+                {t('topUpAdvance')}
               </Button>
             </Box>
           </Box>
@@ -92,7 +94,7 @@ export default function AdvanceAccountScreen() {
           {/* Linked Loans */}
           <Box sx={{ bgcolor: '#fff', borderRadius: '16px', border: '1px solid #ECEFF3', boxShadow: '0 1px 3px rgba(16,24,40,0.04)', overflow: 'hidden' }}>
             <Box sx={{ px: 2.5, pt: 2, pb: 1 }}>
-              <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6' }}>LINKED LOANS</Typography>
+              <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6' }}>{t('linkedLoans')}</Typography>
             </Box>
             {[
               { code: 'SBL', account: '026-01285956' },
@@ -109,18 +111,18 @@ export default function AdvanceAccountScreen() {
           {/* Movement */}
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.25 }}>
-              <Typography sx={{ fontSize: 18, fontWeight: 800, color: '#0B0F1A' }}>Movement</Typography>
+              <Typography sx={{ fontSize: 18, fontWeight: 800, color: '#0B0F1A' }}>{t('movement')}</Typography>
               <Typography role="button" onClick={() => navigate('/advance-history-preview')} sx={{ fontSize: 14, fontWeight: 700, color: BLUE, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
-                Download
+                {t('download')}
               </Typography>
             </Box>
             <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', overflow: 'hidden' }}>
               {/* Column header */}
               <Box sx={{ display: 'grid', gridTemplateColumns: '1.45fr 1.05fr 1.05fr 0.85fr', alignItems: 'center', px: '14px', py: '9px', bgcolor: '#FAFAFA', borderBottom: '1px solid #F0F0F0' }}>
-                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6' }}>ACTIVITY</Typography>
-                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6', textAlign: 'right' }}>AMOUNT</Typography>
-                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6', textAlign: 'right' }}>BALANCE</Typography>
-                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6', textAlign: 'right' }}>VIEW</Typography>
+                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6' }}>{t('thActivity')}</Typography>
+                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6', textAlign: 'right' }}>{t('thAmountCol')}</Typography>
+                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6', textAlign: 'right' }}>{t('thBalanceCol')}</Typography>
+                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6', textAlign: 'right' }}>{t('thView')}</Typography>
               </Box>
               {(showAllMoves ? MOVEMENTS : MOVEMENTS.slice(0, 3)).map((m, i, arr) => (
                 <MovementRow key={i} m={m} last={i === arr.length - 1} onView={() => setDetailMove(m)} />
@@ -132,7 +134,7 @@ export default function AdvanceAccountScreen() {
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, py: '11px', borderTop: '1px solid #F1F4F8', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
               >
                 <Typography sx={{ fontSize: 13, fontWeight: 700, color: BLUE }}>
-                  {showAllMoves ? 'See less' : 'See more'}
+                  {showAllMoves ? t('seeLess') : t('seeMore')}
                 </Typography>
                 <Icon name={showAllMoves ? 'chevronUp' : 'chevronDown'} size={15} color={BLUE} />
               </Box>
@@ -143,7 +145,7 @@ export default function AdvanceAccountScreen() {
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mt: 2, px: 0.5 }}>
             <Icon name="info" size={16} color="#8A94A6" />
             <Typography sx={{ fontSize: 13, color: '#8A94A6', lineHeight: 1.5 }}>
-              Auto-repays your loans. Withdraw at a branch.
+              {t('advanceHint')}
             </Typography>
           </Box>
         </Box>
@@ -153,7 +155,7 @@ export default function AdvanceAccountScreen() {
       <BottomSheet open={topUpOpen} onClose={() => setTopUpOpen(false)}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
           <Typography sx={{ fontSize: 30, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px' }}>
-            Top-up Advance
+            {t('topUpAdvance')}
           </Typography>
           <IconButton
             onClick={() => setTopUpOpen(false)}
@@ -167,7 +169,7 @@ export default function AdvanceAccountScreen() {
         {/* Amount + currency toggle */}
         <Box>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6' }}>AMOUNT</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6' }}>{t('thAmountCol')}</Typography>
             <Box sx={{ display: 'flex', bgcolor: '#EFF1F4', borderRadius: '999px', p: '3px' }}>
               {(['USD', 'KHR'] as const).map((c) => (
                 <Box key={c} role="button" onClick={() => switchCur(c)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: '5px', borderRadius: '999px', cursor: 'pointer', bgcolor: cur === c ? '#fff' : 'transparent', boxShadow: cur === c ? '0 1px 3px rgba(0,0,0,0.12)' : 'none' }}>
@@ -181,13 +183,13 @@ export default function AdvanceAccountScreen() {
             <Box component="input" value={amount} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value)} inputMode="decimal" placeholder="0.00" sx={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', bgcolor: 'transparent', fontFamily: 'inherit', fontSize: 22, fontWeight: 800, color: '#0B0F1A', '&::placeholder': { color: '#C2C8D0' } }} />
           </Box>
           <Typography sx={{ fontSize: 12, fontWeight: 500, color: '#8A94A6', mt: 0.75, pl: 0.5 }}>
-            Minimum {cur === 'USD' ? '$1.00' : '៛4,100'}
+            {t('minimum')} {cur === 'USD' ? '$1.00' : '៛4,100'}
           </Typography>
         </Box>
 
         <Box>
           <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6', mb: 1.25 }}>
-            PAYMENT METHOD
+            {t('paymentMethod')}
           </Typography>
           <Box sx={{ bgcolor: '#fff', borderRadius: '14px', border: '1px solid #ECEFF3', overflow: 'hidden' }}>
             {METHODS.map((m, i) => {
@@ -205,7 +207,7 @@ export default function AdvanceAccountScreen() {
                   </Box>
                   {showQr && (
                     <Box sx={{ px: 2, pb: 2.5, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5, borderTop: '1px solid #F1F4F8' }}>
-                      <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#0B0F1A' }}>Scan to pay</Typography>
+                      <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#0B0F1A' }}>{t('scanToPay')}</Typography>
                       <AssetImg
                         src={BANKS.khqrCard}
                         alt="KHQR — NongHyup M.F.I"
@@ -216,7 +218,7 @@ export default function AdvanceAccountScreen() {
                         {(['share', 'download'] as const).map((ic, idx) => (
                           <Box key={ic} role="button" sx={{ flex: 1, minHeight: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, px: 2, borderRadius: '12px', bgcolor: '#EAF1FC', cursor: 'pointer', '&:active': { bgcolor: '#CFE0F8' } }}>
                             <Icon name={ic} size={22} color={BLUE} />
-                            <Typography sx={{ fontSize: 15, fontWeight: 700, color: BLUE }}>{idx === 0 ? 'Share' : 'Download QR'}</Typography>
+                            <Typography sx={{ fontSize: 15, fontWeight: 700, color: BLUE }}>{idx === 0 ? t('share') : t('downloadQr')}</Typography>
                           </Box>
                         ))}
                       </Box>
@@ -235,7 +237,7 @@ export default function AdvanceAccountScreen() {
           startIcon={<Icon name="cash" size={16} />}
           sx={{ height: 56, borderRadius: '14px', p: '10px', fontSize: 17, fontWeight: 700 }}
         >
-          {amount ? `Top up ${symbol}${amount}` : 'Top up'}
+          {amount ? `${t('topUp')} ${symbol}${amount}` : t('topUp')}
         </Button>
       </BottomSheet>
 
@@ -248,10 +250,12 @@ export default function AdvanceAccountScreen() {
 }
 
 function MovementRow({ m, last, onView }: { m: Move; last?: boolean; onView?: () => void }) {
+  const t = useT()
+  const td = useTd()
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: '1.45fr 1.05fr 1.05fr 0.85fr', alignItems: 'center', px: '14px', py: '11px', borderBottom: last ? 'none' : '1px solid #F1F4F8' }}>
       <Box sx={{ minWidth: 0 }}>
-        <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: '#0B0F1A' }} noWrap>{m.type}</Typography>
+        <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: '#0B0F1A' }} noWrap>{td(m.type)}</Typography>
         <Typography sx={{ fontSize: 11, color: '#8A94A6' }} noWrap>{m.date}</Typography>
       </Box>
       <Typography sx={{ fontSize: 12, fontWeight: 800, textAlign: 'right', whiteSpace: 'nowrap', color: m.sign === '+' ? '#1A9E5C' : '#D63B3B' }}>
@@ -263,7 +267,7 @@ function MovementRow({ m, last, onView }: { m: Move; last?: boolean; onView?: ()
           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
           <circle cx="12" cy="12" r="3" />
         </Box>
-        <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: BLUE }}>Details</Typography>
+        <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: BLUE }}>{t('details')}</Typography>
       </Box>
     </Box>
   )
@@ -302,29 +306,31 @@ function Radio({ active }: { active: boolean }) {
 
 function MoveDetailContent({ m, onClose }: { m: Move; onClose: () => void }) {
   const navigate = useNavigate()
+  const t = useT()
+  const td = useTd()
   const isTopUp = m.type === 'Top Up'
   const currency = m.amount.startsWith('$') ? 'USD' : 'KHR'
-  const subtitle = isTopUp ? `Advance top up · ${currency}` : `Loan settlement · ${currency}`
+  const subtitle = isTopUp ? `${t('topUpAdvance')} · ${currency}` : `${td('Settlement')} · ${currency}`
   const rows: [string, string, boolean?][] = [
-    ['Date', m.date],
-    ['Reference', m.ref],
-    ['From account', isTopUp ? '—' : 'Advance Account'],
-    ['To account', isTopUp ? '026-00052501' : '—'],
-    ['Beginning balance', m.beginning],
-    ['Amount', (m.sign === '+' ? '+' : '−') + m.amount, true],
-    ['Ending balance', m.balance],
+    [t('dateLabel'), m.date],
+    [t('reference'), m.ref],
+    [t('fromAccount'), isTopUp ? '—' : t('advanceAccount')],
+    [t('toAccount'), isTopUp ? '026-00052501' : '—'],
+    [t('beginningBalance'), m.beginning],
+    [t('amountLabel'), (m.sign === '+' ? '+' : '−') + m.amount, true],
+    [t('endingBalance'), m.balance],
   ]
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {/* Title row */}
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
         <Box>
-          <Typography sx={{ fontSize: 26, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.4px', lineHeight: 1.15 }}>{m.type}</Typography>
+          <Typography sx={{ fontSize: 26, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.4px', lineHeight: 1.15 }}>{td(m.type)}</Typography>
           <Typography sx={{ fontSize: 13, color: '#8A94A6', mt: 0.4 }}>{subtitle}</Typography>
         </Box>
         <Box sx={{ px: '10px', py: '4px', borderRadius: '999px', bgcolor: isTopUp ? '#D9F0E4' : '#FCE8E8', flexShrink: 0, mt: 0.5 }}>
           <Typography sx={{ fontSize: 12, fontWeight: 700, color: isTopUp ? '#1A7A48' : '#C0392B' }}>
-            {isTopUp ? 'Credit' : 'Debit'}
+            {isTopUp ? t('credit') : t('debit')}
           </Typography>
         </Box>
       </Box>
@@ -332,7 +338,7 @@ function MoveDetailContent({ m, onClose }: { m: Move; onClose: () => void }) {
       {/* Detail card */}
       <Box sx={{ bgcolor: '#F8F9FB', borderRadius: '14px', overflow: 'hidden' }}>
         {rows.map(([label, value, isAmt], i) => {
-          const isEnding = label === 'Ending balance'
+          const isEnding = label === t('endingBalance')
           const amtColor = m.sign === '+' ? '#1A9E5C' : '#D63B3B'
           const isClickableAmt = isAmt && !isTopUp
           return (
@@ -366,11 +372,11 @@ function MoveDetailContent({ m, onClose }: { m: Move; onClose: () => void }) {
         onClick={() => navigate(`/advance-history-preview?ref=${m.ref}`)}
         sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' } }}
       >
-        Download record
+        {t('downloadRecord')}
       </Button>
 
       <Typography role="button" onClick={onClose} sx={{ textAlign: 'center', fontSize: 14, color: '#8A94A6', cursor: 'pointer', pb: 0.5, '&:active': { opacity: 0.6 } }}>
-        Close
+        {t('close')}
       </Typography>
     </Box>
   )

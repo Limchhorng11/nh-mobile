@@ -85,6 +85,7 @@ const ContactUsScreen  = lazy(() => import('../screens/settings/ContactUsScreen'
 const CsrActivityScreen = lazy(() => import('../screens/CsrActivityScreen'))
 const CBCScreen        = lazy(() => import('../screens/CBCScreen'))
 const PortfolioSummaryScreen = lazy(() => import('../screens/PortfolioSummaryScreen'))
+const LoanRequestsScreen = lazy(() => import('../screens/LoanRequestsScreen'))
 const StaffInfoScreen  = lazy(() => import('../screens/staff/StaffSignUpFlow').then(m => ({ default: m.StaffInfoScreen })))
 const StaffFaceVerifyScreen = lazy(() => import('../screens/staff/StaffSignUpFlow').then(m => ({ default: m.StaffFaceVerifyScreen })))
 const StaffSignUpSuccessScreen = lazy(() => import('../screens/staff/StaffSignUpFlow').then(m => ({ default: m.StaffSignUpSuccessScreen })))
@@ -125,6 +126,7 @@ export default function AppRouter() {
         <Route path="/my-loan-complete" element={<CompletedLoanDetailScreen />} />
         <Route path="/settlement-certificate" element={<SettlementCertificateScreen />} />
         <Route path="/portfolio-summary" element={<PortfolioSummaryScreen />} />
+        <Route path="/loan-requests" element={<LoanRequestsScreen />} />
         <Route path="/repayment-schedule-detail" element={<RepaymentScheduleDetailScreen />} />
         <Route path="/my-loan-review" element={<MyLoanReviewDetailScreen />} />
         <Route path="/loan-decision" element={<LoanDecisionDetailScreen />} />

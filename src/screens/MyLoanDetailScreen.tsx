@@ -8,6 +8,7 @@ import PayLoanSheet from '../components/PayLoanSheet'
 import CallSheet from '../components/CallSheet'
 import { MwlHeader } from './mwl/MwlParts'
 import { useFlow } from '../workspace/FlowContext'
+import { useT } from '../i18n/LangContext'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // My Loan detail — opened by tapping an active loan card on the My Loans screen.
@@ -57,13 +58,14 @@ export default function MyLoanDetailScreen() {
 function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isStaffLoan }: { onPay: () => void; overdue: boolean; onInfo: () => void; isGuaranteeView?: boolean; isCoBorrower?: boolean; isStaffLoan?: boolean }) {
   const [showAllRows, setShowAllRows] = useState(false)
   const navigate = useNavigate()
+  const t = useT()
   const isGuarantee = !!isGuaranteeView
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Status row */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <Box sx={{ bgcolor: '#E6EEF8', borderRadius: '999px', px: '9px', py: '3px' }}>
-          <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#0C419A' }}>Active</Typography>
+          <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#0C419A' }}>{t('active')}</Typography>
         </Box>
         {overdue && (
           <Box sx={{ bgcolor: '#FEF3E2', borderRadius: '999px', px: '9px', py: '3px', display: 'flex', alignItems: 'center', gap: 0.4 }}>
@@ -130,7 +132,7 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isS
                 startIcon={<Icon name="cash" size={17} />}
                 sx={{ height: 44, minWidth: 0, borderRadius: '12px', px: '18px', fontSize: 14, fontWeight: 700, bgcolor: ACCENT, '&:hover': { bgcolor: '#2B4F92' }, textTransform: 'none' }}
               >
-                Pay now
+                {t('payNow')}
               </Button>
             )}
           </Box>
@@ -164,7 +166,7 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isS
             <circle cx="12" cy="12" r="3" />
           </Box>
           <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: ACCENT }}>
-            {showAllRows ? 'Show less' : 'View full schedule'}
+            {showAllRows ? t('close') : t('viewFullSchedule')}
           </Typography>
         </Box>
       </Box>
@@ -331,6 +333,7 @@ function StatusBadge({ text, tone }: { text: string; tone: 'paid' | 'soon' }) {
 
 // ─── OTHERS tab ──────────────────────────────────────────────────────────────
 function OthersTab({ isGuaranteeView, product }: { isGuaranteeView?: boolean; product?: string }) {
+  const t = useT()
   const navigate = useNavigate()
   const [callOpen, setCallOpen] = useState(false)
   const isGuarantee = !!isGuaranteeView
@@ -339,14 +342,14 @@ function OthersTab({ isGuaranteeView, product }: { isGuaranteeView?: boolean; pr
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
       {/* Loan service requests */}
       {!isGuarantee && <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
-        <SectionLabel>Loan Service Requests</SectionLabel>
+        <SectionLabel>{t('specialRequest')}</SectionLabel>
         <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', overflow: 'hidden' }}>
-          <ServiceRow icon="cash" title="Payoff Request" subtitle="Notify NHFC of intent to fully settle" divider={!isStaffLoan} onClick={() => navigate(isStaffLoan ? '/early-payoff?staff=true' : '/early-payoff')} />
+          <ServiceRow icon="cash" title={t('payoffNotice')} subtitle={t('tellNHRepay')} divider={!isStaffLoan} onClick={() => navigate(isStaffLoan ? '/early-payoff?staff=true' : '/early-payoff')} />
           {!isStaffLoan && (
             <ServiceRow
               icon="restructure"
-              title="Request Restructure"
-              subtitle="Request temporary repayment support"
+              title={t('restructuring')}
+              subtitle="Adjust your terms if you're facing hardship"
               onClick={() => navigate('/restructure-info')}
             />
           )}
@@ -355,7 +358,7 @@ function OthersTab({ isGuaranteeView, product }: { isGuaranteeView?: boolean; pr
 
       {/* My documents */}
       {<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
-        <SectionLabel>My Documents</SectionLabel>
+        <SectionLabel>{t('myDocuments')}</SectionLabel>
         <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', px: '14px' }}>
           {DOCS.filter(d => !isStaffLoan || (d.title !== '1st Restructured Contract' && d.title !== 'Hypothec Contract' && d.title !== 'Guarantee Contract')).map((d, i, arr) => (
             <DocRow key={d.title} {...d} last={i === arr.length - 1} />

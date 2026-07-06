@@ -7,6 +7,7 @@ import AppRouter from '../router/AppRouter'
 import { findScreen, DEFAULT_SCREEN, screensForFlow } from './registry'
 import { FlowProvider, useFlow, USER_FLOWS, type UserFlow } from './FlowContext'
 import { PinGateProvider } from './PinGateContext'
+import { LangProvider } from '../i18n/LangContext'
 
 const SIDEBAR_W = 272
 
@@ -242,6 +243,7 @@ function SampleSwitcher() {
 
 export default function Workspace() {
   return (
+    <LangProvider>
     <FlowProvider>
       <PinGateProvider>
       <Box sx={{ display: 'flex', minHeight: { xs: '100dvh', md: '100vh' }, bgcolor: { xs: 'transparent', md: '#DDE0E5' } }}>
@@ -268,5 +270,6 @@ export default function Workspace() {
       </Box>
       </PinGateProvider>
     </FlowProvider>
+    </LangProvider>
   )
 }

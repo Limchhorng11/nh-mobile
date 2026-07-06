@@ -8,6 +8,7 @@ import { Icon, type IconName } from '../components/Icon'
 import { CollapsingHeader, CollapsingTitle, useCollapse } from '../components/CollapsingHeader'
 import { FieldCard, BottomSheet, BLUE } from './mwl/MwlParts'
 import { useFlow } from '../workspace/FlowContext'
+import { useT } from '../i18n/LangContext'
 import { buildSchedule, money, termStopsForProduct, type Currency, type ScheduleRow } from './loanCalc'
 
 type IconOption = { name: string; icon: IconName }
@@ -76,10 +77,13 @@ const PRODUCT_MAX_AMOUNT: Record<string, number> = {
 // Fixed monthly interest per product (the "None" option lets the user edit it).
 const PRODUCT_RATE: Record<string, number> = {
   'Micro Loan': 1.2,
-  'Small Biz Loan': 1.1,
-  'Small & Medium Enterprise Loan': 1.0,
-  'Housing Loan': 0.75,
-  'Migrant Worker Loan': 1.04,
+  'Small Biz Loan': 0.9,
+  'Small & Medium Enterprise Loan': 0.75,
+  'SME Loan': 0.75,
+  'Housing Loan': 0.67,
+  'Migration Worker Loan': 0.98,
+  'Migrant Worker Loan': 0.98,
+  'Staff Loan': 0.67,
 }
 
 export default function CalculatorScreen() {
@@ -106,6 +110,7 @@ export default function CalculatorScreen() {
   }, [loanProduct])
 
   // Collapsing header: large title shrinks toward the back arrow on scroll.
+  const t = useT()
   const { collapse, onScroll } = useCollapse()
 
   // Amount ceiling + term range follow the selected loan product.
@@ -143,8 +148,8 @@ export default function CalculatorScreen() {
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1 }} onScroll={onScroll}>
-        <CollapsingHeader title="Loan calculator" collapse={collapse} onBack={() => navigate(-1)} />
-        <CollapsingTitle collapse={collapse}>Loan calculator</CollapsingTitle>
+        <CollapsingHeader title={t('loanCalculator')} collapse={collapse} onBack={() => navigate(-1)} />
+        <CollapsingTitle collapse={collapse}>{t('loanCalculator')}</CollapsingTitle>
 
         {/* Currency toggle — top of page */}
         <Box sx={{ px: 3, mb: 2 }}>
@@ -190,8 +195,8 @@ export default function CalculatorScreen() {
               {/* Interest rate slider */}
               <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: MUTED }}>Interest rate</Typography>
-                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: rateEditable ? '#0B0F1A' : MUTED }}>{monthlyInterest.toFixed(2)}% / month</Typography>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: MUTED }}>{t('interestRatePerMonth')}</Typography>
+                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: rateEditable ? '#0B0F1A' : MUTED }}>{monthlyInterest.toFixed(2)}% {t('perMonth')}</Typography>
                 </Box>
                 <Slider
                   value={monthlyInterest}
@@ -212,8 +217,8 @@ export default function CalculatorScreen() {
               {/* Term slider */}
               <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: MUTED }}>Loan term</Typography>
-                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A' }}>{term} months</Typography>
+                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: MUTED }}>{t('loanTerm')}</Typography>
+                  <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A' }}>{term} {t('months')}</Typography>
                 </Box>
                 <Slider value={term} onChange={handleTermChange} min={6} max={240} step={1}
                   aria-label="Loan term in months" sx={sliderSx} />
@@ -274,17 +279,17 @@ export default function CalculatorScreen() {
             {/* Monthly payment summary */}
             <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', p: '26px' }}>
               <Typography sx={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.6px', color: LABEL, textTransform: 'uppercase' }}>
-                Monthly payment
+                {t('monthlyInstalment')}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.75, mt: 0.5 }}>
                 <Typography sx={{ fontSize: 32, fontWeight: 800, color: '#000', letterSpacing: '-0.5px', lineHeight: 1 }}>
                   {money(payment, currency)}
                 </Typography>
-                <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#000', mb: '2px' }}>/ month</Typography>
+                <Typography sx={{ fontSize: 14, fontWeight: 500, color: '#000', mb: '2px' }}>{t('perMonth')}</Typography>
               </Box>
               <Box sx={{ display: 'flex', gap: 2, mt: 2, pt: 2, borderTop: '1px solid rgba(0,0,0,0.18)' }}>
-                <SummaryStat label="Total interest" value={money(totalInterest, currency)} />
-                <SummaryStat label="Total payable" value={money(totalPayable, currency)} />
+                <SummaryStat label={t('totalInterest')} value={money(totalInterest, currency)} />
+                <SummaryStat label={t('totalPayable')} value={money(totalPayable, currency)} />
               </Box>
             </Box>
 
@@ -299,7 +304,7 @@ export default function CalculatorScreen() {
                   sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 12, fontWeight: 700, color: BLUE, cursor: 'pointer', '&:active': { opacity: 0.7 } }}
                 >
                   <Icon name="download" size={13} color={BLUE} />
-                  Download
+                  {t('downloadSchedule')}
                 </Box>
               </Box>
               {/* Table card */}
@@ -318,7 +323,7 @@ export default function CalculatorScreen() {
               >
                 <Icon name={showAllRows ? 'chevronUp' : 'eye'} size={14} color={BLUE} />
                 <Typography sx={{ fontSize: 13, fontWeight: 700, color: BLUE }}>
-                  {showAllRows ? 'See less' : 'View full schedule'}
+                  {showAllRows ? t('close') : t('viewFullSchedule')}
                 </Typography>
               </Box>
             </Box>

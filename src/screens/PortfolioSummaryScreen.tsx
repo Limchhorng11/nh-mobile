@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography'
 import { Icon } from '../components/Icon'
 import { MwlHeader } from './mwl/MwlParts'
 import { Card, StatusChip } from '../components/home/HomeParts'
+import { useT, useTd } from '../i18n/LangContext'
 
 const BLUE    = '#275CB2'
 const GREEN   = '#76C043'
@@ -109,20 +110,22 @@ function ActiveStyleLoanCard({ title, icon, status, restructured }: { title: str
 
 export default function PortfolioSummaryScreen() {
   const navigate = useNavigate()
+  const t = useT()
+  const td = useTd()
   const goToRestructure = () => navigate('/my-loan-review')
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <MwlHeader onBack={() => navigate(-1)} />
       <Typography sx={{ fontSize: 26, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', px: 3, pb: 1, mt: -1 }}>
-        Portfolio Summary
+        {t('portfolioSummary')}
       </Typography>
 
       <Box className="scroll-content" sx={{ flex: 1, px: 3, pt: 2.5, pb: 5, display: 'flex', flexDirection: 'column', gap: 3 }}>
 
         {/* ── Portfolio overview ──────────────────────────────────────────── */}
         <Box>
-          <SectionHeader icon="trendingDown" label="Portfolio overview" />
+          <SectionHeader icon="trendingDown" label={t('portfolioOverview')} />
           <Box sx={CARD_SX}>
             {/* Donut + legend row */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -138,14 +141,14 @@ export default function PortfolioSummaryScreen() {
                 </Box>
                 <Box sx={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <Typography sx={{ fontSize: 15, fontWeight: 800, color: GREEN, lineHeight: 1 }}>59%</Typography>
-                  <Typography sx={{ fontSize: 8.5, color: LABEL, lineHeight: 1.3, textAlign: 'center' }}>outstanding</Typography>
+                  <Typography sx={{ fontSize: 8.5, color: LABEL, lineHeight: 1.3, textAlign: 'center' }}>{t('outstandingLabel')}</Typography>
                 </Box>
               </Box>
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {[
-                  { dot: '#C8CDD6', label: 'Total approved', usd: '$108,040', khr: '៛442,964,000' },
-                  { dot: BLUE,      label: 'Paid to date',   usd: '$44,070',  khr: '៛180,687,000' },
-                  { dot: GREEN,     label: 'Outstanding',    usd: '$63,970',  khr: '៛262,277,000' },
+                  { dot: '#C8CDD6', label: t('totalApproved'),    usd: '$108,040', khr: '៛442,964,000' },
+                  { dot: BLUE,      label: t('paidToDate'),       usd: '$44,070',  khr: '៛180,687,000' },
+                  { dot: GREEN,     label: t('outstandingLabel'), usd: '$63,970',  khr: '៛262,277,000' },
                 ].map((r) => (
                   <Box key={r.label} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0 }}>
@@ -163,9 +166,9 @@ export default function PortfolioSummaryScreen() {
             {/* Stats strip — 1 row 3 columns */}
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1 }}>
               {[
-                { label: 'Active loans',   value: '3',    valueColor: BLUE },
-                { label: 'Installments',   value: '22',   valueColor: HEADING },
-                { label: 'Due this month', value: '$270', valueColor: '#C0392B' },
+                { label: t('activeLoansStat'), value: '3',    valueColor: BLUE },
+                { label: t('installments'),    value: '22',   valueColor: HEADING },
+                { label: t('dueThisMonth'),    value: '$270', valueColor: '#C0392B' },
               ].map((s) => (
                 <Box key={s.label} sx={{ bgcolor: '#F5F7FA', borderRadius: '12px', p: '12px 8px', textAlign: 'center' }}>
                   <Typography sx={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.5px', color: '#8A94A6', mb: 0.75 }}>{s.label.toUpperCase()}</Typography>
@@ -178,7 +181,7 @@ export default function PortfolioSummaryScreen() {
 
         {/* ── Payment performance ─────────────────────────────────────────── */}
         <Box>
-          <SectionHeader icon="checkCircle" label="Payment performance" />
+          <SectionHeader icon="checkCircle" label={t('paymentPerformance')} />
           <Box sx={CARD_SX}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
               {/* Mini ring */}
@@ -191,22 +194,22 @@ export default function PortfolioSummaryScreen() {
                 </Box>
                 <Box sx={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                   <Typography sx={{ fontSize: 12, fontWeight: 800, color: GREEN, lineHeight: 1 }}>100%</Typography>
-                  <Typography sx={{ fontSize: 8.5, color: LABEL, lineHeight: 1.3 }}>on-time</Typography>
+                  <Typography sx={{ fontSize: 8.5, color: LABEL, lineHeight: 1.3 }}>{t('onTime')}</Typography>
                 </Box>
               </Box>
               <Box>
-                <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, lineHeight: 1.2 }}>Excellent</Typography>
-                <Typography sx={{ fontSize: 12, fontWeight: 700, color: GREEN, mt: 0.25 }}>Perfect payment record</Typography>
+                <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, lineHeight: 1.2 }}>{t('excellent')}</Typography>
+                <Typography sx={{ fontSize: 12, fontWeight: 700, color: GREEN, mt: 0.25 }}>{t('perfectRecord')}</Typography>
                 <Typography sx={{ fontSize: 11.5, color: LABEL, mt: 0.5, lineHeight: 1.5 }}>
-                  All 22 payments on time — strengthens your credit standing.
+                  {t('allPaymentsOnTime')}
                 </Typography>
               </Box>
             </Box>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1 }}>
               {[
-                { label: 'Payments made', value: '22', color: HEADING },
-                { label: 'On time',       value: '22', color: GREEN   },
-                { label: 'Missed / late', value: '0',  color: LABEL   },
+                { label: t('paymentsMade'), value: '22', color: HEADING },
+                { label: t('onTime'),       value: '22', color: GREEN   },
+                { label: t('missedLate'),   value: '0',  color: LABEL   },
               ].map((s) => (
                 <Box key={s.label} sx={{ bgcolor: '#F5F7FA', borderRadius: '12px', p: '12px 8px', textAlign: 'center' }}>
                   <Typography sx={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.5px', color: '#8A94A6', mb: 0.75 }}>{s.label.toUpperCase()}</Typography>
@@ -219,17 +222,17 @@ export default function PortfolioSummaryScreen() {
 
         {/* ── Upcoming obligations ────────────────────────────────────────── */}
         <Box>
-          <SectionHeader icon="calendar" label="Upcoming obligations" />
+          <SectionHeader icon="calendar" label={t('upcomingObligations')} />
           <Box sx={CARD_SX}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-              <Typography sx={{ fontSize: 12, color: LABEL }}>Next 3 due payments</Typography>
-              <Typography sx={{ fontSize: 13, fontWeight: 800, color: HEADING }}>Total: $1,703.00</Typography>
+              <Typography sx={{ fontSize: 12, color: LABEL }}>{t('next3Due')}</Typography>
+              <Typography sx={{ fontSize: 13, fontWeight: 800, color: HEADING }}>{t('totalLabel')}: $1,703.00</Typography>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               {[
-                { day: '20', month: 'JUN', dotColor: GREEN,      title: 'Migrant Worker Loan', sub: 'Installment 6 of 18',   amount: '$270.00',   amountColor: GREEN,      onClick: () => navigate('/my-loan-detail') },
-                { day: '05', month: 'JUL', dotColor: '#E8770B',  title: 'Housing Loan',        sub: 'Installment 49 of 120', amount: '$1,083.00', amountColor: '#C0392B', onClick: () => navigate('/my-loan-detail?overdue=true') },
-                { day: '15', month: 'JUL', dotColor: BLUE,       title: 'Small Biz Loan',      sub: 'Installment 9 of 24',  amount: '$350.00',   amountColor: BLUE,       onClick: () => navigate('/my-loan-detail') },
+                { day: '20', month: 'JUN', dotColor: GREEN,      title: td('Migrant Worker Loan'), sub: td('Installment 6 of 18'),   amount: '$270.00',   amountColor: GREEN,      onClick: () => navigate('/my-loan-detail') },
+                { day: '05', month: 'JUL', dotColor: '#E8770B',  title: td('Housing Loan'),        sub: td('Installment 49 of 120'), amount: '$1,083.00', amountColor: '#C0392B', onClick: () => navigate('/my-loan-detail?overdue=true') },
+                { day: '15', month: 'JUL', dotColor: BLUE,       title: td('Small Biz Loan'),      sub: td('Installment 9 of 24'),  amount: '$350.00',   amountColor: BLUE,       onClick: () => navigate('/my-loan-detail') },
               ].map((item, i) => (
                 <Box key={item.title} sx={{ py: 1.5, borderTop: i > 0 ? '1px solid #F0F2F5' : 'none' }}>
                   <DueItem {...item} />

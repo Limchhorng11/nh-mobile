@@ -2,24 +2,28 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { Icon, type IconName } from './Icon'
+import { useT } from '../i18n/LangContext'
 
 const BLUE = '#275CB2'
 const MUTED = '#8A94A6'
 
-const TABS: { id: string; label: string; icon: IconName; path: string }[] = [
-  { id: 'loan', label: 'My Loan', icon: 'myLoan', path: '/my-loan' },
-  { id: 'products', label: 'Products', icon: 'products', path: '/products' },
-  { id: 'more', label: 'More', icon: 'more', path: '/more' },
+const TAB_DEFS: { id: string; icon: IconName; path: string }[] = [
+  { id: 'loan', icon: 'myLoan', path: '/my-loan' },
+  { id: 'products', icon: 'products', path: '/products' },
+  { id: 'more', icon: 'more', path: '/more' },
 ]
 
 // Bottom tab bar — present in "Sample 1", absent in "Sample 2".
 export default function BottomNav() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const t = useT()
 
-  // All flows show the same tabs; the My Loan screen renders an empty state
-  // for flows (e.g. Visitor) that have no loans yet.
-  const tabs = TABS
+  const tabs = [
+    { ...TAB_DEFS[0], label: t('navMyLoan') },
+    { ...TAB_DEFS[1], label: t('navProducts') },
+    { ...TAB_DEFS[2], label: t('navMore') },
+  ]
 
   return (
     <Box
@@ -29,7 +33,6 @@ export default function BottomNav() {
         borderTop: '1px solid #ECEFF3',
         display: 'flex',
         alignItems: 'stretch',
-        // Nav row height; safe-area padding sits below it.
         '& > *': { minHeight: 64 },
       }}
     >

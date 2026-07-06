@@ -8,6 +8,7 @@ import { Icon } from '../components/Icon'
 import { HomeTopBar, NewsBanner } from '../components/home/HomeParts'
 import { AssetImg, BANNERS, DISCOVER } from '../components/home/media'
 import { useFlow } from '../workspace/FlowContext'
+import { useT } from '../i18n/LangContext'
 
 const HEADING = '#0B0F1A'
 const MUTED = '#8A94A6'
@@ -372,6 +373,7 @@ function ProductsTopBar() {
 export default function ProductsScreen() {
   const navigate = useNavigate()
   const { flow } = useFlow()
+  const t = useT()
 
   // Signed-in flows (Applicant / Borrower) see the personalized greeting
   // header; visitors keep the brand logo bar.
@@ -392,14 +394,14 @@ export default function ProductsScreen() {
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
               <Typography sx={{ fontSize: 13, fontWeight: 800, color: MUTED, letterSpacing: '0.6px' }}>
-                POPULAR PRODUCTS
+                {t('products').toUpperCase()}
               </Typography>
               <Box
                 onClick={() => navigate('/all-loan')}
                 role="button"
                 sx={{ cursor: 'pointer', '&:active': { opacity: 0.6 } }}
               >
-                <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#275CB2' }}>See all</Typography>
+                <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#275CB2' }}>{t('seeAll')}</Typography>
               </Box>
             </Box>
 

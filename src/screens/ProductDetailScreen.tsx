@@ -8,6 +8,7 @@ import { Icon, type IconName } from '../components/Icon'
 import { Flag } from '../components/Flag'
 import { AssetImg, BANNERS } from '../components/home/media'
 import { useFlow } from '../workspace/FlowContext'
+import { useT, useTd } from '../i18n/LangContext'
 import { BottomSheet } from './mwl/MwlParts'
 import CallSheet from '../components/CallSheet'
 
@@ -44,6 +45,36 @@ const KEY_FEATURES: [string, string][] = [
   ['Repayment', 'Periodic principal + interest'],
 ]
 
+// Per-product glance data — interest rate matches PRODUCT_RATE in CalculatorScreen.
+const PRODUCT_GLANCE: Record<string, [string, string][]> = {
+  'Micro Loan': [
+    ['Interest Rate', '1.20% / month'],
+    ['Loan Amount', 'Up to $3,000'],
+    ['Loan Term', 'Up to 36 months'],
+    ['Repayment', 'Periodic principal + interest'],
+  ],
+  'Small Biz Loan': [
+    ['Interest Rate', 'From 0.90% / month'],
+    ['Loan Amount', 'USD 500 – USD 30,000'],
+    ['Tenure', '6 – 120 months'],
+    ['Purpose', 'Expand your small business'],
+  ],
+  'SME Loan': [
+    ['Interest Rate', 'From 0.75% / month'],
+    ['Loan Amount', 'USD 30,000 – USD 100,000'],
+    ['Tenure', '12 – 180 months'],
+    ['Purpose', 'Expands your business'],
+  ],
+  'Housing Loan': [
+    ['Interest Rate', 'From 0.67% / month'],
+    ['Loan Fee', '1.50% of approved amount'],
+    ['CBC Fee', 'Included in assessment'],
+    ['Loan Amount', 'USD 20,000 – USD 300,000'],
+    ['Tenure', '12 – 240 months'],
+    ['Purpose', 'Buy a dream house'],
+  ],
+}
+
 // Staff Loan has its own headline terms.
 const STAFF_FEATURES: [string, string][] = [
   ['Loan size', 'Up to 2× salary'],
@@ -51,23 +82,49 @@ const STAFF_FEATURES: [string, string][] = [
   ['Repayment', 'Constant'],
 ]
 
-// Migration Worker Loan — full key-features list (ordered).
-const MWL_FEATURES: [string, string][] = [
-  ['Loan size', 'Up to $15,000'],
+const STAFF_GLANCE: [string, string][] = [
+  ['Interest Rate', 'From 0.67% / month'],
+  ['Loan Amount', '2 time of the salary'],
+  ['Tenure', '6 – 24 months'],
+  ['Purpose', 'Personal needs'],
+]
+
+const STAFF_KEY_FEATURES: string[] = [
+  'Instant decision — funded in seconds',
+  'Repaid automatically by salary deduction',
+  'No collateral or guarantor required',
+  'Settle early in-app at any time',
+]
+
+const STAFF_ELIGIBILITY: string[] = [
+  'Current NH Finance employee',
+  'Passed probation period',
+  'Active NH payroll account',
+  'No active default on existing loans',
+]
+
+// Migration Worker Loan — at-a-glance summary (compact).
+const MWL_GLANCE: [string, string][] = [
   ['Interest Rate', 'From 0.98% / month'],
-  ['Loan term', 'Up to 36 months'],
-  ['Loan Fee', '3.00% of approved amount'],
-  ['CBC Fee', 'USD 10.00 (non-refundable)'],
-  ['Purpose', 'Overseas employment-related expenses'],
-  ['Repayment', 'Periodic principal + interest'],
+  ['Loan Amount', 'USD 500 – USD 15,000'],
+  ['Tenure', '36 months'],
+  ['Purpose', 'Overseas job expenses'],
+]
+
+// Migration Worker Loan — full key-features list (ordered).
+const MWL_FEATURES: string[] = [
+  '80% digital application',
+  'Decision within 2 business days',
+  'SMS guarantor consent',
+  'Covers Korea, Japan, Singapore, and Israel',
 ]
 
 // Migration Worker Loan is unsecured — no collateral required.
-const MWL_ELIGIBILITY: [string, string][] = [
-  ['Age', '18 – 65 years old'],
-  ['Residence', 'Permanent address in NH MFI operating area'],
-  ['Income', 'Stable, verifiable source'],
-  ['Collateral', 'Not required'],
+const MWL_ELIGIBILITY: string[] = [
+  'Cambodian national aged 18–45',
+  'Valid overseas job',
+  'Cambodia-based guarantor required',
+  'Acceptable CBC report',
 ]
 
 const MWL_USES = [
@@ -103,11 +160,80 @@ const DOCUMENTS = [
   'Owner identification',
 ]
 
+// Per-product key features (checklist). Products not listed fall back to WHAT IT'S FOR.
+const PRODUCT_KEY_FEATURES: Record<string, string[]> = {
+  'Small Biz Loan': [
+    'Fast review — decision within 3 business days',
+    'Flexible repayment: monthly or irregular',
+    'Collateral required',
+    'Co-borrower required',
+  ],
+  'SME Loan': [
+    'Larger loan amounts for established businesses',
+    'Tailored repayment schedule',
+    'Dedicated credit officer assigned',
+    'Business financial analysis support',
+  ],
+  'Housing Loan': [
+    'Lowest rate in the NH product range',
+    'Long tenure up to 20 years',
+    'Interest-only option up to 80 months',
+    'Secured against property collateral',
+    'Property valuation assistance provided',
+  ],
+}
+
+// Per-product eligibility (checklist). Products not listed fall back to SpecCard ELIGIBILITY.
+const PRODUCT_ELIGIBILITY_LIST: Record<string, string[]> = {
+  'Small Biz Loan': [
+    'Cambodian national or registered business',
+    'Minimum 6 months of trading history',
+    'Valid business registration for amounts above USD 5,000',
+    'No active default on existing loans',
+  ],
+  'SME Loan': [
+    'Fast review — decision within 3 business days',
+    'Flexible repayment: monthly or irregular',
+    'Collateral required',
+    'Co-borrower required',
+  ],
+  'Housing Loan': [
+    'Cambodian national aged 21–60',
+    'Stable income — employed or self-employed',
+    'Hard title or LMAP soft title accepted as collateral',
+    'Debt-to-income ratio below 50%',
+  ],
+}
+
+const GENERAL_FAQ: { q: string; a: string }[] = [
+  { q: 'How do I apply?', a: 'You can apply online or visit any NongHyup branch near you.' },
+  { q: 'How long does approval take?', a: 'Most applications are reviewed within 2–5 business days.' },
+  { q: 'What is the interest rate?', a: 'Rates start from 1.2% per month, subject to assessment.' },
+  { q: 'Can I repay early?', a: 'Yes. Early repayment is allowed with no penalty fee.' },
+  { q: 'Do I need collateral?', a: 'Collateral requirements depend on the loan type and amount.' },
+  { q: 'What is the maximum loan amount?', a: 'Up to USD 100,000 depending on your income and collateral.' },
+  { q: 'Can I apply for multiple loans?', a: 'Yes, subject to credit assessment and repayment capacity.' },
+  { q: 'How will I receive the funds?', a: 'Funds are disbursed to your registered bank account.' },
+  { q: 'Can I apply again after full repayment?', a: 'Yes, you are welcome to reapply after your loan is fully settled.' },
+]
+
 const MWL_DOCUMENTS = [
   'Personal Identification',
   'Employment Contract',
   'Medical Certificate',
   'Agency Agreement',
+]
+
+const MWL_FAQ: { q: string; a: string }[] = [
+  { q: 'Can I apply before my contract?', a: 'Yes. Conditional approval may apply.' },
+  { q: 'Which countries are supported?', a: 'Korea, Japan, Singapore, and Israel.' },
+  { q: 'How fast is approval?', a: 'Up to 2 business days.' },
+  { q: 'What documents do I need?', a: 'ID and application documents.' },
+  { q: 'Do I need a guarantor?', a: 'If required by the product.' },
+  { q: 'When will I receive the loan?', a: 'After approval and required conditions are met.' },
+  { q: 'Can I borrow before my visa?', a: 'Yes, if eligible.' },
+  { q: 'Can I repay early?', a: 'Yes.' },
+  { q: 'Can I apply again?', a: 'Yes, subject to reassessment.' },
 ]
 
 // Per-document preview content shown in the bottom sheet.
@@ -238,10 +364,13 @@ export default function ProductDetailScreen() {
   }
 
   // Compact header fades in once the hero image has scrolled mostly out of view.
+  const t = useT()
+  const td = useTd()
   const [scrolled, setScrolled] = useState(false)
   const [callOpen, setCallOpen] = useState(false)
-  // Required-documents preview: holds the doc name whose sheet is open.
   const [previewDoc, setPreviewDoc] = useState<string | null>(null)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [showAllFaq, setShowAllFaq] = useState(false)
 
   // Chat opens the support conversation (visitors sign up first).
   const onChat = () =>
@@ -276,7 +405,7 @@ export default function ProductDetailScreen() {
           <Icon name="chevronLeft" size={24} color="#171717" />
         </IconButton>
         <Typography sx={{ flex: 1, fontSize: 18, fontWeight: 800, color: '#171717', letterSpacing: '-0.3px' }} noWrap>
-          {name}
+          {td(name)}
         </Typography>
         <IconButton onClick={onChat} aria-label="Chat" sx={{ color: '#171717' }}>
           <Icon name="message" size={22} color="#171717" />
@@ -308,8 +437,8 @@ export default function ProductDetailScreen() {
           </Box>
 
           <Box sx={{ position: 'absolute', left: 16, bottom: 16, display: 'flex', gap: 1 }}>
-            <HeroPill icon="message" label="Chat" onClick={onChat} />
-            <HeroPill icon="phone" label="Call" onClick={() => setCallOpen(true)} />
+            <HeroPill icon="message" label={t('chat')} onClick={onChat} />
+            <HeroPill icon="phone" label={t('call')} onClick={() => setCallOpen(true)} />
           </Box>
         </Box>
 
@@ -318,48 +447,63 @@ export default function ProductDetailScreen() {
           /* ── MWL body in Non-MWL section style ─────────────────────── */
           <Box sx={{ px: 3, py: '16px', display: 'flex', flexDirection: 'column', gap: '30px' }}>
 
-            {/* What it's for */}
+
+            {/* Loan at a glance */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
-              <SectionLabel>What it's for</SectionLabel>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                {MWL_USES.map((u) => (
-                  <Box key={u} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CheckBadge />
-                    <Typography sx={{ fontSize: 14, color: '#525252' }}>{u}</Typography>
+              <SectionLabel>{t('loanAtGlance')}</SectionLabel>
+              <SpecCard rows={MWL_GLANCE} />
+              {/* Calculate / Request Consult */}
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <ToolButton icon="calculator" label={t('calculate')} onClick={() => navigate('/calculator?product=' + encodeURIComponent('Migration Worker Loan'))} sx={{ flex: 1 }} />
+                <ToolButton icon="clock" label={t('requestConsult')} onClick={() => navigate(flow === 'Visitor' ? '/sign-up?next=' + encodeURIComponent('/request-consult') : '/request-consult')} sx={{ flex: 1 }} />
+              </Box>
+            </Box>
+
+            {/* Key features */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
+              <SectionLabel>{t('keyFeatures')}</SectionLabel>
+              <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: '14px 16px', display: 'flex', flexDirection: 'column', gap: 1.75 }}>
+                {MWL_FEATURES.map((f) => (
+                  <Box key={f} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <BlueCheck />
+                    <Typography sx={{ fontSize: 14, color: '#525252' }}>{td(f)}</Typography>
                   </Box>
                 ))}
               </Box>
             </Box>
 
-            {/* Calculate / Request Consult */}
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <ToolButton icon="calculator" label="Calculate" onClick={() => navigate('/calculator?product=' + encodeURIComponent('Migration Worker Loan'))} sx={{ width: 132, flexShrink: 0 }} />
-              <ToolButton icon="clock" label="Request Consult" onClick={() => navigate(flow === 'Visitor' ? '/sign-up?next=' + encodeURIComponent('/request-consult') : '/request-consult')} sx={{ flex: 1 }} />
-            </Box>
-
-            {/* Key features */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-              <SectionLabel>Key features</SectionLabel>
-              <SpecCard rows={MWL_FEATURES} />
-            </Box>
-
             {/* Eligibility */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-              <SectionLabel>Eligibility</SectionLabel>
-              <SpecCard rows={MWL_ELIGIBILITY} />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
+              <SectionLabel>{t('eligibility')}</SectionLabel>
+              <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: '14px 16px', display: 'flex', flexDirection: 'column', gap: 1.75 }}>
+                {MWL_ELIGIBILITY.map((e) => (
+                  <Box key={e} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <BlueCheck />
+                    <Typography sx={{ fontSize: 14, color: '#525252' }}>{td(e)}</Typography>
+                  </Box>
+                ))}
+              </Box>
             </Box>
 
-            {/* Required Documents */}
+            {/* FAQ */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <SectionLabel>Required Documents</SectionLabel>
+              <SectionLabel>{t('faqSection')}</SectionLabel>
               <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', overflow: 'hidden' }}>
-                {MWL_DOCUMENTS.map((d, i) => (
-                  <Box key={d} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: '14px', py: '12px', borderBottom: i < MWL_DOCUMENTS.length - 1 ? '1px solid #F0F0F0' : 'none' }}>
-                    <Icon name="appPolicy" size={22} color="#171717" />
-                    <Typography sx={{ flex: 1, fontSize: 13, fontWeight: 600, color: VALUE }}>{d}</Typography>
-                    <Box role="button" aria-label={`Preview ${d}`} onClick={() => setPreviewDoc(d)} sx={{ flexShrink: 0, display: 'flex', alignItems: 'center', minHeight: 32, px: '8px', borderRadius: '8px', cursor: 'pointer', '&:active': { bgcolor: 'rgba(39,92,178,0.08)' } }}>
-                      <Typography sx={{ fontSize: 12, fontWeight: 600, color: BRAND }}>Preview</Typography>
+                {MWL_FAQ.map((item, i, arr) => (
+                  <Box key={i} sx={{ borderBottom: i < arr.length - 1 ? '1px solid #F0F2F5' : 'none' }}>
+                    <Box
+                      role="button"
+                      onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, px: '16px', py: '13px', cursor: 'pointer', '&:active': { bgcolor: '#F8F9FB' } }}
+                    >
+                      <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#0B0F1A', flex: 1 }}>{td(item.q)}</Typography>
+                      <Icon name={openFaq === i ? 'chevronUp' : 'chevronDown'} size={15} color="#8A94A6" />
                     </Box>
+                    {openFaq === i && (
+                      <Box sx={{ px: '16px', pb: '13px' }}>
+                        <Typography sx={{ fontSize: 13, color: '#8A94A6', lineHeight: 1.5 }}>{td(item.a)}</Typography>
+                      </Box>
+                    )}
                   </Box>
                 ))}
               </Box>
@@ -369,73 +513,115 @@ export default function ProductDetailScreen() {
         ) : (
           /* ── Standard loan body ─────────────────────────────────────── */
           <Box sx={{ px: 3, py: '16px', display: 'flex', flexDirection: 'column', gap: '30px' }}>
-            {/* What it's for */}
+            {/* Loan at a glance */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
-              <SectionLabel>What it's for</SectionLabel>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                {USES.map((u) => (
-                  <Box key={u} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CheckBadge />
-                    <Typography sx={{ fontSize: 14, color: '#525252' }}>{u}</Typography>
-                  </Box>
-                ))}
+              <SectionLabel>{t('loanAtGlance')}</SectionLabel>
+              <SpecCard rows={isStaff ? STAFF_GLANCE : (PRODUCT_GLANCE[name] ?? KEY_FEATURES)} />
+              {/* Calculate / Request Consult */}
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <ToolButton
+                  icon="calculator"
+                  label={t('calculate')}
+                  onClick={() =>
+                    navigate(
+                      '/calculator?product=' +
+                        encodeURIComponent(
+                          name === 'SME Loan'
+                            ? 'Small & Medium Enterprise Loan'
+                            : name,
+                        ),
+                    )
+                  }
+                  sx={{ flex: 1 }}
+                />
+                <ToolButton
+                  icon="clock"
+                  label={t('requestConsult')}
+                  onClick={() => navigate(flow === 'Visitor' ? '/sign-up?next=' + encodeURIComponent('/request-consult') : '/request-consult')}
+                  sx={{ flex: 1 }}
+                />
               </Box>
             </Box>
 
-            {/* Calculate / Request Consult */}
-            <Box sx={{ display: 'flex', gap: 1, width: '100%' }}>
-              <ToolButton
-                icon="calculator"
-                label="Calculate"
-                onClick={() =>
-                  navigate(
-                    '/calculator?product=' +
-                      encodeURIComponent(
-                        name === 'SME Loan'
-                          ? 'Small & Medium Enterprise Loan'
-                          : name,
-                      ),
-                  )
-                }
-                sx={{ width: 132, flexShrink: 0 }}
-              />
-              <ToolButton
-                icon="clock"
-                label="Request Consult"
-                onClick={() => navigate(flow === 'Visitor' ? '/sign-up?next=' + encodeURIComponent('/request-consult') : '/request-consult')}
-                sx={{ flex: 1 }}
-              />
-            </Box>
-
-            {/* Spec cards */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                <SectionLabel>Key features</SectionLabel>
-                <SpecCard rows={features} />
-              </Box>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                <SectionLabel>Eligibility</SectionLabel>
-                <SpecCard rows={eligibility} />
-              </Box>
-            </Box>
-
-            {/* Required documents — hidden for the Staff Loan */}
-            {!isStaff && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <SectionLabel>Required Documents</SectionLabel>
-              <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', overflow: 'hidden' }}>
-                {DOCUMENTS.map((d, i) => (
-                  <Box key={d} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: '14px', py: '12px', borderBottom: i < DOCUMENTS.length - 1 ? '1px solid #F0F0F0' : 'none' }}>
-                    <Icon name="appPolicy" size={22} color="#171717" />
-                    <Typography sx={{ flex: 1, fontSize: 13, fontWeight: 600, color: VALUE }}>{d}</Typography>
-                    <Box role="button" aria-label={`Preview ${d}`} onClick={() => setPreviewDoc(d)} sx={{ flexShrink: 0, display: 'flex', alignItems: 'center', minHeight: 32, px: '8px', borderRadius: '8px', cursor: 'pointer', '&:active': { bgcolor: 'rgba(39,92,178,0.08)' } }}>
-                      <Typography sx={{ fontSize: 12, fontWeight: 600, color: BRAND }}>Preview</Typography>
+            {/* Key features (Staff / per-product checklist) / What it's for (fallback) */}
+            {(() => {
+              const productFeatures = isStaff ? STAFF_KEY_FEATURES : PRODUCT_KEY_FEATURES[name]
+              if (productFeatures) {
+                return (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
+                    <SectionLabel>{t('keyFeatures')}</SectionLabel>
+                    <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: '14px 16px', display: 'flex', flexDirection: 'column', gap: 1.75 }}>
+                      {productFeatures.map((f) => (
+                        <Box key={f} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <BlueCheck />
+                          <Typography sx={{ fontSize: 14, color: '#525252' }}>{td(f)}</Typography>
+                        </Box>
+                      ))}
                     </Box>
                   </Box>
+                )
+              }
+              return (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
+                  <SectionLabel>{t('whatItsFor')}</SectionLabel>
+                  <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: '14px 16px', display: 'flex', flexDirection: 'column', gap: 1.75 }}>
+                    {USES.map((u) => (
+                      <Box key={u} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CheckBadge />
+                        <Typography sx={{ fontSize: 14, color: '#525252' }}>{td(u)}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              )
+            })()}
+
+            {/* Eligibility */}
+            {(() => {
+              const eligibilityList = isStaff ? STAFF_ELIGIBILITY : PRODUCT_ELIGIBILITY_LIST[name]
+              if (eligibilityList) {
+                return (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
+                    <SectionLabel>{t('eligibility')}</SectionLabel>
+                    <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', p: '14px 16px', display: 'flex', flexDirection: 'column', gap: 1.75 }}>
+                      {eligibilityList.map((e) => (
+                        <Box key={e} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <BlueCheck />
+                          <Typography sx={{ fontSize: 14, color: '#525252' }}>{td(e)}</Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                )
+              }
+              return (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
+                  <SectionLabel>{t('eligibility')}</SectionLabel>
+                  <SpecCard rows={eligibility} />
+                </Box>
+              )
+            })()}
+
+            {/* FAQ */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
+              <SectionLabel>{t('faqSection')}</SectionLabel>
+              <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', overflow: 'hidden' }}>
+                {GENERAL_FAQ.map((item, i, arr) => (
+                  <Box key={i} sx={{ borderBottom: i < arr.length - 1 ? '1px solid #F0F2F5' : 'none' }}>
+                    <Box role="button" onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, px: '16px', py: '13px', cursor: 'pointer', '&:active': { bgcolor: '#F8F9FB' } }}>
+                      <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#0B0F1A', flex: 1 }}>{td(item.q)}</Typography>
+                      <Icon name={openFaq === i ? 'chevronUp' : 'chevronDown'} size={15} color="#8A94A6" />
+                    </Box>
+                    {openFaq === i && (
+                      <Box sx={{ px: '16px', pb: '13px' }}>
+                        <Typography sx={{ fontSize: 13, color: '#8A94A6', lineHeight: 1.5 }}>{td(item.a)}</Typography>
+                      </Box>
+                    )}
+                  </Box>
                 ))}
               </Box>
             </Box>
-            )}
           </Box>
         )}
       </Box>
@@ -449,7 +635,7 @@ export default function ProductDetailScreen() {
           onClick={onApply}
           sx={{ minHeight: 48, borderRadius: '8px', fontSize: 16, fontWeight: 600, bgcolor: BRAND, '&:hover': { bgcolor: '#1F4F9E' } }}
         >
-          {isMwl ? 'Start my application' : 'Apply this loan'}
+          {isMwl ? t('applyNow') : t('applyThisLoan')}
         </Button>
       </Box>
 
@@ -469,6 +655,7 @@ export default function ProductDetailScreen() {
 // document category contains: a sample-page mockup, the items to bring and the
 // accepted formats.
 function DocPreviewSheet({ doc, onClose }: { doc: string | null; onClose: () => void }) {
+  const t = useT()
   const detail = (doc && (DOC_DETAILS[doc] ?? MWL_DOC_DETAILS[doc])) || DOC_FALLBACK
   return (
     <BottomSheet open={doc !== null} onClose={onClose}>
@@ -481,7 +668,7 @@ function DocPreviewSheet({ doc, onClose }: { doc: string | null; onClose: () => 
         <SamplePage icon={detail.icon} title={doc ?? 'Document'} />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
           <Icon name="info" size={15} color={LABEL} />
-          <Typography sx={{ fontSize: 12.5, color: LABEL }}>Sample preview · for reference only</Typography>
+          <Typography sx={{ fontSize: 12.5, color: LABEL }}>{t('samplePreviewNote')}</Typography>
         </Box>
       </Box>
 
@@ -492,7 +679,7 @@ function DocPreviewSheet({ doc, onClose }: { doc: string | null; onClose: () => 
         onClick={onClose}
         sx={{ height: 48, borderRadius: '12px', fontSize: 15, fontWeight: 700, bgcolor: BRAND, '&:hover': { bgcolor: '#1F4F9E' } }}
       >
-        Got it
+        {t('gotIt')}
       </Button>
     </BottomSheet>
   )
@@ -615,7 +802,16 @@ function CheckBadge() {
   )
 }
 
+function BlueCheck() {
+  return (
+    <Box component="svg" viewBox="0 0 12 12" sx={{ width: 14, height: 14, flexShrink: 0 }}>
+      <path d="M2 6.4 L4.7 9 L10 3" fill="none" stroke="#275CB2" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </Box>
+  )
+}
+
 function SpecCard({ rows }: { rows: [string, string][] }) {
+  const td = useTd()
   return (
     <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', px: '13px' }}>
       {rows.map(([k, v], i) => (
@@ -630,8 +826,8 @@ function SpecCard({ rows }: { rows: [string, string][] }) {
             borderTop: i > 0 ? '1px solid #F5F5F5' : 'none',
           }}
         >
-          <Typography sx={{ fontSize: 14, color: LABEL, flexShrink: 0 }}>{k}</Typography>
-          <Typography sx={{ fontSize: 14, fontWeight: 600, color: VALUE, textAlign: 'right' }}>{v}</Typography>
+          <Typography sx={{ fontSize: 14, color: LABEL, flexShrink: 0 }}>{td(k)}</Typography>
+          <Typography sx={{ fontSize: 14, fontWeight: 600, color: VALUE, textAlign: 'right' }}>{td(v)}</Typography>
         </Box>
       ))}
     </Box>

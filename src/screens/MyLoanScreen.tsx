@@ -9,6 +9,7 @@ import { Icon, type IconName } from '../components/Icon'
 import { SummaryCard, Card, StatusChip, SectionLabel, AdvanceCard, HomeTopBar } from '../components/home/HomeParts'
 import { AssetImg, asset } from '../components/home/media'
 import { useFlow } from '../workspace/FlowContext'
+import { useT, useTd } from '../i18n/LangContext'
 import { getApplications, reviewQuery } from '../workspace/applications'
 import { activeStage, STAGE_CHIP } from '../workspace/tracking'
 import { BottomSheet } from './mwl/MwlParts'
@@ -45,11 +46,7 @@ function CreditGaugeSvg({ size = 200 }: { size?: number }) {
 
 type Tab = 'active' | 'review' | 'complete'
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'active', label: 'Active' },
-  { id: 'review', label: 'Requests' },
-  { id: 'complete', label: 'Paid off' },
-]
+const TAB_IDS: Tab[] = ['active', 'review', 'complete']
 
 // My Loans — segmented control switches between Active / In Review / Complete.
 export default function MyLoanScreen() {
@@ -62,14 +59,15 @@ export default function MyLoanScreen() {
   const [params] = useSearchParams()
   const tabParam = params.get('tab')
   const isStaff = flow === 'Staff'
-  const initialTab: Tab = tabParam === 'review' || tabParam === 'complete' ? tabParam : (isApplicant || isStaff) ? 'review' : 'active'
+  const initialTab: Tab = (isApplicant || isStaff) ? 'review' : 'active'
   const [tab, setTab] = useState<Tab>(initialTab)
   const [payOpen, setPayOpen] = useState(false)
   const [creditOpen, setCreditOpen] = useState(false)
   const isBorrower = flow === 'Borrower'
   const apps = getApplications()
+  const t = useT()
   const reviewHasCards = isBorrower || (isApplicant ? true : apps.length > 0)
-  const tabHasCards = tab === 'active' ? !isApplicant : tab === 'complete' ? !isApplicant : tab === 'review' ? reviewHasCards : true
+  const tabHasCards = tab === 'active' ? !isApplicant : tab === 'review' ? reviewHasCards : true
 
   return (
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: isEmpty ? '#fff' : '#F5F5F5' }}>
@@ -78,30 +76,30 @@ export default function MyLoanScreen() {
         <HomeTopBar />
         <Box sx={{ px: 3, pt: 0.5, pb: 1 }}>
           <Typography sx={{ fontSize: 30, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px' }}>
-            My Loans
+            {t('myLoans')}
           </Typography>
         </Box>
         <Box sx={{ px: 3, pb: '54px', display: 'flex', flexDirection: 'column', gap: '24px', mt: '24px' }}>
           {isEmpty ? (
             <EmptyState
-              label="No loans yet"
-              hint="You don't have any loans yet. Explore our products and apply in minutes."
+              label={t('noLoansYet')}
+              hint={t('noLoansHint')}
             />
           ) : isGuarantee ? (
             <GuarantorView />
           ) : (
             <>
-              {!isApplicant && <SummaryCard loanCount={3} onPay={() => setPayOpen(true)} />}
-
               {!isApplicant && <AdvanceCard />}
 
-              <SegmentedTabs value={tab} onChange={setTab} />
+              {!isApplicant && <SummaryCard loanCount={3} onPay={() => setPayOpen(true)} />}
 
-              {tab === 'active' && (isApplicant ? (
+              {!isApplicant && <RequestsProgressCard onClick={() => navigate('/loan-requests')} />}
+
+{tab === 'active' && (isApplicant ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
-                  <Box sx={{ mb: -4, width: '100%' }}><EmptyState label="No active loans yet" /></Box>
+                  <Box sx={{ mb: -4, width: '100%' }}><EmptyState label={t('noActiveLoans')} /></Box>
                   <Typography sx={{ fontSize: 13, color: '#8A94A6', textAlign: 'center', mt: -1 }}>
-                    Apply for a loan from the Products tab<br />and it will appear here.
+                    {t('applyFromProducts')}
                   </Typography>
                   <Button
                     variant="contained"
@@ -109,15 +107,15 @@ export default function MyLoanScreen() {
                     onClick={() => navigate('/all-loan')}
                     sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
                   >
-                    Visit &amp; Apply Loans
+                    {t('visitApply')}
                   </Button>
                 </Box>
               ) : <ActiveTab onPay={() => setPayOpen(true)} flow={flow} />)}
               {tab === 'review' && (reviewHasCards ? <ReviewTab /> : (
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
-                  <Box sx={{ mb: -4, width: '100%' }}><EmptyState label="No loan requests" /></Box>
+                  <Box sx={{ mb: -4, width: '100%' }}><EmptyState label={t('noLoanRequests')} /></Box>
                   <Typography sx={{ fontSize: 13, color: '#8A94A6', textAlign: 'center', mt: -1 }}>
-                    Apply for a loan from the Products tab<br />and it will appear here.
+                    {t('applyFromProducts')}
                   </Typography>
                   <Button
                     variant="contained"
@@ -125,30 +123,14 @@ export default function MyLoanScreen() {
                     onClick={() => navigate('/all-loan')}
                     sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
                   >
-                    Visit &amp; Apply Loans
+                    {t('visitApply')}
                   </Button>
                 </Box>
               ))}
-              {tab === 'complete' && (isApplicant ? (
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
-                  <Box sx={{ mb: -4, width: '100%' }}><EmptyState label="No completed loans" /></Box>
-                  <Typography sx={{ fontSize: 13, color: '#8A94A6', textAlign: 'center', mt: -1 }}>
-                    Apply for a loan from the Products tab<br />and it will appear here.
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    onClick={() => navigate('/all-loan')}
-                    sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
-                  >
-                    Visit &amp; Apply Loans
-                  </Button>
-                </Box>
-              ) : <CompleteTab />)}
               {tabHasCards && (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                   <Typography sx={{ fontSize: 13, color: '#8A94A6', textAlign: 'center' }}>
-                    Apply for a loan from the Products tab<br />and it will appear here.
+                    {t('applyFromProducts')}
                   </Typography>
                   <Button
                     variant="contained"
@@ -156,7 +138,7 @@ export default function MyLoanScreen() {
                     onClick={() => navigate('/all-loan')}
                     sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
                   >
-                    Visit &amp; Apply Loans
+                    {t('visitApply')}
                   </Button>
                 </Box>
               )}
@@ -202,10 +184,61 @@ export default function MyLoanScreen() {
   )
 }
 
+// ─── Requests-in-progress card — links to the Loan Requests screen ───────────
+function RequestsProgressCard({ onClick }: { onClick: () => void }) {
+  return (
+    <Box
+      onClick={onClick}
+      role="button"
+      sx={{
+        position: 'relative',
+        overflow: 'hidden',
+        borderRadius: '16px',
+        p: '16px 18px',
+        cursor: 'pointer',
+        background: 'linear-gradient(135deg, #2F63BD 0%, #23448F 100%)',
+        boxShadow: '0 6px 18px rgba(39,92,178,0.28)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+        '&:active': { opacity: 0.9 },
+      }}
+    >
+      {/* decorative circles */}
+      <Box sx={{ position: 'absolute', top: -28, right: -28, width: 110, height: 110, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.08)' }} />
+      <Box sx={{ position: 'absolute', bottom: -40, right: 42, width: 84, height: 84, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.06)' }} />
+
+      {/* icon bubble with live dot */}
+      <Box sx={{ position: 'relative', flexShrink: 0 }}>
+        <Box sx={{ width: 46, height: 46, borderRadius: '14px', bgcolor: 'rgba(255,255,255,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="clock" size={22} color="#fff" />
+        </Box>
+        <Box sx={{ position: 'absolute', top: -3, right: -3, width: 12, height: 12, borderRadius: '50%', bgcolor: '#4ADE80', border: '2px solid #2F63BD' }} />
+      </Box>
+
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography sx={{ fontSize: 15.5, fontWeight: 800, color: '#fff', lineHeight: 1.25 }} noWrap>
+          3 requests in progress
+        </Typography>
+        <Typography sx={{ fontSize: 12, color: 'rgba(255,255,255,0.78)', mt: '3px' }} noWrap>
+          Restructuring · Pay off · MWL
+        </Typography>
+        <Box sx={{ mt: '8px', display: 'inline-flex', alignItems: 'center', gap: 0.6, bgcolor: 'rgba(255,255,255,0.16)', borderRadius: '999px', px: '10px', py: '3.5px' }}>
+          <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#7EB1FF' }} />
+          <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>Under Assessment</Typography>
+        </Box>
+      </Box>
+
+      <Icon name="chevronRight" size={20} color="rgba(255,255,255,0.75)" />
+    </Box>
+  )
+}
+
 // ─── Empty state — shown for Applicants on the Active / Complete tabs ─────────
 function EmptyState({ label, hint, showApplyButtons }: { label: string; hint?: string; showApplyButtons?: boolean }) {
   const navigate = useNavigate()
   const { flow } = useFlow()
+  const t = useT()
   const isVisitor = flow === 'Visitor'
   if (showApplyButtons) {
     return (
@@ -218,7 +251,7 @@ function EmptyState({ label, hint, showApplyButtons }: { label: string; hint?: s
           onClick={() => navigate('/all-loan')}
           sx={{ mt: 4, height: 52, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
         >
-          Visit &amp; Apply Loans
+          {t('visitApply')}
         </Button>
       </Box>
     )
@@ -236,14 +269,19 @@ function EmptyState({ label, hint, showApplyButtons }: { label: string; hint?: s
 
 // ─── Segmented pill: Active | Requests | Paid off | Guarantee ────────────────
 function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => void }) {
+  const t = useT()
+  const TABS = [
+    { id: 'active' as Tab, label: t('active') },
+    { id: 'review' as Tab, label: t('inReview') },
+  ]
   return (
     <Box sx={{ height: 40, bgcolor: '#EBEBEC', borderRadius: 999, p: '4px', gap: 0.5, overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' }, display: 'flex', alignItems: 'stretch', justifyContent: 'space-between' }}>
-      {TABS.map((t) => {
-        const active = value === t.id
+      {TABS.map((tab) => {
+        const active = value === tab.id
         return (
           <Box
-            key={t.id}
-            onClick={() => onChange(t.id)}
+            key={tab.id}
+            onClick={() => onChange(tab.id)}
             sx={{
               flex: 1,
               display: 'flex',
@@ -261,7 +299,7 @@ function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => 
               boxShadow: active ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
             }}
           >
-            {t.label}
+            {tab.label}
           </Box>
         )
       })}
@@ -271,10 +309,12 @@ function SegmentedTabs({ value, onChange }: { value: Tab; onChange: (t: Tab) => 
 
 // ─── Active tab ──────────────────────────────────────────────────────────────
 function ActiveTab({ onPay, flow }: { onPay: () => void; flow: string }) {
+  const t = useT()
+  const [showMore, setShowMore] = useState(false)
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Box>
-        <SectionLabel label="ACTIVE LOANS (4)" />
+        <SectionLabel label={`${t('activeLoansSection')} (4)`} />
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <ActiveLoanCard title="Small Biz Loan" icon="store" restructured />
           <ActiveLoanCard title="Housing Loan" icon="home" coBorrower />
@@ -283,6 +323,25 @@ function ActiveTab({ onPay, flow }: { onPay: () => void; flow: string }) {
         </Box>
       </Box>
       {flow === 'Co-Borrower' && <GuaranteeTab />}
+
+      {/* Toggle — COMPLETED + History are collapsed by default */}
+      <Box
+        role="button"
+        onClick={() => setShowMore(v => !v)}
+        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, py: '4px', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
+      >
+        <Typography sx={{ fontSize: 13, fontWeight: 700, color: BLUE }}>
+          {showMore ? t('hide') : t('viewPast')}
+        </Typography>
+        <Icon name={showMore ? 'chevronUp' : 'chevronDown'} size={15} color={BLUE} />
+      </Box>
+
+      {showMore && (
+        <>
+          <CompleteTab />
+          <HistorySection />
+        </>
+      )}
     </Box>
   )
 }
@@ -308,6 +367,7 @@ function GuarantorDonut({ pct = 0.55, size = 72 }: { pct?: number; size?: number
 
 function GuarantorView() {
   const navigate = useNavigate()
+  const t = useT()
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Total Outstanding card */}
@@ -316,7 +376,7 @@ function GuarantorView() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: '16px 18px' }}>
           <GuarantorDonut pct={0.55} size={78} />
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography sx={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.6px', color: MUTED, mb: 0.5 }}>TOTAL OUTSTANDING GUARANTEE</Typography>
+            <Typography sx={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.6px', color: MUTED, mb: 0.5 }}>{t('totalOutstandingGuarantee')}</Typography>
             <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.15 }}>$4,780.00</Typography>
             <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.15 }}>៛19,598,000</Typography>
           </Box>
@@ -325,7 +385,7 @@ function GuarantorView() {
         {/* Next payment + Pay now */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #F0F2F5', px: '18px', py: '12px' }}>
           <Box>
-            <Typography sx={{ fontSize: 11, color: MUTED, fontWeight: 600 }}>Total payment</Typography>
+            <Typography sx={{ fontSize: 11, color: MUTED, fontWeight: 600 }}>{t('totalPayment')}</Typography>
             <Typography sx={{ fontSize: 20, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.2 }}>$320.00</Typography>
             <Typography sx={{ fontSize: 11.5, color: MUTED, mt: 0.25 }}>Due 16 May · in 9 days</Typography>
           </Box>
@@ -335,7 +395,7 @@ function GuarantorView() {
             onClick={() => navigate('/my-loan-detail?guarantee=true&pay=1')}
             sx={{ height: 40, borderRadius: '10px', px: '14px', fontSize: 13, fontWeight: 700, bgcolor: '#345EAC', '&:hover': { bgcolor: '#2B4F92' }, textTransform: 'none', flexShrink: 0 }}
           >
-            Pay now
+            {t('payNow')}
           </Button>
         </Box>
       </Box>
@@ -346,7 +406,7 @@ function GuarantorView() {
       {/* Apply loan */}
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5, pt: '50px' }}>
         <Typography sx={{ fontSize: 13, color: MUTED, textAlign: 'center', lineHeight: 1.6 }}>
-          Ready to grow? As a guarantor you can also apply for your own loan — explore our products and get started in minutes.
+          {t('guarantorApplyHint')}
         </Typography>
         <Button
           variant="contained"
@@ -354,7 +414,7 @@ function GuarantorView() {
           onClick={() => navigate('/all-loan')}
           sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
         >
-          Visit &amp; Apply Loans
+          {t('visitApply')}
         </Button>
       </Box>
     </Box>
@@ -363,6 +423,7 @@ function GuarantorView() {
 
 // ─── Guarantee tab ───────────────────────────────────────────────────────────
 function GuaranteeTab({ count = 1 }: { count?: number }) {
+  const t = useT()
   const cards = [
     <ActiveLoanCard key="mwl" title="Migrant Worker Loan" icon="plane" guaranteeNav />,
     <ActiveLoanCard key="hl"  title="Housing Loan"        icon="home"  guaranteeNav />,
@@ -370,7 +431,7 @@ function GuaranteeTab({ count = 1 }: { count?: number }) {
   ].slice(0, count)
   return (
     <Box>
-      <SectionLabel label={`GUARANTEE LOANS (${count})`} />
+      <SectionLabel label={`${t('guaranteeLoansSection')} (${count})`} />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {cards}
       </Box>
@@ -389,6 +450,8 @@ function StatBox({ label, value }: { label: string; value: string }) {
 
 function ActiveLoanCard({ title, icon, status, restructured, coBorrower, salaryDeduction, staffLoan, statusLabel, statusColor, statusBg, guaranteeNav, payAmount }: { title: string; icon: 'store' | 'home' | 'sprout' | 'idCard' | 'plane'; status?: 'restructure' | 'overdue'; restructured?: boolean; coBorrower?: boolean; salaryDeduction?: boolean; staffLoan?: boolean; statusLabel?: string; statusColor?: string; statusBg?: string; guaranteeNav?: boolean; payAmount?: string }) {
   const navigate = useNavigate()
+  const t = useT()
+  const td = useTd()
   const encodedTitle = encodeURIComponent(title)
   const destination = staffLoan
     ? '/my-loan-detail?product=Staff+Loan'
@@ -407,14 +470,14 @@ function ActiveLoanCard({ title, icon, status, restructured, coBorrower, salaryD
             <Icon name={icon} size={22} color={BLUE} />
           </Box>
           <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#0B0F1A' }} noWrap>{title}</Typography>
+            <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#0B0F1A' }} noWrap>{td(title)}</Typography>
             {(restructured || status === 'overdue' || guaranteeNav || coBorrower || salaryDeduction) && (
               <Box sx={{ mt: '4px', display: 'inline-flex', gap: 0.5 }}>
-                {restructured && <StatusChip label="1st Restructured" color="#7A4DD6" bg="#EFE7FB" />}
-                {status === 'overdue' && <StatusChip label="Overdue" color="#E8770B" bg="#FFF1E6" />}
+                {restructured && <StatusChip label={t('firstRestructured')} color="#7A4DD6" bg="#EFE7FB" />}
+                {status === 'overdue' && <StatusChip label={t('overdue')} color="#E8770B" bg="#FFF1E6" />}
                 {salaryDeduction && (
                   <Box sx={{ display: 'inline-flex', alignItems: 'center', bgcolor: '#E6F4EA', borderRadius: '6px', px: '8px', py: '3px' }}>
-                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#15803D' }}>Salary deduction</Typography>
+                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#15803D' }}>{t('salaryDeduction')}</Typography>
                   </Box>
                 )}
                 {guaranteeNav && statusLabel && (
@@ -431,7 +494,7 @@ function ActiveLoanCard({ title, icon, status, restructured, coBorrower, salaryD
         {/* Progress */}
         <Box sx={{ mt: 2 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
-            <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>8 of 24 paid</Typography>
+            <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>{`8 ${t('ofWord')} 24 ${t('paidWord')}`}</Typography>
             <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#3A4256' }}>33%</Typography>
           </Box>
           <Box sx={{ height: 6, borderRadius: 3, bgcolor: '#E7ECF2', overflow: 'hidden' }}>
@@ -441,8 +504,8 @@ function ActiveLoanCard({ title, icon, status, restructured, coBorrower, salaryD
 
         {/* Footer: next due + amount left */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
-          <Typography sx={{ fontSize: 12.5, color: '#8A94A6' }}>Next due · 20 May</Typography>
-          <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A' }}>$4,500.00 left</Typography>
+          <Typography sx={{ fontSize: 12.5, color: '#8A94A6' }}>{t('nextDue')} · 20 May</Typography>
+          <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A' }}>$4,500.00 {t('leftWord')}</Typography>
         </Box>
 
         {/* Pay button — Guarantee cards only when payAmount provided */}
@@ -452,7 +515,7 @@ function ActiveLoanCard({ title, icon, status, restructured, coBorrower, salaryD
             onClick={(e: React.MouseEvent) => { e.stopPropagation(); navigate(destination + '&pay=1') }}
             sx={{ mt: 1.5, width: '100%', height: 42, borderRadius: '10px', bgcolor: BLUE, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', '&:active': { opacity: 0.85 } }}
           >
-            <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Pay {payAmount}</Typography>
+            <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{t('payNow')} {payAmount}</Typography>
           </Box>
         )}
       </Box>
@@ -496,6 +559,8 @@ const REQUEST_HISTORY: { title: string; sub: string; status: ReqStatus; statusKe
 // A request row — same visual language as the active loan card (icon + title +
 // subtitle + status chip), compact for a list.
 function RequestRow({ icon, title, sub, status, amount, onClick, showSub, tag, disabled }: { icon: IconName; title: string; sub: string; status: ReqStatus; amount?: string; onClick?: () => void; showSub?: boolean; tag?: string; disabled?: boolean }) {
+  const t = useT()
+  const td = useTd()
   return (
     <Card onClick={disabled ? undefined : onClick} sx={{ cursor: disabled ? 'default' : onClick ? 'pointer' : 'default', p: '14px 16px', opacity: disabled ? 0.45 : 1 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -504,18 +569,18 @@ function RequestRow({ icon, title, sub, status, amount, onClick, showSub, tag, d
         </Box>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-            <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A' }} noWrap>{title}</Typography>
+            <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A' }} noWrap>{td(title)}</Typography>
             {tag && <Box sx={{ bgcolor: '#F0F2F5', borderRadius: '6px', px: '7px', py: '2px', flexShrink: 0 }}><Typography sx={{ fontSize: 10.5, fontWeight: 700, color: '#6B7280', letterSpacing: '0.2px' }}>{tag}</Typography></Box>}
           </Box>
           <Box sx={{ mt: '4px' }}>
-            <StatusChip label={status.label} color={status.color} bg={status.bg} />
+            <StatusChip label={td(status.label)} color={status.color} bg={status.bg} />
           </Box>
         </Box>
         {!disabled && <Icon name="chevronRight" size={18} color="#C9D2DE" />}
       </Box>
       {amount && (
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1.5, pt: 1.5, borderTop: '1px solid #F0F2F5' }}>
-          <Typography sx={{ fontSize: 12, color: '#8A94A6', fontWeight: 600 }}>Requested amount</Typography>
+          <Typography sx={{ fontSize: 12, color: '#8A94A6', fontWeight: 600 }}>{t('requestedAmount')}</Typography>
           <Typography sx={{ fontSize: 17, fontWeight: 800, color: '#0B0F1A' }}>{amount}</Typography>
         </Box>
       )}
@@ -529,8 +594,9 @@ function SectionHeader({ children, muted }: { children: React.ReactNode; muted?:
   )
 }
 
-function ReviewTab() {
+export function ReviewTab() {
   const navigate = useNavigate()
+  const t = useT()
   const { flow } = useFlow()
   const isApplicant = flow === 'Applicant'
   const isBorrower = flow === 'Borrower'
@@ -554,6 +620,7 @@ function ReviewTab() {
   const borrowerFixed = [
     { icon: 'layers' as IconName, title: 'Restructuring', sub: 'Small Biz Loan', amount: '$8,000.00', status: REQ_STATUS.assessment, onClick: () => navigate('/my-loan-review?type=restructure') },
     { icon: 'cash' as IconName, title: 'Pay off', sub: 'Small Biz Loan', amount: '$3,200.00', status: REQ_STATUS.assessment, onClick: () => navigate('/my-loan-review?type=payoff') },
+    { icon: 'plane' as IconName, title: 'Migration Worker Loan', sub: 'New application', amount: '$5,000.00', status: trackChip, onClick: () => navigate('/mwl-tracker') },
   ]
 
   // Applicant with no submitted apps falls back to the MWL sample card
@@ -567,37 +634,43 @@ function ReviewTab() {
     onClick: () => navigate('/mwl-tracker'),
   }]
 
-  const current = isBorrower
-    ? [...submittedCards, ...borrowerFixed]
-    : isApplicant
-      ? (submittedCards.length > 0 ? submittedCards : applicantFallback)
-      : submittedCards
+  const current = isApplicant
+    ? (submittedCards.length > 0 ? submittedCards : applicantFallback)
+    : [...submittedCards, ...borrowerFixed]
 
   if (current.length === 0) {
-    return <EmptyState label="No loan requests" />
+    return <EmptyState label={t('noLoanRequests')} />
   }
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Box>
-        <SectionHeader>Current ({current.length})</SectionHeader>
+        <SectionHeader>{t('current')} ({current.length})</SectionHeader>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {current.map((c, i) => (
             <RequestRow key={i} icon={c.icon} title={c.title} sub={c.sub} amount={c.amount} status={c.status} onClick={c.onClick} showSub />
           ))}
         </Box>
       </Box>
-      <Box>
-        <SectionHeader muted>History ({REQUEST_HISTORY.length})</SectionHeader>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {REQUEST_HISTORY.map((r, i) => (
-            <RequestRow key={i} icon={iconFor(r.title)} title={r.title} sub={r.sub} status={r.status} tag={r.tag} showSub disabled={!!r.disabled} onClick={r.disabled ? undefined : () => navigate(`/my-loan-review?status=${r.statusKey}&title=${encodeURIComponent(r.title)}&ref=${encodeURIComponent(r.sub)}`)} />
-          ))}
-        </Box>
-        <Typography sx={{ fontSize: 11.5, color: '#8A94A6', textAlign: 'center', mt: 0.5, lineHeight: 1.5 }}>
-          History keeps 36 months · Older records: ask your branch
-        </Typography>
+    </Box>
+  )
+}
+
+// ─── History section — past requests with terminal outcomes ──────────────────
+function HistorySection() {
+  const navigate = useNavigate()
+  const t = useT()
+  return (
+    <Box>
+      <SectionHeader muted>{t('history')} ({REQUEST_HISTORY.length})</SectionHeader>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {REQUEST_HISTORY.map((r, i) => (
+          <RequestRow key={i} icon={iconFor(r.title)} title={r.title} sub={r.sub} status={r.status} tag={r.tag} showSub disabled={!!r.disabled} onClick={r.disabled ? undefined : () => navigate(`/my-loan-review?status=${r.statusKey}&title=${encodeURIComponent(r.title)}&ref=${encodeURIComponent(r.sub)}`)} />
+        ))}
       </Box>
+      <Typography sx={{ fontSize: 11.5, color: '#8A94A6', textAlign: 'center', mt: 0.5, lineHeight: 1.5 }}>
+        {t('historyNote')}
+      </Typography>
     </Box>
   )
 }
@@ -605,6 +678,8 @@ function ReviewTab() {
 // ─── Complete tab ────────────────────────────────────────────────────────────
 function CompletedCard({ title, amount, term, rate, lastPaid }: { title: string; amount: string; term: string; rate: string; lastPaid: string }) {
   const navigate = useNavigate()
+  const t = useT()
+  const td = useTd()
   const iconMap: Record<string, 'store' | 'home' | 'sprout' | 'cash'> = {
     'Small Business Loan': 'store',
     'Housing Loan': 'home',
@@ -618,14 +693,14 @@ function CompletedCard({ title, amount, term, rate, lastPaid }: { title: string;
         <Box sx={{ width: 44, height: 44, borderRadius: '12px', bgcolor: '#EEF1FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <Icon name={icon} size={22} color={BLUE} />
         </Box>
-        <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#0B0F1A', flex: 1, minWidth: 0 }} noWrap>{title}</Typography>
+        <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#0B0F1A', flex: 1, minWidth: 0 }} noWrap>{td(title)}</Typography>
         <Icon name="chevronRight" size={18} color="#C9D2DE" />
       </Box>
 
       {/* Progress — 100% complete */}
       <Box sx={{ mt: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.75 }}>
-          <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>Fully paid</Typography>
+          <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>{t('fullyPaid')}</Typography>
           <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#1FA85C' }}>100%</Typography>
         </Box>
         <Box sx={{ height: 6, borderRadius: 3, bgcolor: '#E7ECF2', overflow: 'hidden' }}>
@@ -637,7 +712,7 @@ function CompletedCard({ title, amount, term, rate, lastPaid }: { title: string;
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
           <Icon name="clock" size={14} color="#8A94A6" />
-          <Typography sx={{ fontSize: 12.5, color: '#8A94A6' }}>Last Paid on {lastPaid}</Typography>
+          <Typography sx={{ fontSize: 12.5, color: '#8A94A6' }}>{t('lastPaidOn')} {lastPaid}</Typography>
         </Box>
       </Box>
     </Card>
@@ -645,9 +720,10 @@ function CompletedCard({ title, amount, term, rate, lastPaid }: { title: string;
 }
 
 function CompleteTab() {
+  const t = useT()
   return (
     <Box>
-      <SectionLabel label="COMPLETED (2)" />
+      <SectionLabel label={`${t('completedSection')} (2)`} />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <CompletedCard title="Small Business Loan" amount="$4,500.00" term="24 months" rate="1.20%/mo" lastPaid="20 May" />
         <CompletedCard title="Micro Loan" amount="$1,500.00" term="12 months" rate="1.30%/mo" lastPaid="08 Feb" />

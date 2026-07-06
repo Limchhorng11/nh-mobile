@@ -9,6 +9,7 @@ import { Flag, type FlagCode } from '../components/Flag'
 import { AssetImg, ILLUS } from '../components/home/media'
 import { AvatarArt } from '../components/home/illustrations'
 import { useFlow } from '../workspace/FlowContext'
+import { useLang, useT } from '../i18n/LangContext'
 import { BottomSheet } from './mwl/MwlParts'
 import CallSheet from '../components/CallSheet'
 import PinGateScreen from './PinGateScreen'
@@ -134,7 +135,10 @@ export function SettingsSections() {
   const navigate = useNavigate()
   const { flow } = useFlow()
   const isVisitor = flow === 'Visitor'
-  const [language, setLanguage] = useState<LangId>('en')
+  const { lang, setLang } = useLang()
+  const t = useT()
+  const language = (lang === 'km' ? 'km' : lang === 'ko' ? 'ko' : 'en') as LangId
+  const setLanguage = (id: LangId) => setLang(id === 'km' ? 'km' : 'en')
   const [theme, setTheme] = useState<ThemeId>('System')
   const [picker, setPicker] = useState<'language' | 'theme' | null>(null)
   const [callOpen, setCallOpen] = useState(false)
@@ -149,7 +153,7 @@ export function SettingsSections() {
 
         {!isVisitor && (
           <Box>
-            <SectionLabel>MY OFFICER</SectionLabel>
+            <SectionLabel>{t('sectionMyOfficer')}</SectionLabel>
             <Card>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: '14px', py: '12px' }}>
                 <Box sx={{ width: 44, height: 44, borderRadius: '50%', flexShrink: 0, background: 'radial-gradient(circle at 30% 30%, #9BD0FF 0%, #4C8BE0 45%, #2B4F92 100%)', boxShadow: '0 6px 24px rgba(0,0,0,0.08)' }} />
@@ -172,23 +176,23 @@ export function SettingsSections() {
 
         {!isVisitor && (
           <Box>
-            <SectionLabel>PROFILE</SectionLabel>
+            <SectionLabel>{t('sectionProfile')}</SectionLabel>
             <Card>
-              <NavRow icon="idCard" label="My Profile" onClick={() => navigate('/profile')} />
+              <NavRow icon="idCard" label={t('myProfile')} onClick={() => navigate('/profile')} />
             </Card>
           </Box>
         )}
 
         <Box>
-          <SectionLabel>ACCOUNT SETTINGS</SectionLabel>
+          <SectionLabel>{t('sectionAccount')}</SectionLabel>
           <Card>
             {!isVisitor && (
-              <NavRow icon="accountSecurity" label="Account Security" divider onClick={() => navigate('/account-security')} />
+              <NavRow icon="accountSecurity" label={t('accountSecurity')} divider onClick={() => navigate('/account-security')} />
             )}
-            <NavRow icon="bell" label="Notifications" divider onClick={() => navigate('/notification-settings')} />
+            <NavRow icon="bell" label={t('notifications')} divider onClick={() => navigate('/notification-settings')} />
             <SelectRow
               icon="globe"
-              label="Language"
+              label={t('language')}
               value={activeLang.label}
               flag={activeLang.flag}
               onClick={() => setPicker('language')}
@@ -196,7 +200,7 @@ export function SettingsSections() {
             />
             <SelectRow
               icon="theme"
-              label="Theme"
+              label={t('theme')}
               value={theme}
               onClick={() => setPicker('theme')}
             />
@@ -204,10 +208,10 @@ export function SettingsSections() {
         </Box>
 
         <Box>
-          <SectionLabel>ABOUT</SectionLabel>
+          <SectionLabel>{t('sectionAbout')}</SectionLabel>
           <Card>
-            <NavRow icon="faq" label="FAQ" divider onClick={() => navigate('/faq')} />
-            <NavRow icon="appPolicy" label="App policy & terms" onClick={() => navigate('/terms-privacy')} />
+            <NavRow icon="faq" label={t('faqLabel')} divider onClick={() => navigate('/faq')} />
+            <NavRow icon="appPolicy" label={t('appPolicy')} onClick={() => navigate('/terms-privacy')} />
           </Card>
         </Box>
 
@@ -219,7 +223,7 @@ export function SettingsSections() {
             sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, pt: '28px', pb: '8px', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
           >
             <Icon name="signOut" size={20} color={DANGER} />
-            <Typography sx={{ fontSize: 16, fontWeight: 800, color: DANGER }}>Sign out</Typography>
+            <Typography sx={{ fontSize: 16, fontWeight: 800, color: DANGER }}>{t('signOut')}</Typography>
           </Box>
         )}
       </Box>

@@ -18,6 +18,7 @@ import { AssetImg, BANNERS, ILLUS, DISCOVER } from './media'
 import { Icon, type IconName } from '../Icon'
 import { ProductScene, AvatarArt, PromoScene } from './illustrations'
 import { useFlow } from '../../workspace/FlowContext'
+import { useT } from '../../i18n/LangContext'
 import { usePinGate } from '../../workspace/PinGateContext'
 import PinGateScreen from '../../screens/PinGateScreen'
 import { SettingsSections } from '../../screens/SettingsScreen'
@@ -53,6 +54,7 @@ export function SectionLabel({ label, action, onAction }: { label: string; actio
 // ─────────────────────────────────────────────────────────────────────────────
 export function HomeTopBar({ secondIcon = 'bell', middle }: { secondIcon?: IconName; middle?: React.ReactNode } = {}) {
   const navigate = useNavigate()
+  const t = useT()
   const { flow } = useFlow()
   // Visitors and unregistered Staff show the brand logo.
   // Registered Staff (completed sign-up) show the profile avatar like signed-in flows.
@@ -99,7 +101,7 @@ export function HomeTopBar({ secondIcon = 'bell', middle }: { secondIcon?: IconN
             />
           </Box>
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography sx={{ fontSize: 12, color: '#8A94A6', lineHeight: 1.2 }}>Good morning!</Typography>
+            <Typography sx={{ fontSize: 12, color: '#8A94A6', lineHeight: 1.2 }}>{t('goodMorning')}</Typography>
             <Typography sx={{ fontSize: 16, fontWeight: 700, color: '#0B0F1A', lineHeight: 1.3 }} noWrap>
               Krong Kampuchea
             </Typography>
@@ -227,12 +229,13 @@ function DiscoverGrid() {
   const navigate = useNavigate()
   const { flow } = useFlow()
   const isVisitor = flow === 'Visitor'
+  const t = useT()
 
   const items = [
-    { icon: 'aboutNhfc'  as IconName, label: 'About Us',       bg: '#1C3B6E', img: DISCOVER.calculator, onClick: () => navigate('/about') },
-    { icon: 'blogs'      as IconName, label: 'CSR Activity',   bg: '#1A3A30', img: '',                  onClick: () => navigate('/csr-activity') },
-    { icon: 'findBranch' as IconName, label: 'Branch Locator', bg: '#3B1C5C', img: '',                  onClick: () => navigate('/branch-locator') },
-    { icon: 'calculator' as IconName, label: 'Loan Calculator',bg: '#0B1A14', img: '',                  onClick: () => navigate('/calculator') },
+    { icon: 'aboutNhfc'  as IconName, label: t('aboutUs'),       bg: '#1C3B6E', img: DISCOVER.calculator, onClick: () => navigate('/about') },
+    { icon: 'blogs'      as IconName, label: t('csrActivity'),   bg: '#1A3A30', img: '',                  onClick: () => navigate('/csr-activity') },
+    { icon: 'findBranch' as IconName, label: t('branchLocator'), bg: '#3B1C5C', img: '',                  onClick: () => navigate('/branch-locator') },
+    { icon: 'calculator' as IconName, label: t('loanCalculator'),bg: '#0B1A14', img: '',                  onClick: () => navigate('/calculator') },
   ]
 
   return (
@@ -331,6 +334,7 @@ export function MoreMenuBody({
   const isVisitor = flow === 'Visitor'
   const [callOpen, setCallOpen] = useState(false)
   const [pinPending, setPinPending] = useState<string | null>(null)
+  const t = useT()
 
   if (pinPending && !unlocked) {
     return <PinGateScreen onSuccess={() => { unlock(); navigate(pinPending); setPinPending(null) }} />
@@ -381,7 +385,7 @@ export function MoreMenuBody({
                 />
               </Box>
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>Good morning!</Typography>
+                <Typography sx={{ fontSize: 12, color: '#8A94A6' }}>{t('goodMorning')}</Typography>
                 <Typography sx={{ fontSize: 17, fontWeight: 800, color: '#0B0F1A', lineHeight: 1.2 }} noWrap>
                   Krong Kampuchea
                 </Typography>
@@ -405,8 +409,8 @@ export function MoreMenuBody({
             sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: '16px', borderRadius: '14px', bgcolor: '#fff', cursor: 'pointer', '&:active': { opacity: 0.85 } }}
           >
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography sx={{ fontSize: 18, fontWeight: 800, color: '#0B0F1A', lineHeight: 1.2 }}>Welcome!</Typography>
-              <Typography sx={{ fontSize: 13, color: '#8A94A6', mt: 0.25 }}>Sign up to apply loan faster</Typography>
+              <Typography sx={{ fontSize: 18, fontWeight: 800, color: '#0B0F1A', lineHeight: 1.2 }}>{t('welcomeUser')}</Typography>
+              <Typography sx={{ fontSize: 13, color: '#8A94A6', mt: 0.25 }}>{t('signUpFaster')}</Typography>
             </Box>
             <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 0.75, bgcolor: BLUE, borderRadius: '10px', p: '8px' }}>
               <Typography sx={{ fontSize: 14.5, fontWeight: 700, color: '#fff' }}>Get Started</Typography>
@@ -417,20 +421,15 @@ export function MoreMenuBody({
 
 
 
-        {/* Discover */}
-        <Box>
-          <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6', mb: 1.5 }}>DISCOVER</Typography>
+        {/* Discover + Support */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6', mb: 0.5 }}>{t('discover')}</Typography>
           <DiscoverGrid />
-        </Box>
-
-        {/* Support */}
-        <Box>
-          <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6', mb: 1.5 }}>SUPPORT</Typography>
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
             {[
-              { icon: 'phone' as IconName, label: 'Contact Us', sub: 'Hotline & email', onClick: () => navigate('/contact-us') },
-              { icon: 'feedback' as IconName, label: 'Complaint', sub: 'We reply in 2 days', onClick: () => requirePin('/send-feedback') },
-              { icon: 'message' as IconName, label: 'Request Consultation', sub: 'Talk to an officer', onClick: () => requirePin('/request-consult') },
+              { icon: 'phone' as IconName, label: t('contactUs'), sub: t('hotlineEmail'), onClick: () => navigate('/contact-us') },
+              { icon: 'feedback' as IconName, label: t('complaint'), sub: t('weReplyDays'), onClick: () => requirePin('/send-feedback') },
+              { icon: 'message' as IconName, label: t('requestConsult'), sub: t('talkToOfficer'), onClick: () => requirePin('/request-consult') },
             ].map((item) => (
               <Box
                 key={item.label}
@@ -451,8 +450,8 @@ export function MoreMenuBody({
         {/* Blog Posts */}
         <Box>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6' }}>BLOG POST</Typography>
-            <Typography role="button" onClick={() => navigate('/blogs')} sx={{ fontSize: 13, fontWeight: 600, color: '#275CB2', cursor: 'pointer', '&:active': { opacity: 0.6 } }}>See all</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6' }}>{t('blogPost')}</Typography>
+            <Typography role="button" onClick={() => navigate('/blogs')} sx={{ fontSize: 13, fontWeight: 600, color: '#275CB2', cursor: 'pointer', '&:active': { opacity: 0.6 } }}>{t('seeAll')}</Typography>
           </Box>
           <BlogGrid />
         </Box>
@@ -505,6 +504,7 @@ export function CurrencyToggle({ value, onChange }: { value: 'USD' | 'KHR'; onCh
 // Donut — outstanding ring (green progress arc)
 // ─────────────────────────────────────────────────────────────────────────────
 export function OutstandingDonut({ pct = 60, centerText, blurred = false }: { pct?: number; centerText?: string; blurred?: boolean }) {
+  const t = useT()
   const SIZE = 92
   const STROKE = 8
   const r = (SIZE - STROKE) / 2
@@ -550,7 +550,7 @@ export function OutstandingDonut({ pct = 60, centerText, blurred = false }: { pc
         >
           {centerText ?? ''}
         </Typography>
-        <Typography sx={{ fontSize: 9, color: '#8A94A6', fontWeight: 600, lineHeight: 1 }}>outstanding</Typography>
+        <Typography sx={{ fontSize: 9, color: '#8A94A6', fontWeight: 600, lineHeight: 1 }}>{t('outstandingLabel')}</Typography>
       </Box>
     </Box>
   )
@@ -568,6 +568,7 @@ const SUMMARY_ROWS = [
 
 export function SummaryCard({ children, loanCount = 3, defaultExpanded = false, onPay }: { children?: ReactNode; loanCount?: number; defaultExpanded?: boolean; onPay?: () => void }) {
   const navigate = useNavigate()
+  const t = useT()
   const [hidden, setHidden] = useState(false)
   const [expanded, setExpanded] = useState(defaultExpanded)
   const [cur, setCur] = useState<'USD' | 'KHR'>('USD')
@@ -584,7 +585,7 @@ export function SummaryCard({ children, loanCount = 3, defaultExpanded = false, 
           role="button"
           sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.25, cursor: 'pointer' }}
         >
-          <Typography sx={{ fontSize: 13, fontWeight: 700, color: BLUE }}>Summary</Typography>
+          <Typography sx={{ fontSize: 13, fontWeight: 700, color: BLUE }}>{t('summary')}</Typography>
           <Box component="svg" width={14} height={14} viewBox="0 0 14 14" fill="none" sx={{ ml: 0.25, flexShrink: 0 }}>
             <path d="M3 11L11 3M11 3H5M11 3V9" stroke={BLUE} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
           </Box>
@@ -594,21 +595,21 @@ export function SummaryCard({ children, loanCount = 3, defaultExpanded = false, 
         <OutstandingDonut pct={55} centerText="55%" blurred={hidden} />
         <Box sx={{ flex: 1, ml: '24px' }}>
           <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#8A94A6', mb: 0.5 }}>
-            Total Outstanding
+            {t('totalOutstanding')}
           </Typography>
           {/* USD amount */}
           <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
             <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', lineHeight: 1.4 }}>
               {total}
             </Typography>
-            <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#B0B8C8' }}>2 loans</Typography>
+            <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#B0B8C8' }}>2 {t('loansWord')}</Typography>
           </Box>
           {/* KHR amount */}
           <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
             <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', lineHeight: 1.4 }}>
               {isKHR ? '$4,780.00' : '៛19,598,000'}
             </Typography>
-            <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#B0B8C8' }}>1 loan</Typography>
+            <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#B0B8C8' }}>1 {t('loanWord')}</Typography>
           </Box>
         </Box>
       </Box>
@@ -617,9 +618,9 @@ export function SummaryCard({ children, loanCount = 3, defaultExpanded = false, 
       {onPay && (
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2, pt: 2, borderTop: '1px solid #F0F2F5' }}>
           <Box>
-            <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#8A94A6', letterSpacing: '0.4px' }}>NEXT PAYMENT</Typography>
+            <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#8A94A6', letterSpacing: '0.4px' }}>{t('nextPayment').toUpperCase()}</Typography>
             <Typography sx={{ fontSize: 20, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', mt: 0.25 }}>$320.00</Typography>
-            <Typography sx={{ fontSize: 11, color: '#8A94A6', mt: 0.25 }}>Due 16 May · in 9 days</Typography>
+            <Typography sx={{ fontSize: 11, color: '#8A94A6', mt: 0.25 }}>{t('dueIn9Days')}</Typography>
           </Box>
           <Button
             variant="contained"
@@ -627,7 +628,7 @@ export function SummaryCard({ children, loanCount = 3, defaultExpanded = false, 
             startIcon={<Icon name="cash" size={18} />}
             sx={{ height: 44, borderRadius: '12px', px: '18px', fontSize: 14, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#2B4F92' }, boxShadow: 'none', textTransform: 'none' }}
           >
-            Pay Now
+            {t('payNow')}
           </Button>
         </Box>
       )}
@@ -635,7 +636,7 @@ export function SummaryCard({ children, loanCount = 3, defaultExpanded = false, 
       {/* Collapsible breakdown */}
       <Collapse in={expanded} timeout={250} unmountOnExit>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25, mt: 2 }}>
-          {SUMMARY_ROWS.map((row) => (
+          {SUMMARY_ROWS.map((row) => ({ ...row, label: row.label === 'Paid to date' ? t('paidToDate') : row.label === 'Outstanding' ? t('outstandingLabel') : t('totalApproved') })).map((row) => (
             <Box key={row.label} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: row.color, flexShrink: 0 }} />
@@ -660,10 +661,10 @@ export function SummaryCard({ children, loanCount = 3, defaultExpanded = false, 
         {/* 2×2 stats grid */}
         <Box sx={{ mt: 2.5, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
           {[
-            { label: 'Active Loans', value: String(loanCount), sub: 'MWL · SBL · Staff', valueColor: '#275CB2', bg: '#EEF3FC', dot: '#275CB2', blur: false },
-            { label: 'Portfolio Health', value: 'Good', sub: '1 restructuring in review', valueColor: '#1A8A4C', bg: '#EAF6EF', dot: '#1FA85C', blur: false },
-            { label: 'Installments', value: '22 / 66', sub: 'payments made', valueColor: '#0B0F1A', bg: '#F5F7FA', dot: '#8A94A6', blur: false },
-            { label: 'Due This Month', value: hidden ? '••••' : (isKHR ? '៛1,312,000' : '$320'), sub: '1 payment pending', valueColor: '#C0392B', bg: '#FDF0EF', dot: '#D63B3B', blur: hidden },
+            { label: t('activeLoansStat'), value: String(loanCount), sub: 'MWL · SBL · Staff', valueColor: '#275CB2', bg: '#EEF3FC', dot: '#275CB2', blur: false },
+            { label: t('portfolioHealth'), value: t('good'), sub: t('restructuringInReview'), valueColor: '#1A8A4C', bg: '#EAF6EF', dot: '#1FA85C', blur: false },
+            { label: t('installments'), value: '22 / 66', sub: t('paymentsMade'), valueColor: '#0B0F1A', bg: '#F5F7FA', dot: '#8A94A6', blur: false },
+            { label: t('dueThisMonth'), value: hidden ? '••••' : (isKHR ? '៛1,312,000' : '$320'), sub: t('onePaymentPending'), valueColor: '#C0392B', bg: '#FDF0EF', dot: '#D63B3B', blur: hidden },
           ].map((cell) => (
             <Box key={cell.label} sx={{ bgcolor: cell.bg, borderRadius: '14px', p: '12px 14px' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
@@ -693,26 +694,54 @@ export function SummaryCard({ children, loanCount = 3, defaultExpanded = false, 
 // ─────────────────────────────────────────────────────────────────────────────
 export function AdvanceCard({ amount = '$320.00' }: { amount?: string } = {}) {
   const navigate = useNavigate()
+  const t = useT()
   return (
-    <Card sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer' }} onClick={() => navigate('/advance')}>
-      <Box sx={{ width: 44, height: 44, borderRadius: '12px', bgcolor: '#EBEBEC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <Icon name="cash" size={22} color="#0B0F1A" />
+    <Box
+      onClick={() => navigate('/advance')}
+      role="button"
+      sx={{
+        position: 'relative',
+        overflow: 'hidden',
+        borderRadius: '16px',
+        p: '14px 16px',
+        cursor: 'pointer',
+        bgcolor: '#fff',
+        border: '1px solid #E4F2E9',
+        boxShadow: '0 4px 14px rgba(20,140,80,0.08)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+        '&:active': { opacity: 0.9 },
+      }}
+    >
+      {/* decorative tint */}
+      <Box sx={{ position: 'absolute', top: -30, right: -20, width: 120, height: 120, borderRadius: '50%', background: 'radial-gradient(circle, rgba(31,168,92,0.10) 0%, rgba(31,168,92,0) 70%)' }} />
+
+      <Box sx={{ position: 'relative', width: 46, height: 46, borderRadius: '13px', flexShrink: 0, background: 'linear-gradient(135deg, #34C77B 0%, #1B8F53 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(27,143,83,0.35)' }}>
+        <Icon name="cash" size={22} color="#fff" />
       </Box>
+
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A', lineHeight: 1.2 }}>Advance</Typography>
-        <Typography sx={{ fontSize: 12, color: '#8A94A6', mt: 0.25, lineHeight: 1.3 }}>
-          Reserved for loan repayment
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+          <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A', lineHeight: 1.2 }} noWrap>{t('advance')}</Typography>
+          <Box sx={{ bgcolor: '#E6F7ED', borderRadius: '999px', px: '7px', py: '1.5px', flexShrink: 0 }}>
+            <Typography sx={{ fontSize: 9.5, fontWeight: 800, color: '#1B8F53', letterSpacing: '0.3px' }}>AUTO</Typography>
+          </Box>
+        </Box>
+        <Typography sx={{ fontSize: 12, color: '#8A94A6', mt: 0.25, lineHeight: 1.3 }} noWrap>
+          {t('reservedForRepayment')}
         </Typography>
       </Box>
+
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
         <Box sx={{ textAlign: 'right' }}>
-          <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#8A94A6', letterSpacing: '0.5px', mb: 0.25 }}>BALANCE</Typography>
-          <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A', lineHeight: 1.2 }}>{amount}</Typography>
-          <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A', lineHeight: 1.2 }}>៛1,312,000</Typography>
+          <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: '#8A94A6', letterSpacing: '0.5px', mb: 0.25 }}>{t('balanceLabel')}</Typography>
+          <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#1B8F53', lineHeight: 1.2 }}>{amount}</Typography>
+          <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: '#0B0F1A', lineHeight: 1.3, mt: '1px' }}>៛1,312,000</Typography>
         </Box>
         <Icon name="chevronRight" size={20} color="#8A94A6" />
       </Box>
-    </Card>
+    </Box>
   )
 }
 
