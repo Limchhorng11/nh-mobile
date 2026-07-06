@@ -346,7 +346,6 @@ export default function ProductDetailScreen() {
   const isStaff = name === 'Staff Loan'
   const isMwl = name === 'Migration Worker Loan'
   const features = isStaff ? STAFF_FEATURES : isMwl ? MWL_FEATURES : KEY_FEATURES
-  const eligibility = isMwl ? MWL_ELIGIBILITY : ELIGIBILITY
   // Apply flow per product: Migration Worker Loan → MWL (multi-step); Staff Loan
   // → the single-screen staff form; everything else → the Non-MWL flow.
   const applyPath =
@@ -597,7 +596,7 @@ export default function ProductDetailScreen() {
               return (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
                   <SectionLabel>{t('eligibility')}</SectionLabel>
-                  <SpecCard rows={eligibility} />
+                  <SpecCard rows={ELIGIBILITY} />
                 </Box>
               )
             })()}

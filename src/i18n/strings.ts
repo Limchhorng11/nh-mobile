@@ -260,6 +260,16 @@ const EN = {
   payment: 'Payment',
   thDueDate: 'Due Date',
   thTotal: 'Total',
+  thDetail: 'Detail',
+  paymentBreakdown: 'Payment breakdown',
+  principal: 'Principal',
+  interest: 'Interest',
+  monthlyFee: 'Monthly Fee',
+  unpaidObligation: 'Unpaid Obligation',
+  penalty: 'Penalty',
+  paidStatus: 'Paid',
+  upcomingStatus: 'Upcoming',
+  scheduledStatus: 'Scheduled',
 }
 
 export type StringKey = keyof typeof EN
@@ -521,6 +531,19 @@ const KM: Record<StringKey, string> = {
   loanRequests: 'សំណើប្រាក់កម្ចី',
   viewPast: 'មើលប្រវត្តិ',
   hide: 'លាក់',
+  payment: 'ការទូទាត់',
+  thDueDate: 'ថ្ងៃត្រូវបង់',
+  thTotal: 'សរុប',
+  thDetail: 'ព័ត៌មានលម្អិត',
+  paymentBreakdown: 'ការបំបែកការទូទាត់',
+  principal: 'ដើមទុន',
+  interest: 'ការប្រាក់',
+  monthlyFee: 'ថ្លៃប្រចាំខែ',
+  unpaidObligation: 'កាតព្វកិច្ចមិនទាន់សង',
+  penalty: 'ពិន័យ',
+  paidStatus: 'បានបង់',
+  upcomingStatus: 'ជិតដល់',
+  scheduledStatus: 'បានកំណត់ពេល',
 }
 
 export const STRINGS: Record<LangCode, Record<StringKey, string>> = {

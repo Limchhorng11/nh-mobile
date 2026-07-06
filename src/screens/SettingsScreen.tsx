@@ -137,7 +137,7 @@ export function SettingsSections() {
   const isVisitor = flow === 'Visitor'
   const { lang, setLang } = useLang()
   const t = useT()
-  const language = (lang === 'km' ? 'km' : lang === 'ko' ? 'ko' : 'en') as LangId
+  const language = (lang === 'km' ? 'km' : 'en') as LangId
   const setLanguage = (id: LangId) => setLang(id === 'km' ? 'km' : 'en')
   const [theme, setTheme] = useState<ThemeId>('System')
   const [picker, setPicker] = useState<'language' | 'theme' | null>(null)

@@ -6,7 +6,7 @@ import Button from '@mui/material/Button'
 import { Icon } from '../components/Icon'
 import PayLoanSheet from '../components/PayLoanSheet'
 import CallSheet from '../components/CallSheet'
-import { MwlHeader } from './mwl/MwlParts'
+import { MwlHeader, BottomSheet } from './mwl/MwlParts'
 import { useFlow } from '../workspace/FlowContext'
 import { useT } from '../i18n/LangContext'
 
@@ -20,12 +20,14 @@ const VALUE = '#171717'
 const ACCENT = '#345EAC'
 const PAID = '#275CB2'
 const OUTSTANDING = '#8CC919'
+const NEXT_PAYMENT_AMOUNT = '$320.00'
 
 export default function MyLoanDetailScreen() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [payOpen, setPayOpen] = useState(() => searchParams.get('pay') === '1')
   const [infoOpen, setInfoOpen] = useState(false)
+  const [breakdownRow, setBreakdownRow] = useState<PayRow | null>(null)
   const overdue = searchParams.get('overdue') === 'true'
   const product = searchParams.get('product') ?? 'Small Business Loan'
   const { flow } = useFlow()
@@ -43,19 +45,20 @@ export default function MyLoanDetailScreen() {
 
 
         <Box sx={{ px: 3, pt: 2.5, pb: 6, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          <DetailsTab onPay={() => setPayOpen(true)} overdue={overdue} onInfo={() => setInfoOpen(true)} isGuaranteeView={isGuaranteeView} isCoBorrower={isCoBorrower} isStaffLoan={product === 'Staff Loan'} />
+          <DetailsTab onPay={() => setPayOpen(true)} overdue={overdue} onInfo={() => setInfoOpen(true)} isGuaranteeView={isGuaranteeView} isCoBorrower={isCoBorrower} isStaffLoan={product === 'Staff Loan'} onOpenDetail={setBreakdownRow} />
           <OthersTab isGuaranteeView={isGuaranteeView} product={product} />
         </Box>
       </Box>
 
       <PayLoanSheet open={payOpen} onClose={() => setPayOpen(false)} overdue={overdue} />
       <ProductFeaturesSheet open={infoOpen} onClose={() => setInfoOpen(false)} product={product} isCoBorrower={isCoBorrower} isBorrower={isBorrower} isGuarantee={!isCoBorrower && isGuaranteeView} loanAmount="$8,640" />
+      <PaymentBreakdownSheet row={breakdownRow} onClose={() => setBreakdownRow(null)} />
     </Box>
   )
 }
 
 // ─── DETAILS tab ─────────────────────────────────────────────────────────────
-function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isStaffLoan }: { onPay: () => void; overdue: boolean; onInfo: () => void; isGuaranteeView?: boolean; isCoBorrower?: boolean; isStaffLoan?: boolean }) {
+function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isStaffLoan, onOpenDetail }: { onPay: () => void; overdue: boolean; onInfo: () => void; isGuaranteeView?: boolean; isCoBorrower?: boolean; isStaffLoan?: boolean; onOpenDetail: (row: PayRow) => void }) {
   const [showAllRows, setShowAllRows] = useState(false)
   const navigate = useNavigate()
   const t = useT()
@@ -122,7 +125,7 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isS
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box>
-              <Typography sx={{ fontSize: 30, fontWeight: 800, color: VALUE, letterSpacing: '-1px', lineHeight: 1.1 }}>$320.00</Typography>
+              <Typography sx={{ fontSize: 30, fontWeight: 800, color: VALUE, letterSpacing: '-1px', lineHeight: 1.1 }}>{NEXT_PAYMENT_AMOUNT}</Typography>
               <Typography sx={{ fontSize: 12, color: LABEL, mt: 0.5 }}>Due 16 May · in 9 days</Typography>
             </Box>
             {!isStaffLoan && (
@@ -144,7 +147,7 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isS
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pl: 0.5 }}>
           <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.65px', textTransform: 'uppercase' }}>
-            Actual Payment
+            {t('payment')}
           </Typography>
           <Box
             role="button"
@@ -155,7 +158,7 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isS
             <Typography sx={{ fontSize: 13, fontWeight: 700, color: ACCENT }}>Download</Typography>
           </Box>
         </Box>
-        <PaymentTable showAll={showAllRows} />
+        <PaymentTable showAll={showAllRows} onOpenDetail={onOpenDetail} />
         <Box
           role="button"
           onClick={() => setShowAllRows(v => !v)}
@@ -227,38 +230,39 @@ type PayRow = {
   tone?: 'dim' | 'highlight' | 'normal'
 }
 const PAY_ROWS: PayRow[] = [
-  { no: '1',  date: '5/01/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
-  { no: '2',  date: '5/02/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
-  { no: '3',  date: '5/03/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
-  { no: '4',  date: '5/04/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
-  { no: '5',  date: '5/05/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
-  { no: '6',  date: '5/06/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
-  { no: '7',  date: '5/07/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
-  { no: '8',  date: '5/08/26', principal: '$39.46', other: '$5.53', total: '$44.99', badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
-  { no: '9',  date: '5/09/26', principal: '$39.93', other: '$5.53', total: '$44.99', badge: { text: 'ជិតដល់', tone: 'soon' }, tone: 'highlight' },
-  { no: '10', date: '5/10/26', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '11', date: '5/11/26', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '12', date: '5/12/26', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '13', date: '5/01/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '14', date: '5/02/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '15', date: '5/03/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '16', date: '5/04/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '17', date: '5/05/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '18', date: '5/06/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '19', date: '5/07/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '20', date: '5/08/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '21', date: '5/09/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '22', date: '5/10/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '23', date: '5/11/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
-  { no: '24', date: '5/12/27', principal: '$39.93', other: '$5.53', total: '$44.99', tone: 'normal' },
+  { no: '1',  date: '5/01/26', principal: '$39.46', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '2',  date: '5/02/26', principal: '$39.46', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '3',  date: '5/03/26', principal: '$39.46', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '4',  date: '5/04/26', principal: '$39.46', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '5',  date: '5/05/26', principal: '$39.46', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '6',  date: '5/06/26', principal: '$39.46', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '7',  date: '5/07/26', principal: '$39.46', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '8',  date: '5/08/26', principal: '$39.46', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, badge: { text: 'បង់រួច', tone: 'paid' }, tone: 'dim' },
+  { no: '9',  date: '5/09/26', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, badge: { text: 'ជិតដល់', tone: 'soon' }, tone: 'highlight' },
+  { no: '10', date: '5/10/26', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '11', date: '5/11/26', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '12', date: '5/12/26', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '13', date: '5/01/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '14', date: '5/02/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '15', date: '5/03/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '16', date: '5/04/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '17', date: '5/05/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '18', date: '5/06/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '19', date: '5/07/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '20', date: '5/08/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '21', date: '5/09/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '22', date: '5/10/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '23', date: '5/11/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
+  { no: '24', date: '5/12/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
 ]
 const PAY_PREVIEW = 3
-const PAY_HEAD = ['រ.ល', 'កាលបរិច្ឆេទ', 'ប្រាក់ដើម', 'ផ្សេងៗ', 'ប្រាក់សរុប']
-// Fixed column widths — keep numeric columns tight so the last column has
-// room for the amount + status badge (otherwise the badge gets clipped).
-const PAY_W: string[] = ['9%', '21%', '19%', '15%', '36%']
+// Fixed column widths — keep the No. column tight so Total has room for the
+// amount + status badge (otherwise the badge gets clipped).
+const PAY_W: string[] = ['14%', '34%', '52%']
 
-function PaymentTable({ showAll = false }: { showAll?: boolean }) {
+function PaymentTable({ showAll = false, onOpenDetail }: { showAll?: boolean; onOpenDetail: (row: PayRow) => void }) {
+  const t = useT()
+  const PAY_HEAD = [t('thNo'), t('thDueDate'), t('thTotal')]
   const highlightIdx = PAY_ROWS.findIndex(r => r.tone === 'highlight')
   const previewStart = Math.max(0, highlightIdx - 1)
   const rows = showAll ? PAY_ROWS : PAY_ROWS.slice(previewStart, previewStart + PAY_PREVIEW)
@@ -301,15 +305,17 @@ function PaymentTable({ showAll = false }: { showAll?: boolean }) {
                 <Box component="td" sx={{ px: '8px', py: '8px', fontSize: 12, fontWeight: 500, color: dim ? 'rgba(0,0,0,0.2)' : '#000', whiteSpace: 'nowrap' }}>
                   {row.date}
                 </Box>
-                <Box component="td" sx={{ px: '8px', py: '8px', fontSize: 12, fontWeight: 500, textAlign: 'right', color: dim ? 'rgba(0,0,0,0.2)' : LABEL, whiteSpace: 'nowrap' }}>
-                  {row.principal}
-                </Box>
-                <Box component="td" sx={{ px: '8px', py: '8px', fontSize: 12, fontWeight: 500, textAlign: 'right', color: dim ? 'rgba(0,0,0,0.2)' : LABEL, whiteSpace: 'nowrap' }}>
-                  {row.other}
-                </Box>
-                <Box component="td" sx={{ px: '10px', py: '8px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.75 }}>
-                  <Typography sx={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', color: dim ? 'rgba(0,0,0,0.2)' : '#000' }}>{row.total}</Typography>
-                  {row.badge && <StatusBadge text={row.badge.text} tone={row.badge.tone} />}
+                <Box component="td" sx={{ px: '10px', py: '8px' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.75 }}>
+                    <Typography sx={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', color: dim ? 'rgba(0,0,0,0.2)' : '#000' }}>{row.total}</Typography>
+                    <Box
+                      role="button"
+                      onClick={() => onOpenDetail(row)}
+                      sx={{ flexShrink: 0, minWidth: '46px', display: 'flex', justifyContent: 'flex-end', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
+                    >
+                      <Typography sx={{ fontSize: 11, fontWeight: 700, color: ACCENT, whiteSpace: 'nowrap' }}>{t('thDetail')}</Typography>
+                    </Box>
+                  </Box>
                 </Box>
               </Box>
             )
@@ -320,14 +326,51 @@ function PaymentTable({ showAll = false }: { showAll?: boolean }) {
   )
 }
 
-function StatusBadge({ text, tone }: { text: string; tone: 'paid' | 'soon' }) {
-  const styles = tone === 'paid' ? { bg: '#EBF6EC', fg: '#1F6724' } : { bg: '#FAE6BD', fg: '#C2870F' }
+// ─── Payment breakdown sheet — opened via the "Detail" link on each row ──────
+function PaymentBreakdownSheet({ row, onClose }: { row: PayRow | null; onClose: () => void }) {
+  const t = useT()
+  if (!row) return <BottomSheet open={false} onClose={onClose}><Box /></BottomSheet>
+  const statusTone = row.badge?.tone
+  const status = statusTone === 'paid'
+    ? { label: t('paidStatus'), color: '#1F6724', bg: '#EBF6EC' }
+    : statusTone === 'soon'
+      ? { label: t('upcomingStatus'), color: '#C2870F', bg: '#FAE6BD' }
+      : { label: t('scheduledStatus'), color: '#6B7280', bg: '#EDEFF2' }
+  const breakdownRows: [string, string][] = [
+    [t('principal'), row.principal],
+    [t('interest'), row.other],
+    [t('monthlyFee'), '$0.00'],
+    [t('unpaidObligation'), '$0.00'],
+    [t('penalty'), '$0.00'],
+  ]
   return (
-    <Box sx={{ bgcolor: styles.bg, borderRadius: '999px', px: '4px', py: '2px', flexShrink: 0 }}>
-      <Typography sx={{ fontFamily: `'Noto Sans Khmer', sans-serif`, fontSize: 10, fontWeight: 600, color: styles.fg, lineHeight: 1.2 }}>
-        {text}
-      </Typography>
-    </Box>
+    <BottomSheet open={!!row} onClose={onClose}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1 }}>
+        <Box>
+          <Typography sx={{ fontSize: 20, fontWeight: 800, color: HEADING, letterSpacing: '-0.3px' }}>{t('paymentBreakdown')}</Typography>
+          <Typography sx={{ fontSize: 13, color: LABEL, mt: 0.4 }}>{`${t('thDueDate')} ${row.date}`}</Typography>
+        </Box>
+        <Box sx={{ px: '10px', py: '4px', borderRadius: '999px', bgcolor: status.bg, flexShrink: 0, mt: 0.5 }}>
+          <Typography sx={{ fontFamily: `'Noto Sans Khmer', sans-serif`, fontSize: 12, fontWeight: 700, color: status.color }}>{status.label}</Typography>
+        </Box>
+      </Box>
+
+      <Box sx={{ bgcolor: '#F8F9FB', borderRadius: '14px', overflow: 'hidden' }}>
+        {breakdownRows.map(([label, value], i) => (
+          <Box
+            key={label}
+            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: '11px', borderBottom: '1px solid #ECEFF3' }}
+          >
+            <Typography sx={{ fontSize: 13.5, color: LABEL }}>{label}</Typography>
+            <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: '#0B0F1A' }}>{value}</Typography>
+          </Box>
+        ))}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: '11px' }}>
+          <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#0B0F1A' }}>{t('thTotal')}</Typography>
+          <Typography sx={{ fontSize: 15, fontWeight: 800, color: ACCENT }}>{row.total}</Typography>
+        </Box>
+      </Box>
+    </BottomSheet>
   )
 }
 
