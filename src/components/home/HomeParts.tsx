@@ -425,9 +425,9 @@ export function MoreMenuBody({
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6', mb: 0.5 }}>{t('discover')}</Typography>
           <DiscoverGrid />
+          <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6', mt: 1.5, mb: 0.5 }}>{t('support')}</Typography>
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
             {[
-              { icon: 'phone' as IconName, label: t('contactUs'), sub: t('hotlineEmail'), onClick: () => navigate('/contact-us') },
               { icon: 'feedback' as IconName, label: t('complaint'), sub: t('weReplyDays'), onClick: () => requirePin('/send-feedback') },
               { icon: 'message' as IconName, label: t('requestConsult'), sub: t('talkToOfficer'), onClick: () => requirePin('/request-consult') },
             ].map((item) => (
@@ -722,12 +722,7 @@ export function AdvanceCard({ amount = '$320.00' }: { amount?: string } = {}) {
       </Box>
 
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
-          <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A', lineHeight: 1.2 }} noWrap>{t('advance')}</Typography>
-          <Box sx={{ bgcolor: '#E6F7ED', borderRadius: '999px', px: '7px', py: '1.5px', flexShrink: 0 }}>
-            <Typography sx={{ fontSize: 9.5, fontWeight: 800, color: '#1B8F53', letterSpacing: '0.3px' }}>AUTO</Typography>
-          </Box>
-        </Box>
+        <Typography sx={{ fontSize: 15, fontWeight: 800, color: '#0B0F1A', lineHeight: 1.2 }} noWrap>{t('advance')}</Typography>
         <Typography sx={{ fontSize: 12, color: '#8A94A6', mt: 0.25, lineHeight: 1.3 }} noWrap>
           {t('reservedForRepayment')}
         </Typography>
@@ -735,7 +730,6 @@ export function AdvanceCard({ amount = '$320.00' }: { amount?: string } = {}) {
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
         <Box sx={{ textAlign: 'right' }}>
-          <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: '#8A94A6', letterSpacing: '0.5px', mb: 0.25 }}>{t('balanceLabel')}</Typography>
           <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#1B8F53', lineHeight: 1.2 }}>{amount}</Typography>
           <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: '#0B0F1A', lineHeight: 1.3, mt: '1px' }}>៛1,312,000</Typography>
         </Box>

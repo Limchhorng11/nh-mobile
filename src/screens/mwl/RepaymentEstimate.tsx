@@ -22,6 +22,7 @@ export default function RepaymentEstimate({
   onMonthsChange,
   minMonths,
   maxMonths,
+  monthsStep = 1,
   ratePct,
   graceMonths = 0,
   label = 'ESTIMATE YOUR REPAYMENT',
@@ -31,6 +32,8 @@ export default function RepaymentEstimate({
   onPrincipalChange,
   minAmount,
   maxAmount,
+  hideSummaryAmount = false,
+  hidePaymentFigure = false,
 }: {
   product: string
   principal: number
@@ -39,6 +42,8 @@ export default function RepaymentEstimate({
   onMonthsChange: (m: number) => void
   minMonths: number
   maxMonths: number
+  /** Discrete tenure increment in months (e.g. 6 to snap to 6/12/18/24). Defaults to 1. */
+  monthsStep?: number
   ratePct: number
   /** Interest-only grace months at the start of the term (0 = none). */
   graceMonths?: number
@@ -53,6 +58,10 @@ export default function RepaymentEstimate({
   onPrincipalChange?: (p: number) => void
   minAmount?: number
   maxAmount?: number
+  /** When true (and children provided), hides the large duplicate payment amount + note below children — use when children's own breakdown already shows the monthly payment. */
+  hideSummaryAmount?: boolean
+  /** When true (and children provided), hides only the large payment figure while keeping the paymentNote and View schedule link. */
+  hidePaymentFigure?: boolean
 }) {
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const yrsLabel = Number.isInteger(months / 12) ? months / 12 : (months / 12).toFixed(1)
@@ -162,7 +171,7 @@ export default function RepaymentEstimate({
           <Slider
             value={months}
             onChange={(_, v) => onMonthsChange(v as number)}
-            step={1}
+            step={monthsStep}
             min={minMonths}
             max={maxMonths}
             aria-label="Loan term in months"
@@ -249,17 +258,28 @@ export default function RepaymentEstimate({
               <>
                 <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#5B7299' }}>Estimated monthly payment</Typography>
                 {children}
-                <Box sx={{ borderTop: '1px dashed #D6DCE5', mt: 1.5, pt: 1.5 }} />
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Box>
-                    <Typography sx={{ fontSize: 26, fontWeight: 800, color: BLUE, letterSpacing: '-0.5px' }}>{money(payment, currency)}</Typography>
-                    {paymentNote?.(payment)}
+                {hideSummaryAmount ? (
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.5, pt: 1.5, borderTop: '1px dashed #D6DCE5' }}>
+                    <Box role="button" onClick={() => setScheduleOpen(true)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
+                      <Icon name="eye" size={18} color={BLUE} />
+                      <Typography sx={{ fontSize: 14, fontWeight: 700, color: BLUE }}>View schedule</Typography>
+                    </Box>
                   </Box>
-                  <Box role="button" onClick={() => setScheduleOpen(true)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
-                    <Icon name="eye" size={18} color={BLUE} />
-                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: BLUE }}>View schedule</Typography>
-                  </Box>
-                </Box>
+                ) : (
+                  <>
+                    <Box sx={{ borderTop: '1px dashed #D6DCE5', mt: 1.5, pt: 1.5 }} />
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Box>
+                        {!hidePaymentFigure && <Typography sx={{ fontSize: 26, fontWeight: 800, color: BLUE, letterSpacing: '-0.5px' }}>{money(payment, currency)}</Typography>}
+                        {paymentNote?.(payment)}
+                      </Box>
+                      <Box role="button" onClick={() => setScheduleOpen(true)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
+                        <Icon name="eye" size={18} color={BLUE} />
+                        <Typography sx={{ fontSize: 14, fontWeight: 700, color: BLUE }}>View schedule</Typography>
+                      </Box>
+                    </Box>
+                  </>
+                )}
               </>
             ) : (
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>

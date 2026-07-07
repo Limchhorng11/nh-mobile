@@ -70,6 +70,7 @@ const EN = {
 
   // More / Discover menu
   discover: 'DISCOVER',
+  support: 'SUPPORT',
   blogPost: 'BLOG POST',
   aboutUs: 'About Us',
   csrActivity: 'CSR Activity',
@@ -115,6 +116,7 @@ const EN = {
   rejected: 'Rejected',
   disbursed: 'Disbursed',
   overdue: 'Overdue',
+  onTrack: 'On track',
 
   // Auth / Sign Up
   getStarted: 'Get Started',
@@ -158,8 +160,8 @@ const EN = {
 
   // My Loans screen
   myLoans: 'My Loans',
-  activeLoansSection: 'ACTIVE LOANS',
-  guaranteeLoansSection: 'GUARANTEE LOANS',
+  activeLoansSection: 'ACTIVE LOAN',
+  guaranteeLoansSection: 'GUARANTEE LOAN',
   completedSection: 'COMPLETED',
   current: 'Current',
   history: 'History',
@@ -193,6 +195,9 @@ const EN = {
   totalApproved: 'Total approved',
   paidToDate: 'Paid to date',
   outstandingLabel: 'Outstanding',
+  poTotal: 'Total',
+  poPaid: 'Paid',
+  poLeft: 'Left',
   activeLoansStat: 'Active loans',
   installments: 'Installments',
   dueThisMonth: 'Due this month',
@@ -254,7 +259,7 @@ const EN = {
   loansWord: 'loans',
   loanWord: 'loan',
   dueIn9Days: 'Due 16 May · in 9 days',
-  loanRequests: 'Loan Requests',
+  loanRequests: 'Requesting',
   viewPast: 'View past',
   hide: 'Hide',
   payment: 'Payment',
@@ -276,7 +281,7 @@ export type StringKey = keyof typeof EN
 
 const KM: Record<StringKey, string> = {
   // Navigation
-  navMyLoan: 'ប្រាក់កម្ចីរបស់ខ្ញុំ',
+  navMyLoan: 'កម្ចីរបស់ខ្ញុំ',
   navProducts: 'ផលិតផល',
   navMore: 'ច្រើនទៀត',
 
@@ -301,25 +306,25 @@ const KM: Record<StringKey, string> = {
 
   // Products
   products: 'ផលិតផល',
-  allLoans: 'ប្រាក់កម្ចីទាំងអស់',
-  microLoan: 'ប្រាក់កម្ចីខ្នាតតូច',
-  smallBizLoan: 'ប្រាក់កម្ចីអាជីវកម្មខ្នាតតូច',
-  smeLoan: 'ប្រាក់កម្ចី SME',
-  housingLoan: 'ប្រាក់កម្ចីលំនៅដ្ឋាន',
-  mwlLoan: 'ប្រាក់កម្ចីកម្មករចំណាកស្រុក',
-  staffLoan: 'ប្រាក់កម្ចីបុគ្គលិក',
+  allLoans: 'កម្ចីទាំងអស់',
+  microLoan: 'កម្ចីខ្នាតតូច',
+  smallBizLoan: 'កម្ចីអាជីវកម្មខ្នាតតូច',
+  smeLoan: 'កម្ចី SME',
+  housingLoan: 'កម្ចីលំនៅដ្ឋាន',
+  mwlLoan: 'កម្ចីកម្មករចំណាកស្រុក',
+  staffLoan: 'កម្ចីបុគ្គលិក',
   loanAtGlance: 'ព័ត៌មានទូទៅ',
   keyFeatures: 'លក្ខណៈពិសេស',
   whatItsFor: 'គោលបំណង',
   eligibility: 'លក្ខខណ្ឌ',
   faqSection: 'សំណួរញឹកញាប់',
   requestConsult: 'ស្នើសុំប្រឹក្សា',
-  applyThisLoan: 'ដាក់ស្នើប្រាក់កម្ចីនេះ',
+  applyThisLoan: 'ដាក់ស្នើកម្ចីនេះ',
 
   // Finance terms
   interestRate: 'អត្រាការប្រាក់',
-  loanAmount: 'ចំនួនប្រាក់កម្ចី',
-  loanFee: 'ថ្លៃប្រាក់កម្ចី',
+  loanAmount: 'ចំនួនកម្ចី',
+  loanFee: 'ថ្លៃកម្ចី',
   cbcFee: 'ថ្លៃ CBC',
   tenure: 'រយៈពេល',
   purpose: 'គោលបំណង',
@@ -329,11 +334,11 @@ const KM: Record<StringKey, string> = {
   months: 'ខែ',
 
   // Calculator
-  loanCalculator: 'ម៉ាស៊ីនគណនាប្រាក់កម្ចី',
-  loanProduct: 'ផលិតផលប្រាក់កម្ចី',
+  loanCalculator: 'ម៉ាស៊ីនគណនាកម្ចី',
+  loanProduct: 'ផលិតផលកម្ចី',
   noneProduct: 'គ្មាន (ដោយខ្លួនឯង)',
   interestRatePerMonth: 'អត្រាការប្រាក់ / ខែ',
-  loanTerm: 'រយៈពេលប្រាក់កម្ចី',
+  loanTerm: 'រយៈពេលកម្ចី',
   monthlyInstalment: 'ការបង់ប្រចាំខែ',
   totalInterest: 'ការប្រាក់សរុប',
   totalPayable: 'ចំនួនទូទាត់សរុប',
@@ -344,6 +349,7 @@ const KM: Record<StringKey, string> = {
 
   // More / Discover menu
   discover: 'ស្វែងរក',
+  support: 'ជំនួយ',
   blogPost: 'អត្ថបទ',
   aboutUs: 'អំពីយើង',
   csrActivity: 'សកម្មភាព CSR',
@@ -352,7 +358,7 @@ const KM: Record<StringKey, string> = {
   complaint: 'ពាក្យបណ្ដឹង',
 
   // My Loan tabs & sections
-  myLoan: 'ប្រាក់កម្ចីរបស់ខ្ញុំ',
+  myLoan: 'កម្ចីរបស់ខ្ញុំ',
   active: 'សកម្ម',
   inReview: 'កំពុងពិនិត្យ',
   completed: 'បានបញ្ចប់',
@@ -365,7 +371,7 @@ const KM: Record<StringKey, string> = {
   details: 'ព័ត៌មានលម្អិត',
   others: 'ផ្សេងទៀត',
   repaymentSchedule: 'កាលវិភាគការទូទាត់',
-  loanSummary: 'សង្ខេបប្រាក់កម្ចី',
+  loanSummary: 'សង្ខេបកម្ចី',
 
   // Settings
   settings: 'ការកំណត់',
@@ -389,6 +395,7 @@ const KM: Record<StringKey, string> = {
   rejected: 'បដិសេធ',
   disbursed: 'បានបញ្ចេញ',
   overdue: 'ហួសកាលកំណត់',
+  onTrack: 'ដំណើរការល្អ',
 
   // Auth / Sign Up
   getStarted: 'ចាប់ផ្ដើម',
@@ -398,12 +405,12 @@ const KM: Record<StringKey, string> = {
   visitApply: 'ចូលមើល & ដាក់ស្នើ',
   welcomeBack: 'សូមស្វាគមន៍មកវិញ',
   welcomeUser: 'សូមស្វាគមន៍!',
-  signUpFaster: 'ចុះឈ្មោះដើម្បីដាក់ស្នើប្រាក់កម្ចីលឿនជាងមុន',
+  signUpFaster: 'ចុះឈ្មោះដើម្បីដាក់ស្នើកម្ចីលឿនជាងមុន',
   goodMorning: 'អរុណ​សួស្ដី!',
 
   // Welcome screen
   welcomeTitle: 'ធនាគារតាម\nលក្ខខណ្ឌអ្នក',
-  welcomeSubtitle: 'ដាក់ស្នើប្រាក់កម្ចី ពិនិត្យសមតុល្យ\nនិងគ្រប់គ្រងការសង — ពីទូរស័ព្ទ',
+  welcomeSubtitle: 'ដាក់ស្នើកម្ចី ពិនិត្យសមតុល្យ\nនិងគ្រប់គ្រងការសង — ពីទូរស័ព្ទ',
 
   // Loan detail
   disbursedAmount: 'ចំនួនបានបញ្ចេញ',
@@ -423,26 +430,26 @@ const KM: Record<StringKey, string> = {
   hotlineEmail: 'ហតឡាញ & អ៊ីមែល',
   weReplyDays: 'យើងឆ្លើយក្នុង ២ ថ្ងៃ',
   talkToOfficer: 'ទាក់ទងជាមួយមន្ត្រី',
-  tellNHRepay: 'ជូនដំណឹង NH អំពីការទូទាត់ប្រាក់កម្ចីទាំងស្រុង',
+  tellNHRepay: 'ជូនដំណឹង NH អំពីការទូទាត់កម្ចីទាំងស្រុង',
   adjustTerms: 'កែសម្រួលលក្ខខណ្ឌប្រសិនអ្នកជួបការលំបាក',
 
   // Empty states
-  noLoansYet: 'មិនទាន់មានប្រាក់កម្ចីទេ',
-  applyFromProducts: 'ដាក់ស្នើប្រាក់កម្ចីពីផ្ទាំងផលិតផល\nហើយវានឹងបង្ហាញនៅទីនេះ។',
+  noLoansYet: 'មិនទាន់មានកម្ចីទេ',
+  applyFromProducts: 'ដាក់ស្នើកម្ចីពីផ្ទាំងផលិតផល\nហើយវានឹងបង្ហាញនៅទីនេះ។',
 
   // My Loans screen
-  myLoans: 'ប្រាក់កម្ចីរបស់ខ្ញុំ',
-  activeLoansSection: 'ប្រាក់កម្ចីសកម្ម',
-  guaranteeLoansSection: 'ប្រាក់កម្ចីធានា',
+  myLoans: 'កម្ចីរបស់ខ្ញុំ',
+  activeLoansSection: 'កម្ចីសកម្ម',
+  guaranteeLoansSection: 'កម្ចីធានា',
   completedSection: 'បានបញ្ចប់',
   current: 'បច្ចុប្បន្ន',
   history: 'ប្រវត្តិ',
   requestedAmount: 'ចំនួនស្នើសុំ',
   historyNote: 'ប្រវត្តិរក្សាទុក ៣៦ ខែ · កំណត់ត្រាចាស់៖ សូមសួរសាខារបស់អ្នក',
-  noActiveLoans: 'មិនទាន់មានប្រាក់កម្ចីសកម្មទេ',
-  noLoanRequests: 'មិនមានសំណើប្រាក់កម្ចីទេ',
-  noCompletedLoans: 'មិនមានប្រាក់កម្ចីបានបញ្ចប់ទេ',
-  noLoansHint: 'អ្នកមិនទាន់មានប្រាក់កម្ចីទេ។ ស្វែងរកផលិតផលរបស់យើង ហើយដាក់ស្នើក្នុងរយៈពេលប៉ុន្មាននាទី។',
+  noActiveLoans: 'មិនទាន់មានកម្ចីសកម្មទេ',
+  noLoanRequests: 'មិនមានសំណើកម្ចីទេ',
+  noCompletedLoans: 'មិនមានកម្ចីបានបញ្ចប់ទេ',
+  noLoansHint: 'អ្នកមិនទាន់មានកម្ចីទេ។ ស្វែងរកផលិតផលរបស់យើង ហើយដាក់ស្នើក្នុងរយៈពេលប៉ុន្មាននាទី។',
   ofWord: 'នៃ',
   paidWord: 'បានបង់',
   leftWord: 'នៅសល់',
@@ -451,7 +458,7 @@ const KM: Record<StringKey, string> = {
   lastPaidOn: 'បង់ចុងក្រោយនៅ',
   totalPayment: 'ការទូទាត់សរុប',
   totalOutstandingGuarantee: 'ការធានាដែលនៅជំពាក់សរុប',
-  guarantorApplyHint: 'ត្រៀមរីកចម្រើន? ក្នុងនាមអ្នកធានា អ្នកក៏អាចដាក់ស្នើប្រាក់កម្ចីផ្ទាល់ខ្លួន — ស្វែងរកផលិតផលរបស់យើង ហើយចាប់ផ្ដើមក្នុងរយៈពេលប៉ុន្មាននាទី។',
+  guarantorApplyHint: 'ត្រៀមរីកចម្រើន? ក្នុងនាមអ្នកធានា អ្នកក៏អាចដាក់ស្នើកម្ចីផ្ទាល់ខ្លួន — ស្វែងរកផលិតផលរបស់យើង ហើយចាប់ផ្ដើមក្នុងរយៈពេលប៉ុន្មាននាទី។',
   underAssessment: 'កំពុងវាយតម្លៃ',
   notEligible: 'មិនគ្រប់លក្ខខណ្ឌ',
   cancelled: 'បានលុបចោល',
@@ -467,6 +474,9 @@ const KM: Record<StringKey, string> = {
   totalApproved: 'អនុម័តសរុប',
   paidToDate: 'បានបង់រួច',
   outstandingLabel: 'នៅជំពាក់',
+  poTotal: 'សរុប',
+  poPaid: 'បានបង់',
+  poLeft: 'នៅសល់',
   activeLoansStat: 'កម្ចីសកម្ម',
   installments: 'ការបង់រំលស់',
   dueThisMonth: 'ត្រូវបង់ខែនេះ',
@@ -480,7 +490,7 @@ const KM: Record<StringKey, string> = {
   totalLabel: 'សរុប',
 
   // Advance account
-  advanceAccount: 'គណនីទូទាត់មុន',
+  advanceAccount: 'គណនីបង់ទុក',
   balanceLabel: 'សមតុល្យ',
   topUpAdvance: 'បញ្ចូលទឹកប្រាក់',
   linkedLoans: 'កម្ចីភ្ជាប់',
@@ -519,8 +529,8 @@ const KM: Record<StringKey, string> = {
   // Summary / Advance cards
   summary: 'សង្ខេប',
   totalOutstanding: 'នៅជំពាក់សរុប',
-  advance: 'គណនីទូទាត់មុន',
-  reservedForRepayment: 'បម្រុងសម្រាប់សងប្រាក់កម្ចី',
+  advance: 'គណនីបង់ទុក',
+  reservedForRepayment: 'បម្រុងសម្រាប់សងកម្ចី',
   portfolioHealth: 'សុខភាពផលប័ត្រ',
   good: 'ល្អ',
   onePaymentPending: 'ការបង់ ១ កំពុងរង់ចាំ',
@@ -528,7 +538,7 @@ const KM: Record<StringKey, string> = {
   loansWord: 'កម្ចី',
   loanWord: 'កម្ចី',
   dueIn9Days: 'ត្រូវបង់ 16 May · ក្នុង ៩ ថ្ងៃ',
-  loanRequests: 'សំណើប្រាក់កម្ចី',
+  loanRequests: 'កំពុងស្នើសុំ',
   viewPast: 'មើលប្រវត្តិ',
   hide: 'លាក់',
   payment: 'ការទូទាត់',
@@ -557,27 +567,27 @@ export const STRINGS: Record<LangCode, Record<StringKey, string>> = {
 // English identifiers used as navigation keys stay intact.
 export const DATA_KM: Record<string, string> = {
   // Product names (display only — navigation keeps English)
-  'Micro Loan': 'ប្រាក់កម្ចីខ្នាតតូច',
-  'Small Biz Loan': 'ប្រាក់កម្ចីអាជីវកម្មខ្នាតតូច',
-  'Small Business Loan': 'ប្រាក់កម្ចីអាជីវកម្មខ្នាតតូច',
-  'SME Loan': 'ប្រាក់កម្ចី SME',
-  'Housing Loan': 'ប្រាក់កម្ចីលំនៅដ្ឋាន',
-  'Migration Worker Loan': 'ប្រាក់កម្ចីកម្មករចំណាកស្រុក',
-  'Migrant Worker Loan': 'ប្រាក់កម្ចីកម្មករចំណាកស្រុក',
-  'Staff Loan': 'ប្រាក់កម្ចីបុគ្គលិក',
-  'Wash Loan': 'ប្រាក់កម្ចី Wash',
+  'Micro Loan': 'កម្ចីខ្នាតតូច',
+  'Small Biz Loan': 'កម្ចីអាជីវកម្មខ្នាតតូច',
+  'Small Business Loan': 'កម្ចីអាជីវកម្មខ្នាតតូច',
+  'SME Loan': 'កម្ចី SME',
+  'Housing Loan': 'កម្ចីលំនៅដ្ឋាន',
+  'Migration Worker Loan': 'កម្ចីកម្មករចំណាកស្រុក',
+  'Migrant Worker Loan': 'កម្ចីកម្មករចំណាកស្រុក',
+  'Staff Loan': 'កម្ចីបុគ្គលិក',
+  'Wash Loan': 'កម្ចី Wash',
   Restructuring: 'ការរៀបចំឡើងវិញ',
   'Pay off': 'ការទូទាត់',
 
   // Spec-card labels
   'Interest Rate': 'អត្រាការប្រាក់',
-  'Loan Amount': 'ចំនួនប្រាក់កម្ចី',
+  'Loan Amount': 'ចំនួនកម្ចី',
   'Loan Term': 'រយៈពេលកម្ចី',
   'Loan term': 'រយៈពេលកម្ចី',
   Tenure: 'រយៈពេល',
   Purpose: 'គោលបំណង',
   Repayment: 'ការសងប្រាក់',
-  'Loan Fee': 'ថ្លៃប្រាក់កម្ចី',
+  'Loan Fee': 'ថ្លៃកម្ចី',
   'CBC Fee': 'ថ្លៃ CBC',
   'Loan size': 'ទំហំកម្ចី',
   Interest: 'ការប្រាក់',

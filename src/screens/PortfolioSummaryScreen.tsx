@@ -146,17 +146,18 @@ export default function PortfolioSummaryScreen() {
               </Box>
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {[
-                  { dot: '#C8CDD6', label: t('totalApproved'),    usd: '$108,040', khr: '៛442,964,000' },
-                  { dot: BLUE,      label: t('paidToDate'),       usd: '$44,070',  khr: '៛180,687,000' },
-                  { dot: GREEN,     label: t('outstandingLabel'), usd: '$63,970',  khr: '៛262,277,000' },
+                  { dot: '#C8CDD6', label: t('poTotal'), usd: '$108,040', khr: '៛442,964,000' },
+                  { dot: BLUE,      label: t('poPaid'),  usd: '$44,070',  khr: '៛180,687,000' },
+                  { dot: GREEN,     label: t('poLeft'),  usd: '$63,970',  khr: '៛262,277,000' },
                 ].map((r) => (
-                  <Box key={r.label} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0 }}>
+                  <Box key={r.label} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0, width: 74 }}>
                       <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: r.dot, flexShrink: 0 }} />
                       <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#8A94A6' }}>{r.label}</Typography>
                     </Box>
-                    <Box sx={{ textAlign: 'right' }}>
+                    <Box>
                       <Typography sx={{ fontSize: 13, fontWeight: 800, color: HEADING, lineHeight: 1.3 }}>{r.usd}</Typography>
+                      <Typography sx={{ fontSize: 10.5, fontWeight: 600, color: LABEL, lineHeight: 1.3 }}>{r.khr}</Typography>
                     </Box>
                   </Box>
                 ))}
@@ -171,8 +172,8 @@ export default function PortfolioSummaryScreen() {
                 { label: t('dueThisMonth'),    value: '$270', valueColor: '#C0392B' },
               ].map((s) => (
                 <Box key={s.label} sx={{ bgcolor: '#F5F7FA', borderRadius: '12px', p: '12px 8px', textAlign: 'center' }}>
-                  <Typography sx={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.5px', color: '#8A94A6', mb: 0.75 }}>{s.label.toUpperCase()}</Typography>
                   <Typography sx={{ fontSize: 18, fontWeight: 800, color: s.valueColor, lineHeight: 1.1 }}>{s.value}</Typography>
+                  <Typography sx={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.5px', color: '#8A94A6', mt: 0.75 }}>{s.label.toUpperCase()}</Typography>
                 </Box>
               ))}
             </Box>
@@ -200,9 +201,6 @@ export default function PortfolioSummaryScreen() {
               <Box>
                 <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, lineHeight: 1.2 }}>{t('excellent')}</Typography>
                 <Typography sx={{ fontSize: 12, fontWeight: 700, color: GREEN, mt: 0.25 }}>{t('perfectRecord')}</Typography>
-                <Typography sx={{ fontSize: 11.5, color: LABEL, mt: 0.5, lineHeight: 1.5 }}>
-                  {t('allPaymentsOnTime')}
-                </Typography>
               </Box>
             </Box>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1 }}>
@@ -212,8 +210,8 @@ export default function PortfolioSummaryScreen() {
                 { label: t('missedLate'),   value: '0',  color: LABEL   },
               ].map((s) => (
                 <Box key={s.label} sx={{ bgcolor: '#F5F7FA', borderRadius: '12px', p: '12px 8px', textAlign: 'center' }}>
-                  <Typography sx={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.5px', color: '#8A94A6', mb: 0.75 }}>{s.label.toUpperCase()}</Typography>
                   <Typography sx={{ fontSize: 18, fontWeight: 800, color: s.color, lineHeight: 1.1 }}>{s.value}</Typography>
+                  <Typography sx={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.5px', color: '#8A94A6', mt: 0.75 }}>{s.label.toUpperCase()}</Typography>
                 </Box>
               ))}
             </Box>

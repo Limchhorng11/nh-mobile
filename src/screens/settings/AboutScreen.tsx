@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { CollapsingHeader, CollapsingTitle, useCollapse } from '../../components/CollapsingHeader'
+import { Icon } from '../../components/Icon'
 
 const HEADING = '#0B0F1A'
 const MUTED = '#8A94A6'
@@ -177,6 +178,25 @@ export default function AboutScreen() {
                 NongHyup Bank Head Office — Seoul, Republic of Korea
               </Typography>
             </Box>
+          </Box>
+
+          {/* ── Contact us ──────────────────────────────────────── */}
+          <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.7px', color: '#9AA3B2', px: 3.5, mt: 2.5, mb: 1 }}>
+            CONTACT US
+          </Typography>
+          <Box
+            role="button"
+            onClick={() => navigate('/contact-us')}
+            sx={{ display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '14px', mx: 3, px: '16px', py: '14px', cursor: 'pointer', '&:active': { bgcolor: '#F8FAFC' } }}
+          >
+            <Box sx={{ width: 40, height: 40, borderRadius: '10px', bgcolor: '#EEF3FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Icon name="phone" size={20} color={BLUE} />
+            </Box>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography sx={{ fontSize: 14.5, fontWeight: 700, color: HEADING }}>Contact Us</Typography>
+              <Typography sx={{ fontSize: 12.5, color: MUTED, mt: 0.15 }}>Hotline & email</Typography>
+            </Box>
+            <Icon name="chevronRight" size={18} color="#C9D2DE" />
           </Box>
 
           <Typography sx={{ fontSize: 11.5, color: '#B6BDC8', textAlign: 'center', mt: 2.5, px: 3 }}>

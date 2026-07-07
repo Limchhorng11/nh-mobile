@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import { Icon } from '../components/Icon'
-import { MwlHeader, MwlTitle, GroupLabel, FieldCard, SelectField, PhoneField, DiscardSheet, BLUE } from './mwl/MwlParts'
+import { MwlHeader, MwlTitle, GroupLabel, SelectField, PhoneField, DiscardSheet, BLUE } from './mwl/MwlParts'
 import RepaymentEstimate from './mwl/RepaymentEstimate'
 import { addApplication, reviewQuery, type LoanApplication } from '../workspace/applications'
 import { buildGraceSchedule, money } from './loanCalc'
@@ -82,6 +82,8 @@ export default function StaffLoanScreen() {
   const overMax = principal > activeLoan.maxAmount
   const { payment: monthlyPayment } = buildGraceSchedule(principal, months, activeLoan.rate, 0)
   const overPayment = principal > 0 && monthlyPayment >= principal * 0.25
+  const salaryPct = (monthlyPayment / BASE_SALARY) * 100
+  const overSalaryPct = principal > 0 && salaryPct > 25
 
   const upfrontFee = principal * 0.01
   const cbcFee = 5
@@ -462,39 +464,7 @@ export default function StaffLoanScreen() {
 
           {/* Loan request */}
           <Box>
-            <GroupLabel>LOAN REQUEST</GroupLabel>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                <FieldCard
-                  label="Amount"
-                  required
-                  value={amount}
-                  onChange={setAmount}
-                  trailing={<Typography sx={{ fontSize: 16, fontWeight: 700, color: MUTED }}>USD</Typography>}
-                />
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 0.5, gap: 1 }}>
-                  {overMax ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-                      <Icon name="alert" size={14} color="#E5484D" />
-                      <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#E5484D' }} noWrap>
-                        Exceeds maximum of ${activeLoan.maxAmount}
-                      </Typography>
-                    </Box>
-                  ) : (
-                    <Typography sx={{ fontSize: 12, color: MUTED }}>
-                      {isLoan2 ? '25% of base salary limit' : 'Suggested max · up to 2× salary'}
-                    </Typography>
-                  )}
-                  <Box
-                    role="button"
-                    onClick={() => setAmount(String(activeLoan.maxAmount))}
-                    sx={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', px: 1.25, py: 0.5, borderRadius: '999px', bgcolor: '#F4F8FF', border: '1px solid #DCE7FB', cursor: 'pointer', '&:active': { opacity: 0.7 } }}
-                  >
-                    <Typography sx={{ fontSize: 12, fontWeight: 700, color: BLUE }}>Use ${activeLoan.maxAmount}</Typography>
-                  </Box>
-                </Box>
-              </Box>
-
               {/* ── Loan 2 only: Eligibility (below amount) ── */}
               {isLoan2 && (
                 <Box sx={{ bgcolor: '#F0FBF5', border: '1px solid #BBE9CE', borderRadius: '14px', p: 2 }}>
@@ -523,15 +493,17 @@ export default function StaffLoanScreen() {
                 currency="USD"
                 months={months}
                 onMonthsChange={setMonths}
-                minMonths={3}
+                minMonths={6}
                 maxMonths={24}
+                monthsStep={6}
                 ratePct={activeLoan.rate}
                 label=""
                 onPrincipalChange={(p) => setAmount(String(p))}
                 minAmount={50}
                 maxAmount={activeLoan.maxAmount}
+                hidePaymentFigure
                 paymentNote={(pmt) => (
-                  <Typography sx={{ fontSize: 12, color: '#5B7299', mt: 0.5 }}>
+                  <Typography sx={{ fontSize: 12, fontWeight: overSalaryPct ? 700 : 400, color: overSalaryPct ? '#DC2626' : '#5B7299', mt: 0.5 }}>
                     {((pmt / BASE_SALARY) * 100).toFixed(1)}% of salary
                   </Typography>
                 )}
@@ -548,10 +520,11 @@ export default function StaffLoanScreen() {
                   const ORANGE = '#F97316'
                   const PURPLE = '#A855F7'
                   const items = [
-                    { label: 'Loan amount', value: `$${principal.toFixed(0)}`, color: BLUE },
-                    { label: 'Upfront fee (1%)', value: `-$${upfront.toFixed(2)}`, color: ORANGE },
+                    { label: 'Request', value: `$${principal.toFixed(0)}`, color: BLUE },
+                    { label: 'Upfront fee', value: `-$${upfront.toFixed(2)}`, color: ORANGE },
                     { label: 'CBC fee', value: `-$${cbc.toFixed(2)}`, color: PURPLE },
                     { label: 'Net amount', value: `$${net.toFixed(2)}`, color: HEADING, bold: true },
+                    { label: 'Est. Pay', value: `${money(monthlyPayment, 'USD')}/mo`, color: '#0B0F1A', bold: true },
                   ]
                   return (
                     <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2.5 }}>
@@ -576,7 +549,7 @@ export default function StaffLoanScreen() {
                         </Box>
                       </Box>
                       {/* Legend */}
-                      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
                         {items.map((item) => (
                           <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
@@ -617,7 +590,7 @@ export default function StaffLoanScreen() {
         <Button
           variant="contained"
           fullWidth
-          disabled={overMax || overPayment}
+          disabled={overMax || overPayment || overSalaryPct}
           onClick={() => setReviewing(true)}
           endIcon={<Icon name="arrowRight" size={18} />}
           sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, '&.Mui-disabled': { bgcolor: '#C8D2E0', color: '#fff' } }}
@@ -625,6 +598,45 @@ export default function StaffLoanScreen() {
           Submit application
         </Button>
       </Box>
+
+      {/* Over-salary toast */}
+      {overSalaryPct && !overPayment && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 56,
+            left: 16,
+            right: 16,
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 1.25,
+            bgcolor: '#FFF5F6',
+            border: '2px solid #FCA5A5',
+            borderRadius: '14px',
+            px: 2,
+            py: 1.5,
+            boxShadow: '0 6px 24px rgba(220,38,38,0.18)',
+            animation: 'toast-slide 0.28s cubic-bezier(0.32,0.72,0,1)',
+            '@keyframes toast-slide': {
+              from: { opacity: 0, transform: 'translateY(-8px)' },
+              to: { opacity: 1, transform: 'translateY(0)' },
+            },
+          }}
+        >
+          <Box sx={{ width: 36, height: 36, borderRadius: '10px', bgcolor: '#FFE4E6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Icon name="alert" size={19} color="#DC2626" />
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#DC2626' }}>
+              You can not pay upper 24.9%
+            </Typography>
+            <Typography sx={{ fontSize: 14, color: '#991B1B', lineHeight: 1.45, mt: 0.3 }}>
+              This repayment is {salaryPct.toFixed(1)}% of your salary. Reduce amount or extend term to continue.
+            </Typography>
+          </Box>
+        </Box>
+      )}
 
       {/* Over-payment toast */}
       {overPayment && (

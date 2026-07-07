@@ -31,32 +31,25 @@ const KH = `'Noto Sans Khmer', sans-serif`
 
 const KHR_RATE = 4100 // 1 USD ≈ 4,100 ៛
 
-export default function PayLoanSheet({ open, onClose, overdue = false }: { open: boolean; onClose: () => void; overdue?: boolean }) {
-  const INSTALLMENT_USD = 320.00
-  const PENALTY_USD = 5.00
-  const FULL_USD = overdue ? (INSTALLMENT_USD + PENALTY_USD).toFixed(2) : INSTALLMENT_USD.toFixed(2)
+export default function PayLoanSheet({ open, onClose, overdue = false, currency = 'USD' }: { open: boolean; onClose: () => void; overdue?: boolean; currency?: 'USD' | 'KHR' }) {
+  const isKhr = currency === 'KHR'
+  const symbol = isKhr ? '៛' : '$'
+  const INSTALLMENT = isKhr ? Math.round(320 * KHR_RATE).toLocaleString('en-US') : '320.00'
+  const PENALTY = isKhr ? Math.round(5 * KHR_RATE).toLocaleString('en-US') : '5.00'
+  const FULL = overdue
+    ? (isKhr ? Math.round(325 * KHR_RATE).toLocaleString('en-US') : '325.00')
+    : INSTALLMENT
   const [selected, setSelected] = useState<MethodId | null>(null)
   const [amount, setAmount] = useState('')
-  const [cur, setCur] = useState<'USD' | 'KHR'>('USD')
   const [fulfilled, setFulfilled] = useState(false)
 
   useEffect(() => {
     if (open) {
       setSelected(null)
       setAmount('')
-      setCur('USD')
       setFulfilled(false)
     }
   }, [open])
-
-  // Switching currency converts the current amount at the demo rate.
-  const switchCur = (next: 'USD' | 'KHR') => {
-    if (next === cur) return
-    const n = parseFloat(amount.replace(/,/g, '')) || 0
-    setAmount(next === 'KHR' ? Math.round(n * KHR_RATE).toLocaleString('en-US') : (n / KHR_RATE).toFixed(2))
-    setCur(next)
-  }
-  const symbol = cur === 'USD' ? '$' : '៛'
 
   if (!open) return null
 
@@ -104,30 +97,16 @@ export default function PayLoanSheet({ open, onClose, overdue = false }: { open:
         {/* Scrollable body */}
         <Box sx={{ px: 3, pt: 1, pb: 2, overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
           {/* Amount */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.7px', color: MUTED }}>
-              AMOUNT
-            </Typography>
-            <Box sx={{ display: 'flex', bgcolor: '#EFF1F4', borderRadius: '999px', p: '3px' }}>
-              {(['USD', 'KHR'] as const).map((c) => (
-                <Box
-                  key={c}
-                  role="button"
-                  onClick={() => switchCur(c)}
-                  sx={{ minWidth: 30, textAlign: 'center', px: 1.25, py: '4px', borderRadius: '999px', cursor: 'pointer', bgcolor: cur === c ? '#fff' : 'transparent', boxShadow: cur === c ? '0 1px 3px rgba(0,0,0,0.12)' : 'none' }}
-                >
-                  <Typography sx={{ fontSize: 14, fontWeight: 800, color: cur === c ? HEADING : MUTED }}>{c === 'USD' ? '$' : '៛'}</Typography>
-                </Box>
-              ))}
-            </Box>
-          </Box>
+          <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.7px', color: MUTED, mb: 1 }}>
+            AMOUNT
+          </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, border: `1.5px solid ${amount ? BLUE : '#E8EAEE'}`, borderRadius: '14px', px: 2, height: 60, mb: 2.5, transition: 'border-color 0.15s' }}>
             <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING }}>{symbol}</Typography>
             <Box
               component="input"
               type="text"
               inputMode="decimal"
-              placeholder="0.00"
+              placeholder={isKhr ? '0' : '0.00'}
               value={amount}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value)}
               sx={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', bgcolor: 'transparent', fontFamily: 'inherit', fontSize: 22, fontWeight: 800, color: HEADING, '&::placeholder': { color: '#C9D2DE' } }}
@@ -135,14 +114,13 @@ export default function PayLoanSheet({ open, onClose, overdue = false }: { open:
             <Box
               role="button"
               onClick={() => {
-                const full = cur === 'KHR' ? Math.round(parseFloat(FULL_USD) * KHR_RATE).toLocaleString('en-US') : FULL_USD
-                setAmount(full)
+                setAmount(FULL)
                 setFulfilled(true)
               }}
               sx={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '4px', bgcolor: '#EEF3FC', borderRadius: '8px', px: '10px', py: '6px', cursor: 'pointer', '&:active': { bgcolor: '#DCE9FB' } }}
             >
               <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: BLUE, whiteSpace: 'nowrap' }}>
-                Fulfill {cur === 'KHR' ? '៛' : '$'}{cur === 'KHR' ? Math.round(parseFloat(FULL_USD) * KHR_RATE).toLocaleString('en-US') : FULL_USD}
+                Fulfill {symbol}{FULL}
               </Typography>
             </Box>
           </Box>
@@ -151,13 +129,13 @@ export default function PayLoanSheet({ open, onClose, overdue = false }: { open:
           <Box sx={{ mt: -1.5, mb: 2, px: 0.5 }}>
             <Typography sx={{ fontSize: 12, color: fulfilled ? BLUE : MUTED, fontWeight: fulfilled ? 700 : 400 }}>
               {fulfilled
-                ? `You will pay ${symbol}${cur === 'KHR' ? Math.round(parseFloat(FULL_USD) * KHR_RATE).toLocaleString('en-US') : FULL_USD}`
-                : `Installment due ${cur === 'KHR' ? '៛' : '$'}${cur === 'KHR' ? Math.round(INSTALLMENT_USD * KHR_RATE).toLocaleString('en-US') : INSTALLMENT_USD.toFixed(2)}`
+                ? `You will pay ${symbol}${FULL}`
+                : `Installment due ${symbol}${INSTALLMENT}`
               }
             </Typography>
             {overdue && (
               <Typography sx={{ fontSize: 12, color: '#E07A1A', fontWeight: 600, mt: 0.25 }}>
-                + ${PENALTY_USD.toFixed(2)} penalty included
+                + {symbol}{PENALTY} penalty included
               </Typography>
             )}
           </Box>

@@ -21,6 +21,19 @@ const ACCENT = '#345EAC'
 const PAID = '#275CB2'
 const OUTSTANDING = '#8CC919'
 const NEXT_PAYMENT_AMOUNT = '$320.00'
+const PENALTY_AMOUNT = '$5.00'
+const NEXT_PAYMENT_WITH_PENALTY = '$325.00'
+const KHR_RATE = 4100 // 1 USD ≈ 4,100 ៛
+
+// Converts a USD-formatted string (e.g. "$8,640" or "$39.46") to a Riel-formatted
+// string (e.g. "៛35,424,000") for KHR-denominated loan accounts.
+function toKhr(usd: string): string {
+  const n = parseFloat(usd.replace(/[$,]/g, ''))
+  return `៛${Math.round(n * KHR_RATE).toLocaleString('en-US')}`
+}
+function fmt(usd: string, isKhr?: boolean): string {
+  return isKhr ? toKhr(usd) : usd
+}
 
 export default function MyLoanDetailScreen() {
   const navigate = useNavigate()
@@ -30,6 +43,7 @@ export default function MyLoanDetailScreen() {
   const [breakdownRow, setBreakdownRow] = useState<PayRow | null>(null)
   const overdue = searchParams.get('overdue') === 'true'
   const product = searchParams.get('product') ?? 'Small Business Loan'
+  const isKhr = product === 'Micro Loan'
   const { flow } = useFlow()
   const isCoBorrower = flow === 'Co-Borrower'
   const isBorrower = flow === 'Borrower'
@@ -45,20 +59,20 @@ export default function MyLoanDetailScreen() {
 
 
         <Box sx={{ px: 3, pt: 2.5, pb: 6, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          <DetailsTab onPay={() => setPayOpen(true)} overdue={overdue} onInfo={() => setInfoOpen(true)} isGuaranteeView={isGuaranteeView} isCoBorrower={isCoBorrower} isStaffLoan={product === 'Staff Loan'} onOpenDetail={setBreakdownRow} />
+          <DetailsTab onPay={() => setPayOpen(true)} overdue={overdue} onInfo={() => setInfoOpen(true)} isGuaranteeView={isGuaranteeView} isCoBorrower={isCoBorrower} isStaffLoan={product === 'Staff Loan'} isRestructured={product === 'Small Biz Loan'} isKhr={isKhr} onOpenDetail={setBreakdownRow} />
           <OthersTab isGuaranteeView={isGuaranteeView} product={product} />
         </Box>
       </Box>
 
-      <PayLoanSheet open={payOpen} onClose={() => setPayOpen(false)} overdue={overdue} />
+      <PayLoanSheet open={payOpen} onClose={() => setPayOpen(false)} overdue={overdue} currency={isKhr ? 'KHR' : 'USD'} />
       <ProductFeaturesSheet open={infoOpen} onClose={() => setInfoOpen(false)} product={product} isCoBorrower={isCoBorrower} isBorrower={isBorrower} isGuarantee={!isCoBorrower && isGuaranteeView} loanAmount="$8,640" />
-      <PaymentBreakdownSheet row={breakdownRow} onClose={() => setBreakdownRow(null)} />
+      <PaymentBreakdownSheet row={breakdownRow} overdue={overdue} isKhr={isKhr} onClose={() => setBreakdownRow(null)} />
     </Box>
   )
 }
 
 // ─── DETAILS tab ─────────────────────────────────────────────────────────────
-function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isStaffLoan, onOpenDetail }: { onPay: () => void; overdue: boolean; onInfo: () => void; isGuaranteeView?: boolean; isCoBorrower?: boolean; isStaffLoan?: boolean; onOpenDetail: (row: PayRow) => void }) {
+function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isStaffLoan, isRestructured, isKhr, onOpenDetail }: { onPay: () => void; overdue: boolean; onInfo: () => void; isGuaranteeView?: boolean; isCoBorrower?: boolean; isStaffLoan?: boolean; isRestructured?: boolean; isKhr?: boolean; onOpenDetail: (row: PayRow) => void }) {
   const [showAllRows, setShowAllRows] = useState(false)
   const navigate = useNavigate()
   const t = useT()
@@ -67,16 +81,23 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isS
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Status row */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box sx={{ bgcolor: '#E6EEF8', borderRadius: '999px', px: '9px', py: '3px' }}>
-          <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#0C419A' }}>{t('active')}</Typography>
-        </Box>
         {overdue && (
           <Box sx={{ bgcolor: '#FEF3E2', borderRadius: '999px', px: '9px', py: '3px', display: 'flex', alignItems: 'center', gap: 0.4 }}>
             <Icon name="alert" size={11} color="#C2870F" />
             <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#C2870F' }}>Overdue</Typography>
           </Box>
         )}
-        <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.65px' }}>NH-2026-04821</Typography>
+        {isStaffLoan && (
+          <Box sx={{ bgcolor: '#E6F4EA', borderRadius: '999px', px: '9px', py: '3px' }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#15803D' }}>{t('salaryDeduction')}</Typography>
+          </Box>
+        )}
+        {isRestructured && (
+          <Box sx={{ bgcolor: '#EFE7FB', borderRadius: '999px', px: '9px', py: '3px' }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 600, color: '#7A4DD6' }}>{t('firstRestructured')}</Typography>
+          </Box>
+        )}
+        <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.65px' }}>{isKhr ? 'KHR.Acc •••• 3242' : 'USD.Acc •••• 4821'}</Typography>
         <Box
           role="button"
           onClick={onInfo}
@@ -92,9 +113,9 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isS
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Donut />
           <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <LegendRow color="#D9D9D9" label="Total" value="$8,640" />
-            <LegendRow color={PAID} label="Paid" value="$3,860" />
-            <LegendRow color={OUTSTANDING} label="Outstanding" value="$4,780" />
+            <LegendRow color="#D9D9D9" label="Total" value={fmt('$8,640', isKhr)} />
+            <LegendRow color={PAID} label="Paid" value={fmt('$3,860', isKhr)} />
+            <LegendRow color={OUTSTANDING} label="Left" value={fmt('$4,780', isKhr)} />
           </Box>
         </Box>
 
@@ -119,13 +140,13 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isS
             {overdue && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4, bgcolor: '#FEF3E2', borderRadius: '6px', px: '8px', py: '3px' }}>
                 <Icon name="alert" size={11} color="#C2870F" />
-                <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#C2870F' }}>+$5.00 Penalty</Typography>
+                <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#C2870F' }}>+{fmt(PENALTY_AMOUNT, isKhr)} Penalty</Typography>
               </Box>
             )}
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box>
-              <Typography sx={{ fontSize: 30, fontWeight: 800, color: VALUE, letterSpacing: '-1px', lineHeight: 1.1 }}>{NEXT_PAYMENT_AMOUNT}</Typography>
+              <Typography sx={{ fontSize: 30, fontWeight: 800, color: VALUE, letterSpacing: '-1px', lineHeight: 1.1 }}>{fmt(NEXT_PAYMENT_AMOUNT, isKhr)}</Typography>
               <Typography sx={{ fontSize: 12, color: LABEL, mt: 0.5 }}>Due 16 May · in 9 days</Typography>
             </Box>
             {!isStaffLoan && (
@@ -158,7 +179,7 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isS
             <Typography sx={{ fontSize: 13, fontWeight: 700, color: ACCENT }}>Download</Typography>
           </Box>
         </Box>
-        <PaymentTable showAll={showAllRows} onOpenDetail={onOpenDetail} />
+        <PaymentTable showAll={showAllRows} onOpenDetail={onOpenDetail} overdue={overdue} isKhr={isKhr} />
         <Box
           role="button"
           onClick={() => setShowAllRows(v => !v)}
@@ -256,13 +277,14 @@ const PAY_ROWS: PayRow[] = [
   { no: '24', date: '5/12/27', principal: '$39.93', other: '$5.53', total: NEXT_PAYMENT_AMOUNT, tone: 'normal' },
 ]
 const PAY_PREVIEW = 3
-// Fixed column widths — keep the No. column tight so Total has room for the
-// amount + status badge (otherwise the badge gets clipped).
-const PAY_W: string[] = ['14%', '34%', '52%']
+// Fixed column widths — No. / Due Date / Total / Detail. Total and Detail are
+// split into separate columns so the "Total" header sits directly above the
+// amount instead of the detail link.
+const PAY_W: string[] = ['12%', '30%', '38%', '20%']
 
-function PaymentTable({ showAll = false, onOpenDetail }: { showAll?: boolean; onOpenDetail: (row: PayRow) => void }) {
+function PaymentTable({ showAll = false, onOpenDetail, overdue, isKhr }: { showAll?: boolean; onOpenDetail: (row: PayRow) => void; overdue?: boolean; isKhr?: boolean }) {
   const t = useT()
-  const PAY_HEAD = [t('thNo'), t('thDueDate'), t('thTotal')]
+  const PAY_HEAD = [t('thNo'), t('thDueDate'), t('thTotal'), '']
   const highlightIdx = PAY_ROWS.findIndex(r => r.tone === 'highlight')
   const previewStart = Math.max(0, highlightIdx - 1)
   const rows = showAll ? PAY_ROWS : PAY_ROWS.slice(previewStart, previewStart + PAY_PREVIEW)
@@ -274,7 +296,7 @@ function PaymentTable({ showAll = false, onOpenDetail }: { showAll?: boolean; on
             {PAY_HEAD.map((h, i) => (
               <Box
                 component="th"
-                key={h}
+                key={i}
                 sx={{
                   fontFamily: `'Noto Sans Khmer', sans-serif`,
                   fontSize: 10,
@@ -297,24 +319,52 @@ function PaymentTable({ showAll = false, onOpenDetail }: { showAll?: boolean; on
           {rows.map((row, ri) => {
             const bg = row.tone === 'highlight' ? '#EBF6EC' : '#fff'
             const dim = row.tone === 'dim'
+            const isPenalized = !!overdue && row.tone === 'highlight'
             return (
               <Box component="tr" key={ri} sx={{ bgcolor: bg, borderBottom: ri < rows.length - 1 ? '1px solid #F0F0F0' : 'none' }}>
                 <Box component="td" sx={{ textAlign: 'center', px: 0.5, py: '8px', fontSize: 12, fontWeight: 500, color: dim ? 'rgba(0,0,0,0.2)' : LABEL }}>
                   {row.no}
                 </Box>
-                <Box component="td" sx={{ px: '8px', py: '8px', fontSize: 12, fontWeight: 500, color: dim ? 'rgba(0,0,0,0.2)' : '#000', whiteSpace: 'nowrap' }}>
-                  {row.date}
-                </Box>
-                <Box component="td" sx={{ px: '10px', py: '8px' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.75 }}>
-                    <Typography sx={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', color: dim ? 'rgba(0,0,0,0.2)' : '#000' }}>{row.total}</Typography>
-                    <Box
-                      role="button"
-                      onClick={() => onOpenDetail(row)}
-                      sx={{ flexShrink: 0, minWidth: '46px', display: 'flex', justifyContent: 'flex-end', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
+                <Box component="td" sx={{ px: '8px', py: '8px', whiteSpace: 'nowrap' }}>
+                  <Typography sx={{ fontSize: 12, fontWeight: 500, color: dim ? 'rgba(0,0,0,0.2)' : '#000' }}>{row.date}</Typography>
+                  <Box
+                    sx={{
+                      display: 'inline-block',
+                      mt: '3px',
+                      px: '6px',
+                      py: '1px',
+                      borderRadius: '999px',
+                      bgcolor: row.tone === 'dim' ? '#EBF6EC' : row.tone === 'highlight' ? '#FAE6BD' : '#EDEFF2',
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontFamily: `'Noto Sans Khmer', sans-serif`,
+                        fontSize: 10,
+                        fontWeight: 600,
+                        lineHeight: 1.4,
+                        color: row.tone === 'dim' ? '#1F6724' : row.tone === 'highlight' ? '#C2870F' : '#6B7280',
+                      }}
                     >
-                      <Typography sx={{ fontSize: 11, fontWeight: 700, color: ACCENT, whiteSpace: 'nowrap' }}>{t('thDetail')}</Typography>
-                    </Box>
+                      {row.tone === 'dim' ? t('paidStatus') : row.tone === 'highlight' ? t('upcomingStatus') : t('scheduledStatus')}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box component="td" sx={{ px: '8px', py: '8px', textAlign: 'right' }}>
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4 }}>
+                    {isPenalized && <Icon name="alert" size={11} color="#C2870F" />}
+                    <Typography sx={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', textDecoration: dim ? 'line-through' : 'none', color: isPenalized ? '#C2870F' : dim ? 'rgba(0,0,0,0.2)' : '#000' }}>
+                      {fmt(isPenalized ? NEXT_PAYMENT_WITH_PENALTY : row.total, isKhr)}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box component="td" sx={{ px: '10px', py: '8px', textAlign: 'right' }}>
+                  <Box
+                    role="button"
+                    onClick={() => onOpenDetail(row)}
+                    sx={{ display: 'inline-flex', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
+                  >
+                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: ACCENT, whiteSpace: 'nowrap' }}>{t('thDetail')}</Typography>
                   </Box>
                 </Box>
               </Box>
@@ -327,21 +377,24 @@ function PaymentTable({ showAll = false, onOpenDetail }: { showAll?: boolean; on
 }
 
 // ─── Payment breakdown sheet — opened via the "Detail" link on each row ──────
-function PaymentBreakdownSheet({ row, onClose }: { row: PayRow | null; onClose: () => void }) {
+function PaymentBreakdownSheet({ row, overdue, isKhr, onClose }: { row: PayRow | null; overdue?: boolean; isKhr?: boolean; onClose: () => void }) {
   const t = useT()
   if (!row) return <BottomSheet open={false} onClose={onClose}><Box /></BottomSheet>
+  const isPenalized = !!overdue && row.tone === 'highlight'
   const statusTone = row.badge?.tone
   const status = statusTone === 'paid'
     ? { label: t('paidStatus'), color: '#1F6724', bg: '#EBF6EC' }
     : statusTone === 'soon'
       ? { label: t('upcomingStatus'), color: '#C2870F', bg: '#FAE6BD' }
       : { label: t('scheduledStatus'), color: '#6B7280', bg: '#EDEFF2' }
-  const breakdownRows: [string, string][] = [
-    [t('principal'), row.principal],
-    [t('interest'), row.other],
-    [t('monthlyFee'), '$0.00'],
-    [t('unpaidObligation'), '$0.00'],
-    [t('penalty'), '$0.00'],
+  const penalty = isPenalized ? PENALTY_AMOUNT : '$0.00'
+  const total = isPenalized ? NEXT_PAYMENT_WITH_PENALTY : row.total
+  const breakdownRows: [string, string, boolean?][] = [
+    [t('principal'), fmt(row.principal, isKhr)],
+    [t('interest'), fmt(row.other, isKhr)],
+    [t('monthlyFee'), fmt('$0.00', isKhr)],
+    [t('unpaidObligation'), fmt('$0.00', isKhr)],
+    [t('penalty'), fmt(penalty, isKhr), isPenalized],
   ]
   return (
     <BottomSheet open={!!row} onClose={onClose}>
@@ -356,18 +409,18 @@ function PaymentBreakdownSheet({ row, onClose }: { row: PayRow | null; onClose: 
       </Box>
 
       <Box sx={{ bgcolor: '#F8F9FB', borderRadius: '14px', overflow: 'hidden' }}>
-        {breakdownRows.map(([label, value], i) => (
+        {breakdownRows.map(([label, value, flagged], i) => (
           <Box
             key={label}
             sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: '11px', borderBottom: '1px solid #ECEFF3' }}
           >
             <Typography sx={{ fontSize: 13.5, color: LABEL }}>{label}</Typography>
-            <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: '#0B0F1A' }}>{value}</Typography>
+            <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: flagged ? '#C2870F' : '#0B0F1A' }}>{value}</Typography>
           </Box>
         ))}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: '11px' }}>
           <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#0B0F1A' }}>{t('thTotal')}</Typography>
-          <Typography sx={{ fontSize: 15, fontWeight: 800, color: ACCENT }}>{row.total}</Typography>
+          <Typography sx={{ fontSize: 15, fontWeight: 800, color: ACCENT }}>{fmt(total, isKhr)}</Typography>
         </Box>
       </Box>
     </BottomSheet>
@@ -381,6 +434,7 @@ function OthersTab({ isGuaranteeView, product }: { isGuaranteeView?: boolean; pr
   const [callOpen, setCallOpen] = useState(false)
   const isGuarantee = !!isGuaranteeView
   const isStaffLoan = product === 'Staff Loan'
+  const isMwl = product === 'Migrant Worker Loan'
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
       {/* Loan service requests */}
@@ -403,7 +457,11 @@ function OthersTab({ isGuaranteeView, product }: { isGuaranteeView?: boolean; pr
       {<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
         <SectionLabel>{t('myDocuments')}</SectionLabel>
         <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', px: '14px' }}>
-          {DOCS.filter(d => !isStaffLoan || (d.title !== '1st Restructured Contract' && d.title !== 'Hypothec Contract' && d.title !== 'Guarantee Contract')).map((d, i, arr) => (
+          {DOCS.filter(d => {
+            if (isStaffLoan) return d.title !== '1st Restructured Contract' && d.title !== 'Hypothec Contract' && d.title !== 'Guarantee Contract'
+            if (isMwl) return d.title !== '1st Restructured Contract' && d.title !== 'Hypothec Contract'
+            return true
+          }).map((d, i, arr) => (
             <DocRow key={d.title} {...d} last={i === arr.length - 1} />
           ))}
         </Box>
