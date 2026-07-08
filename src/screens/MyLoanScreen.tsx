@@ -70,14 +70,15 @@ export default function MyLoanScreen() {
 
   return (
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: isEmpty ? '#fff' : '#F5F5F5' }}>
-      <Box className="scroll-content" sx={{ flex: 1, overflow: 'auto' }}>
+      <Box className="scroll-content" sx={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
         {/* Header */}
         <HomeTopBar />
-        <Box sx={{ px: 3, pb: '54px', display: 'flex', flexDirection: 'column', gap: '24px', mt: '12px' }}>
+        <Box sx={{ flex: 1, minHeight: 0, px: 3, pb: '54px', display: 'flex', flexDirection: 'column', gap: '24px', mt: '12px' }}>
           {isEmpty ? (
             <EmptyState
               label={t('noLoansYet')}
-              hint={t('noLoansHint')}
+              hint={t('applyFromProducts')}
+              showApplyButtons
             />
           ) : isGuarantee ? (
             <GuarantorView />
@@ -218,6 +219,7 @@ function EmptyState({ label, hint, showApplyButtons }: { label: string; hint?: s
   if (showApplyButtons) {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', pt: 4, px: 0 }}>
+        <Box component="img" src={asset('illustrations/mascot_apply.png')} alt="" sx={{ width: 220, height: 'auto', display: 'block' }} />
         <Typography sx={{ fontSize: 22, fontWeight: 800, color: '#0B0F1A', mt: 3 }}>{label}</Typography>
         <Typography sx={{ fontSize: 14, color: '#8A94A6', mt: 1, maxWidth: 280, lineHeight: 1.6 }}>{hint}</Typography>
         <Button
@@ -632,7 +634,7 @@ export function ReviewTab() {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 1, minHeight: 0 }}>
       <Box>
         <SectionHeader>{t('current')} ({current.length})</SectionHeader>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -641,6 +643,19 @@ export function ReviewTab() {
           ))}
         </Box>
       </Box>
+
+      {isApplicant && (
+        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={() => navigate('/all-loan')}
+            sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
+          >
+            {t('visitApply')}
+          </Button>
+        </Box>
+      )}
     </Box>
   )
 }
