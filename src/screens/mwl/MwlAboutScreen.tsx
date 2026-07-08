@@ -21,6 +21,16 @@ const OCCUPATIONS = ['Garment worker', 'Construction worker', 'Farmer', 'Driver'
 const STATUSES = ['Single', 'Married', 'Divorced', 'Widowed']
 const BRANCHES = ['Chroy Changvar', 'Phnom Penh Main', 'Toul Kork', 'Sen Sok', 'Siem Reap', 'Battambang', 'Sihanoukville']
 const CURRENCIES = ['Dollar', 'Riel']
+// Per-product amount ceiling (USD) — mirrors the Loan Calculator's limits.
+const MIN_AMOUNT = 100
+const PRODUCT_MAX_AMOUNT: Record<string, number> = {
+  'Micro Loan': 3000,
+  'Small Biz Loan': 30000,
+  'SME Loan': 100000,
+  'Small & Medium Enterprise Loan': 100000,
+  'Housing Loan': 300000,
+}
+const RIEL_PER_USD = 4000
 // Plain currency-symbol glyph shown beside each currency option / amount.
 const currencyBadge = (symbol: string): ReactNode => (
   <Typography sx={{ fontSize: 17, fontWeight: 800, color: '#8A94A6', lineHeight: 1, flexShrink: 0 }}>{symbol}</Typography>
@@ -64,7 +74,6 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
   const activeSample = DOCS.find((d) => d.id === sample) ?? null
 
   // Switching currency converts the amount at 1 USD = 4,000 KHR.
-  const RIEL_PER_USD = 4000
   const changeCurrency = (next: string) => {
     if (next === currency) return
     const n = parseFloat(amount.replace(/[^0-9.]/g, '')) || 0
@@ -77,6 +86,8 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
   // Repayment estimate uses a constant monthly repayment at 0.75%/mo.
   const cur: Currency = currency === 'Riel' ? 'KHR' : 'USD'
   const principal = parseFloat(amount.replace(/[^0-9.]/g, '')) || 0
+  const maxAmountUsd = PRODUCT_MAX_AMOUNT[product] ?? 300000
+  const maxAmount = currency === 'Riel' ? maxAmountUsd * RIEL_PER_USD : maxAmountUsd
 
   // Non-MWL is a single step: Continue goes straight to the review summary,
   // carrying the entered details. (MWL keeps its multi-step flow.)
@@ -153,27 +164,20 @@ export default function MwlAboutScreen({ nonMwl = false }: { nonMwl?: boolean } 
           {/* Loan request — Non-MWL captures the amount on this same step */}
           {nonMwl && (
             <Box>
-              <FieldCard
-                label="Amount"
-                required
-                value={amount}
-                onChange={(v) => setAmount(v.replace(/[^0-9,]/g, ''))}
-                trailing={CURRENCY_ICONS[currency]}
-              />
-
               {/* Estimate Your Repayment */}
-              <Box sx={{ mt: 2.5 }}>
-                <RepaymentEstimate
-                  product={product}
-                  principal={principal}
-                  currency={cur}
-                  months={months}
-                  onMonthsChange={setMonths}
-                  minMonths={termStops[0]}
-                  maxMonths={termStops[termStops.length - 1]}
-                  ratePct={0.75}
-                />
-              </Box>
+              <RepaymentEstimate
+                product={product}
+                principal={principal}
+                currency={cur}
+                months={months}
+                onMonthsChange={setMonths}
+                minMonths={termStops[0]}
+                maxMonths={termStops[termStops.length - 1]}
+                ratePct={0.75}
+                onPrincipalChange={(p) => setAmount(Math.round(p).toLocaleString('en-US'))}
+                minAmount={MIN_AMOUNT}
+                maxAmount={maxAmount}
+              />
             </Box>
           )}
         </Box>

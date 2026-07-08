@@ -202,10 +202,6 @@ function RequestsProgressCard({ onClick }: { onClick: () => void }) {
         <Typography sx={{ fontSize: 12, color: 'rgba(255,255,255,0.78)', mt: '3px' }} noWrap>
           Restructuring · Pay off · MWL
         </Typography>
-        <Box sx={{ mt: '8px', display: 'inline-flex', alignItems: 'center', gap: 0.6, bgcolor: 'rgba(255,255,255,0.16)', borderRadius: '999px', px: '10px', py: '3.5px' }}>
-          <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#7EB1FF' }} />
-          <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>Under Assessment</Typography>
-        </Box>
       </Box>
 
       <Icon name="chevronRight" size={20} color="rgba(255,255,255,0.75)" />
@@ -350,20 +346,38 @@ function GuarantorView() {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Total Outstanding card */}
       <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '16px', overflow: 'hidden' }}>
+        {/* Summary link — top right of card */}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', px: '18px', pt: '14px' }}>
+          <Box
+            onClick={() => navigate('/portfolio-summary')}
+            role="button"
+            sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.25, cursor: 'pointer' }}
+          >
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: BLUE }}>{t('summary')}</Typography>
+            <Box component="svg" width={14} height={14} viewBox="0 0 14 14" fill="none" sx={{ ml: 0.25, flexShrink: 0 }}>
+              <path d="M3 11L11 3M11 3H5M11 3V9" stroke={BLUE} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+            </Box>
+          </Box>
+        </Box>
         {/* Top row: donut + amounts */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: '16px 18px' }}>
           <GuarantorDonut pct={0.55} size={78} />
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography sx={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.6px', color: MUTED, mb: 0.5 }}>{t('totalOutstandingGuarantee')}</Typography>
-            <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.15 }}>$4,780.00</Typography>
-            <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.15 }}>៛19,598,000</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+              <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.15 }}>$4,780.00</Typography>
+              <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#B0B8C8' }}>2 {t('loansWord')}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+              <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.15 }}>៛19,598,000</Typography>
+              <Typography sx={{ fontSize: 11, fontWeight: 500, color: '#B0B8C8' }}>1 {t('loanWord')}</Typography>
+            </Box>
           </Box>
         </Box>
 
         {/* Next payment + Pay now */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #F0F2F5', px: '18px', py: '12px' }}>
           <Box>
-            <Typography sx={{ fontSize: 11, color: MUTED, fontWeight: 600 }}>{t('totalPayment')}</Typography>
             <Typography sx={{ fontSize: 20, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px', lineHeight: 1.2 }}>$320.00</Typography>
             <Typography sx={{ fontSize: 11.5, color: MUTED, mt: 0.25 }}>Due 16 May · in 9 days</Typography>
           </Box>
@@ -382,15 +396,18 @@ function GuarantorView() {
       <GuaranteeTab count={3} />
 
       {/* Apply loan */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5, pt: '50px' }}>
-        <Typography sx={{ fontSize: 13, color: MUTED, textAlign: 'center', lineHeight: 1.6 }}>
-          {t('guarantorApplyHint')}
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', pt: '40px' }}>
+        <Box sx={{ width: 56, height: 56, borderRadius: '16px', bgcolor: '#EEF3FC', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+          <Icon name="banknote" size={26} color={BLUE} />
+        </Box>
+        <Typography sx={{ fontSize: 17, fontWeight: 800, color: HEADING }}>
+          {t('guarantorApplyTitle')}
         </Typography>
         <Button
           variant="contained"
           fullWidth
           onClick={() => navigate('/all-loan')}
-          sx={{ height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
+          sx={{ mt: 2.5, height: 48, borderRadius: '14px', fontSize: 15, fontWeight: 700, bgcolor: BLUE, '&:hover': { bgcolor: '#1F4F9E' }, textTransform: 'none' }}
         >
           {t('visitApply')}
         </Button>

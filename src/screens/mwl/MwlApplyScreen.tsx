@@ -74,7 +74,6 @@ export default function MwlApplyScreen() {
   // Step 4 — Consent
   const [agree, setAgree] = useState(false)
 
-  const sym = currency.startsWith('KHR') ? '៛' : '$'
   const curCode = currency.startsWith('KHR') ? 'KHR' : 'USD'
   const cur = (curCode === 'KHR' ? 'KHR' : 'USD') as Currency
   const principal = parseFloat(amount.replace(/[^0-9.]/g, '')) || 0
@@ -111,21 +110,6 @@ export default function MwlApplyScreen() {
               />
               <SelectField label="Nearest Branch" required options={BRANCHES} value={branch} onChange={setBranch} />
               <SelectField label="Currency" required options={CURRENCIES} value={currency} onChange={setCurrency} />
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-                <FieldCard label="Loan Amount" required value={amount} onChange={setAmount}
-                  trailing={<Typography sx={{ fontSize: 16, fontWeight: 700, color: MUTED }}>{sym}</Typography>} />
-                {overMax && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 0.5 }}>
-                    <Icon name="alert" size={14} color="#E5484D" />
-                    <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#E5484D' }}>
-                      Maximum loan amount is $15,000 (or equivalent)
-                    </Typography>
-                  </Box>
-                )}
-                {!overMax && (
-                  <Typography sx={{ fontSize: 12, color: '#8A94A6', px: 0.5 }}>Maximum · $15,000 USD</Typography>
-                )}
-              </Box>
               {/* Interest-only grace period — borrower pays interest only for 1–6 months */}
               <SelectField
                 label="Interest Only Payment"
@@ -147,6 +131,9 @@ export default function MwlApplyScreen() {
                 graceMonths={graceMonths}
                 label=""
                 scheduleTitle={destObj?.long}
+                onPrincipalChange={(p) => setAmount(String(p))}
+                minAmount={100}
+                maxAmount={curCode === 'KHR' ? MAX_LOAN * 4000 : MAX_LOAN}
               />
             </>
           )}

@@ -59,7 +59,7 @@ export default function MyLoanDetailScreen() {
 
 
         <Box sx={{ px: 3, pt: 2.5, pb: 6, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          <DetailsTab onPay={() => setPayOpen(true)} overdue={overdue} onInfo={() => setInfoOpen(true)} isGuaranteeView={isGuaranteeView} isCoBorrower={isCoBorrower} isStaffLoan={product === 'Staff Loan'} isRestructured={product === 'Small Biz Loan'} isKhr={isKhr} onOpenDetail={setBreakdownRow} />
+          <DetailsTab onPay={() => setPayOpen(true)} overdue={overdue} onInfo={() => setInfoOpen(true)} isGuaranteeView={isGuaranteeView} isCoBorrower={isCoBorrower} isStaffLoan={product === 'Staff Loan'} isRestructured={product === 'Small Biz Loan' || product === 'Micro Loan'} isKhr={isKhr} onOpenDetail={setBreakdownRow} />
           <OthersTab isGuaranteeView={isGuaranteeView} product={product} />
         </Box>
       </Box>
@@ -116,17 +116,6 @@ function DetailsTab({ onPay, overdue, onInfo, isGuaranteeView, isCoBorrower, isS
             <LegendRow color="#D9D9D9" label="Total" value={fmt('$8,640', isKhr)} />
             <LegendRow color={PAID} label="Paid" value={fmt('$3,860', isKhr)} />
             <LegendRow color={OUTSTANDING} label="Left" value={fmt('$4,780', isKhr)} />
-          </Box>
-        </Box>
-
-        {/* Progress */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography sx={{ fontSize: 12.5, fontWeight: 500, color: LABEL }}>8 of 24 paid</Typography>
-            <Typography sx={{ fontSize: 12.5, fontWeight: 600, color: '#000' }}>33% completed</Typography>
-          </Box>
-          <Box sx={{ height: 6, borderRadius: '999px', bgcolor: '#F0F2F5', overflow: 'hidden' }}>
-            <Box sx={{ height: '100%', width: '33%', bgcolor: OUTSTANDING, borderRadius: '999px' }} />
           </Box>
         </Box>
 

@@ -428,8 +428,8 @@ export function MoreMenuBody({
           <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6', mt: 1.5, mb: 0.5 }}>{t('support')}</Typography>
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
             {[
-              { icon: 'feedback' as IconName, label: t('complaint'), sub: t('weReplyDays'), onClick: () => requirePin('/send-feedback') },
-              { icon: 'message' as IconName, label: t('requestConsult'), sub: t('talkToOfficer'), onClick: () => requirePin('/request-consult') },
+              { icon: 'feedback' as IconName, label: t('complaint'), onClick: () => requirePin('/send-feedback') },
+              { icon: 'message' as IconName, label: 'Consultation', onClick: () => requirePin('/request-consult') },
             ].map((item) => (
               <Box
                 key={item.label}
@@ -440,7 +440,6 @@ export function MoreMenuBody({
                 <Icon name={item.icon} size={24} color="#1A1A1A" />
                 <Box sx={{ minWidth: 0 }}>
                   <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: '#0B0F1A', lineHeight: 1.3 }}>{item.label}</Typography>
-                  <Typography sx={{ fontSize: 11.5, color: '#8A94A6', mt: 0.25 }}>{item.sub}</Typography>
                 </Box>
               </Box>
             ))}
@@ -618,8 +617,7 @@ export function SummaryCard({ children, loanCount = 3, defaultExpanded = false, 
       {onPay && (
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2, pt: 2, borderTop: '1px solid #F0F2F5' }}>
           <Box>
-            <Typography sx={{ fontSize: 11, fontWeight: 700, color: '#8A94A6', letterSpacing: '0.4px' }}>{t('nextPayment').toUpperCase()}</Typography>
-            <Typography sx={{ fontSize: 20, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px', mt: 0.25 }}>$320.00</Typography>
+            <Typography sx={{ fontSize: 20, fontWeight: 800, color: '#0B0F1A', letterSpacing: '-0.5px' }}>$320.00</Typography>
             <Typography sx={{ fontSize: 11, color: '#8A94A6', mt: 0.25 }}>{t('dueIn9Days')}</Typography>
           </Box>
           <Button

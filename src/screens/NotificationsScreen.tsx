@@ -556,17 +556,19 @@ function EmptyTransactions() {
 }
 
 // ─── Announcements feed ──────────────────────────────────────────────────────
-export type Announcement = { title: string; body: string; date: string }
+export type Announcement = { title: string; body: string; date: string; type?: 'promo' | 'app' }
 export const ANNOUNCEMENTS: Announcement[] = [
   {
-    title: 'Khmer New Year promotion',
+    title: 'Micro Loan promotion',
     body: 'Lower micro-loan rates this season — apply between 14 Apr and 31 May to qualify.',
     date: 'Wed, 14 May',
+    type: 'promo',
   },
   {
     title: 'New Experience, Faster Credit Access with Less Papers',
     body: 'NongHyup Finance introduces a platform-based lending so-called NH Finance Mobile. The client can apply for loan, check balance, and get instant promotion/update of the products and services. Get the NH Finance Mobile now!',
     date: 'Wed, 14 May',
+    type: 'app',
   },
 ]
 
