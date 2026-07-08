@@ -269,7 +269,7 @@ const PAY_PREVIEW = 3
 // Fixed column widths — No. / Due Date / Total / Detail. Total and Detail are
 // split into separate columns so the "Total" header sits directly above the
 // amount instead of the detail link.
-const PAY_W: string[] = ['12%', '30%', '38%', '20%']
+const PAY_W: string[] = ['10%', '24%', '32%', '34%']
 
 function PaymentTable({ showAll = false, onOpenDetail, overdue, isKhr }: { showAll?: boolean; onOpenDetail: (row: PayRow) => void; overdue?: boolean; isKhr?: boolean }) {
   const t = useT()
@@ -316,28 +316,6 @@ function PaymentTable({ showAll = false, onOpenDetail, overdue, isKhr }: { showA
                 </Box>
                 <Box component="td" sx={{ px: '8px', py: '8px', whiteSpace: 'nowrap' }}>
                   <Typography sx={{ fontSize: 12, fontWeight: 500, color: dim ? 'rgba(0,0,0,0.2)' : '#000' }}>{row.date}</Typography>
-                  <Box
-                    sx={{
-                      display: 'inline-block',
-                      mt: '3px',
-                      px: '6px',
-                      py: '1px',
-                      borderRadius: '999px',
-                      bgcolor: row.tone === 'dim' ? '#EBF6EC' : row.tone === 'highlight' ? '#FAE6BD' : '#EDEFF2',
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        fontFamily: `'Noto Sans Khmer', sans-serif`,
-                        fontSize: 10,
-                        fontWeight: 600,
-                        lineHeight: 1.4,
-                        color: row.tone === 'dim' ? '#1F6724' : row.tone === 'highlight' ? '#C2870F' : '#6B7280',
-                      }}
-                    >
-                      {row.tone === 'dim' ? t('paidStatus') : row.tone === 'highlight' ? t('upcomingStatus') : t('scheduledStatus')}
-                    </Typography>
-                  </Box>
                 </Box>
                 <Box component="td" sx={{ px: '8px', py: '8px', textAlign: 'right' }}>
                   <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4 }}>
@@ -348,12 +326,36 @@ function PaymentTable({ showAll = false, onOpenDetail, overdue, isKhr }: { showA
                   </Box>
                 </Box>
                 <Box component="td" sx={{ px: '10px', py: '8px', textAlign: 'right' }}>
-                  <Box
-                    role="button"
-                    onClick={() => onOpenDetail(row)}
-                    sx={{ display: 'inline-flex', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
-                  >
-                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: ACCENT, whiteSpace: 'nowrap' }}>{t('thDetail')}</Typography>
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+                    <Box
+                      sx={{
+                        display: 'inline-block',
+                        px: '6px',
+                        py: '1px',
+                        borderRadius: '999px',
+                        bgcolor: row.tone === 'dim' ? '#EBF6EC' : row.tone === 'highlight' ? '#FAE6BD' : '#EDEFF2',
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontFamily: `'Noto Sans Khmer', sans-serif`,
+                          fontSize: 10,
+                          fontWeight: 600,
+                          lineHeight: 1.4,
+                          whiteSpace: 'nowrap',
+                          color: row.tone === 'dim' ? '#1F6724' : row.tone === 'highlight' ? '#C2870F' : '#6B7280',
+                        }}
+                      >
+                        {row.tone === 'dim' ? t('paidStatus') : row.tone === 'highlight' ? t('upcomingStatus') : t('scheduledStatus')}
+                      </Typography>
+                    </Box>
+                    <Box
+                      role="button"
+                      onClick={() => onOpenDetail(row)}
+                      sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
+                    >
+                      <Icon name="eye" size={15} color={ACCENT} />
+                    </Box>
                   </Box>
                 </Box>
               </Box>

@@ -243,12 +243,12 @@ export default function RepaymentEstimate({
               {/* Interest Only row */}
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 0.75 }}>
                 <Typography sx={{ fontSize: 13, color: '#5B7299' }}>Interest Only</Typography>
-                <Typography sx={{ fontSize: 15, fontWeight: 800, color: BLUE }}>{money(interestOnlyPay, currency)}</Typography>
+                <Typography sx={{ fontSize: 20, fontWeight: 800, color: BLUE }}>{money(interestOnlyPay, currency)}</Typography>
               </Box>
               {/* Regular Repayment row */}
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #DCE6F5', py: 0.75 }}>
                 <Typography sx={{ fontSize: 13, color: '#5B7299' }}>Regular Repayment</Typography>
-                <Typography sx={{ fontSize: 15, fontWeight: 800, color: BLUE }}>{money(payment, currency)}</Typography>
+                <Typography sx={{ fontSize: 20, fontWeight: 800, color: BLUE }}>{money(payment, currency)}</Typography>
               </Box>
             </Box>
           </Box>
@@ -282,17 +282,20 @@ export default function RepaymentEstimate({
                 )}
               </>
             ) : (
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                <Box sx={{ minWidth: 0, flex: 1 }}>
+              <>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#5B7299' }}>Estimated monthly payment</Typography>
-                  <Typography sx={{ fontSize: 26, fontWeight: 800, color: BLUE, letterSpacing: '-0.5px', mt: 0.25 }}>{money(payment, currency)}</Typography>
-                  {paymentNote?.(payment)}
+                  <Box role="button" onClick={() => setScheduleOpen(true)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
+                    <Icon name="eye" size={18} color={BLUE} />
+                    <Typography sx={{ fontSize: 14, fontWeight: 700, color: BLUE }}>View schedule</Typography>
+                  </Box>
                 </Box>
-                <Box role="button" onClick={() => setScheduleOpen(true)} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0, cursor: 'pointer', '&:active': { opacity: 0.6 } }}>
-                  <Icon name="eye" size={18} color={BLUE} />
-                  <Typography sx={{ fontSize: 14, fontWeight: 700, color: BLUE }}>View schedule</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #DCE6F5', mt: 1.25, pt: 1 }}>
+                  <Typography sx={{ fontSize: 13, color: '#5B7299' }}>Monthly Repayment</Typography>
+                  <Typography sx={{ fontSize: 20, fontWeight: 800, color: BLUE }}>{money(payment, currency)}</Typography>
                 </Box>
-              </Box>
+                {paymentNote?.(payment)}
+              </>
             )}
           </Box>
         )}

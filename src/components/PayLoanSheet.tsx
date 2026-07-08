@@ -88,7 +88,7 @@ export default function PayLoanSheet({ open, onClose, overdue = false, currency 
 
         {/* Header */}
         <Box sx={{ px: 3, pt: 1.5, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <Typography sx={{ fontSize: 26, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px' }}>Pay loan</Typography>
+          <Typography sx={{ fontSize: 26, fontWeight: 800, color: HEADING, letterSpacing: '-0.5px' }}>Pay now</Typography>
           <IconButton onClick={onClose} aria-label="Close" sx={{ bgcolor: '#fff', width: 34, height: 34, mt: 0.5, '&:hover': { bgcolor: '#EDEFF2' } }}>
             <Icon name="close" size={20} color="#0B0F1A" />
           </IconButton>
@@ -100,6 +100,36 @@ export default function PayLoanSheet({ open, onClose, overdue = false, currency 
           <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.7px', color: MUTED, mb: 1 }}>
             AMOUNT
           </Typography>
+
+          {/* Hint text + shortcut: changes after Fulfill is tapped */}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 1, px: 0.5 }}>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontSize: 15, color: fulfilled ? BLUE : MUTED, fontWeight: fulfilled ? 700 : 500 }}>
+                {fulfilled
+                  ? `You will pay ${symbol}${FULL}`
+                  : `Installment due ${symbol}${INSTALLMENT}`
+                }
+              </Typography>
+              {overdue && (
+                <Typography sx={{ fontSize: 12, color: '#E07A1A', fontWeight: 600, mt: 0.25 }}>
+                  + {symbol}{PENALTY} penalty included
+                </Typography>
+              )}
+            </Box>
+            <Box
+              role="button"
+              onClick={() => {
+                setAmount(FULL)
+                setFulfilled(true)
+              }}
+              sx={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '4px', bgcolor: '#EEF3FC', borderRadius: '8px', px: '10px', py: '6px', cursor: 'pointer', '&:active': { bgcolor: '#DCE9FB' } }}
+            >
+              <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: BLUE, whiteSpace: 'nowrap' }}>
+                Pay full installment
+              </Typography>
+            </Box>
+          </Box>
+
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, border: `1.5px solid ${amount ? BLUE : '#E8EAEE'}`, borderRadius: '14px', px: 2, height: 60, mb: 2.5, transition: 'border-color 0.15s' }}>
             <Typography sx={{ fontSize: 22, fontWeight: 800, color: HEADING }}>{symbol}</Typography>
             <Box
@@ -111,33 +141,6 @@ export default function PayLoanSheet({ open, onClose, overdue = false, currency 
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value)}
               sx={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', bgcolor: 'transparent', fontFamily: 'inherit', fontSize: 22, fontWeight: 800, color: HEADING, '&::placeholder': { color: '#C9D2DE' } }}
             />
-            <Box
-              role="button"
-              onClick={() => {
-                setAmount(FULL)
-                setFulfilled(true)
-              }}
-              sx={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '4px', bgcolor: '#EEF3FC', borderRadius: '8px', px: '10px', py: '6px', cursor: 'pointer', '&:active': { bgcolor: '#DCE9FB' } }}
-            >
-              <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: BLUE, whiteSpace: 'nowrap' }}>
-                Fulfill {symbol}{FULL}
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* Hint text: changes after Fulfill is tapped */}
-          <Box sx={{ mt: -1.5, mb: 2, px: 0.5 }}>
-            <Typography sx={{ fontSize: 12, color: fulfilled ? BLUE : MUTED, fontWeight: fulfilled ? 700 : 400 }}>
-              {fulfilled
-                ? `You will pay ${symbol}${FULL}`
-                : `Installment due ${symbol}${INSTALLMENT}`
-              }
-            </Typography>
-            {overdue && (
-              <Typography sx={{ fontSize: 12, color: '#E07A1A', fontWeight: 600, mt: 0.25 }}>
-                + {symbol}{PENALTY} penalty included
-              </Typography>
-            )}
           </Box>
 
           <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.7px', color: MUTED, mb: 1 }}>

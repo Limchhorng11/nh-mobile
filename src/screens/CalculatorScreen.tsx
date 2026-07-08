@@ -321,7 +321,7 @@ export default function CalculatorScreen() {
                 onClick={() => setShowAllRows((v) => !v)}
                 sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, cursor: 'pointer', '&:active': { opacity: 0.7 } }}
               >
-                <Icon name={showAllRows ? 'chevronUp' : 'eye'} size={14} color={BLUE} />
+                <Icon name={showAllRows ? 'chevronUp' : 'chevronDown'} size={14} color={BLUE} />
                 <Typography sx={{ fontSize: 13, fontWeight: 700, color: BLUE }}>
                   {showAllRows ? t('close') : t('viewFullSchedule')}
                 </Typography>

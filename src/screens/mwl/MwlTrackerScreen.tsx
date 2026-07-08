@@ -141,10 +141,18 @@ export default function MwlTrackerScreen() {
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1, pb: '44px' }}>
         {/* Header */}
-        <Box sx={{ px: 1, pt: 1 }}>
+        <Box sx={{ px: 1, pt: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <IconButton onClick={() => navigate(-1)} aria-label="Back" sx={{ color: HEADING }}>
             <Icon name="chevronLeft" size={26} color={HEADING} />
           </IconButton>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <IconButton aria-label="Chat" sx={{ color: HEADING }}>
+              <Icon name="message" size={22} color={HEADING} />
+            </IconButton>
+            <IconButton onClick={() => setCallOpen(true)} aria-label="Call" sx={{ color: HEADING }}>
+              <Icon name="phone" size={22} color={HEADING} />
+            </IconButton>
+          </Box>
         </Box>
 
         {/* Mascot */}
@@ -279,9 +287,28 @@ export default function MwlTrackerScreen() {
               })}
             </Box>
             {/* Selected stage info */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, bgcolor: '#EAF1FC', borderRadius: '10px', px: 1.5, py: 1.25 }}>
-              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: BLUE, flexShrink: 0 }} />
-              <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#2B4A7E' }}>{stages[sel].info}</Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 1,
+                mt: 2,
+                bgcolor: stages[sel].state === 'done' ? '#EAF7EF' : stages[sel].state === 'active' ? '#EAF1FC' : '#F3F4F6',
+                borderRadius: '10px',
+                px: 1.5,
+                py: 1.25,
+              }}
+            >
+              <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: stages[sel].state === 'done' ? '#1F6724' : stages[sel].state === 'active' ? '#2B4A7E' : '#6B7280' }}>
+                {stages[sel].label.replace('\n', ' ')}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                {stages[sel].state === 'done' && <Icon name="check" size={14} color={GREEN} />}
+                <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: stages[sel].state === 'done' ? GREEN : stages[sel].state === 'active' ? BLUE : PEND }}>
+                  {stages[sel].state === 'done' ? 'Confirmed' : stages[sel].state === 'active' ? stages[sel].info.split('· ').slice(1).join('· ') : 'Pending'}
+                </Typography>
+              </Box>
             </Box>
             <Typography sx={{ fontSize: 12, color: MUTED, textAlign: 'center', mt: 1.5 }}>Tap a stage to preview the tracker</Typography>
           </Box>

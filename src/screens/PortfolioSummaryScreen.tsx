@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { Icon } from '../components/Icon'
+import { Icon, type IconName } from '../components/Icon'
 import { MwlHeader } from './mwl/MwlParts'
 import { Card, StatusChip } from '../components/home/HomeParts'
 import { useT, useTd } from '../i18n/LangContext'
@@ -43,8 +43,8 @@ function Stat({ label, value, sub, valueColor = HEADING, bg = '#F5F7FA' }: {
 }
 
 // ── Upcoming due item ────────────────────────────────────────────────────────
-function DueItem({ day, month, dotColor, title, sub, amount, amountColor, overdue, onClick }: {
-  day: string; month: string; dotColor: string; title: string; sub: string; amount: string; amountColor: string; overdue?: boolean; onClick?: () => void
+function DueItem({ icon, title, amount, amountColor, onClick }: {
+  icon: IconName; title: string; amount: string; amountColor: string; overdue?: boolean; onClick?: () => void
 }) {
   return (
     <Box
@@ -52,13 +52,11 @@ function DueItem({ day, month, dotColor, title, sub, amount, amountColor, overdu
       onClick={onClick}
       sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer', '&:active': { opacity: 0.7 } }}
     >
-      <Box sx={{ width: 42, height: 42, borderRadius: '10px', bgcolor: dotColor, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <Typography sx={{ fontSize: 15, fontWeight: 900, color: '#fff', lineHeight: 1 }}>{day}</Typography>
-        <Typography sx={{ fontSize: 9.5, fontWeight: 700, color: 'rgba(255,255,255,0.85)', lineHeight: 1.3 }}>{month}</Typography>
+      <Box sx={{ width: 42, height: 42, borderRadius: '10px', bgcolor: '#EEF1FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <Icon name={icon} size={21} color={BLUE} />
       </Box>
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography sx={{ fontSize: 13, fontWeight: 700, color: HEADING }} noWrap>{title}</Typography>
-        <Typography sx={{ fontSize: 11.5, color: LABEL }}>{sub}</Typography>
       </Box>
       <Typography sx={{ fontSize: 14, fontWeight: 800, color: amountColor, flexShrink: 0 }}>{amount}</Typography>
       <Icon name="chevronRight" size={16} color="#C9D2DE" />
@@ -228,9 +226,9 @@ export default function PortfolioSummaryScreen() {
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               {[
-                { day: '20', month: 'JUN', dotColor: GREEN,      title: td('Migrant Worker Loan'), sub: td('Installment 6 of 18'),   amount: '$270.00',   amountColor: GREEN,      onClick: () => navigate('/my-loan-detail') },
-                { day: '05', month: 'JUL', dotColor: '#E8770B',  title: td('Housing Loan'),        sub: td('Installment 49 of 120'), amount: '$1,083.00', amountColor: '#C0392B', onClick: () => navigate('/my-loan-detail?overdue=true') },
-                { day: '15', month: 'JUL', dotColor: BLUE,       title: td('Small Biz Loan'),      sub: td('Installment 9 of 24'),  amount: '$350.00',   amountColor: BLUE,       onClick: () => navigate('/my-loan-detail') },
+                { icon: 'plane' as IconName, title: td('Migrant Worker Loan'), amount: '$270.00',   amountColor: GREEN,     onClick: () => navigate('/my-loan-detail') },
+                { icon: 'home' as IconName,  title: td('Housing Loan'),        amount: '$1,083.00', amountColor: '#C0392B', onClick: () => navigate('/my-loan-detail?overdue=true') },
+                { icon: 'store' as IconName, title: td('Small Biz Loan'),      amount: '$350.00',   amountColor: BLUE,      onClick: () => navigate('/my-loan-detail') },
               ].map((item, i) => (
                 <Box key={item.title} sx={{ py: 1.5, borderTop: i > 0 ? '1px solid #F0F2F5' : 'none' }}>
                   <DueItem {...item} />

@@ -170,7 +170,7 @@ export default function MyLoanReviewDetailScreen() {
   const isStaff = !isRestructure && !isPayoff && title === 'Staff Loan'
 
   const stages = isRestructure
-    ? STAGES.map((s, i) => i === STAGES.length - 1 ? { ...s, label: 'New Terms\nTake Effect' } : s)
+    ? STAGES.map((s, i) => i === STAGES.length - 1 ? { ...s, label: 'Amendment' } : s)
     : isPayoff
     ? STAGES.map((s, i) => i === STAGES.length - 1 ? { ...s, label: 'Loan\nClosed' } : s)
     : STAGES
@@ -191,10 +191,18 @@ export default function MyLoanReviewDetailScreen() {
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
       <Box className="scroll-content" sx={{ flex: 1, pb: '44px' }}>
         {/* Header */}
-        <Box sx={{ px: 1, pt: 1 }}>
+        <Box sx={{ px: 1, pt: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <IconButton onClick={() => navigate('/loan-requests')} aria-label="Back" sx={{ color: HEADING }}>
             <Icon name="chevronLeft" size={26} color={HEADING} />
           </IconButton>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <IconButton aria-label="Chat" sx={{ color: HEADING }}>
+              <Icon name="message" size={22} color={HEADING} />
+            </IconButton>
+            <IconButton onClick={() => setCallOpen(true)} aria-label="Call" sx={{ color: HEADING }}>
+              <Icon name="phone" size={22} color={HEADING} />
+            </IconButton>
+          </Box>
         </Box>
 
         {/* Mascot */}
@@ -217,14 +225,6 @@ export default function MyLoanReviewDetailScreen() {
         </Typography>
 
         <Box sx={{ px: 3, pt: 2, pb: 5, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-          {/* Status + ref */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-            <Box sx={{ bgcolor: (isRestructure || isPayoff) ? '#EAF1FC' : '#FBEBC6', borderRadius: '999px', px: '9px', py: '3px' }}>
-              <Typography sx={{ fontSize: 11, fontWeight: 700, color: (isRestructure || isPayoff) ? BLUE : '#B7791F' }}>{(isRestructure || isPayoff) ? 'In progress' : 'In review'}</Typography>
-            </Box>
-            <Typography sx={{ fontSize: 13, fontWeight: 600, color: LABEL, letterSpacing: '0.5px' }}>{ref}</Typography>
-          </Box>
-
           {/* Restructure banner */}
           {isRestructure && (
             <Box sx={{ bgcolor: '#EFE7FB', border: '1px solid #D4C4F5', borderRadius: '12px', px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -331,11 +331,6 @@ export default function MyLoanReviewDetailScreen() {
                 )
               })}
             </Box>
-            {/* Selected stage info */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, bgcolor: '#EAF1FC', borderRadius: '10px', px: 1.5, py: 1.25 }}>
-              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: BLUE, flexShrink: 0 }} />
-              <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: '#2B4A7E' }}>{stages[sel].info}</Typography>
-            </Box>
             <Typography sx={{ fontSize: 12, color: MUTED, textAlign: 'center', mt: 1.5 }}>Tap a stage to preview the tracker</Typography>
           </Box>
 
@@ -363,36 +358,6 @@ export default function MyLoanReviewDetailScreen() {
             </Box>
           )}
 
-          {/* Head Office contact */}
-          <Box>
-            <SectionLabel>HEAD OFFICE</SectionLabel>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              {[
-                { icon: 'phone',         label: 'Call'      },
-                { icon: 'feedback',      label: 'Messenger' },
-                { icon: 'send',          label: 'Telegram'  },
-              ].map(({ icon, label }) => (
-                <Button
-                  key={label}
-                  variant="outlined"
-                  startIcon={<Icon name={icon as any} size={16} color={BLUE} />}
-                  sx={{
-                    flex: 1,
-                    height: 44,
-                    borderRadius: '10px',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: BLUE,
-                    borderColor: '#C6D8F8',
-                    textTransform: 'none',
-                    '&:hover': { bgcolor: '#EEF3FC', borderColor: BLUE },
-                  }}
-                >
-                  {label}
-                </Button>
-              ))}
-            </Box>
-          </Box>
         </Box>
       </Box>
 

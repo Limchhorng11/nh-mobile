@@ -4,7 +4,7 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
-import { Icon } from '../components/Icon'
+import { Icon, type IconName } from '../components/Icon'
 import { MwlHeader, BottomSheet, BLUE } from './mwl/MwlParts'
 import { AssetImg, BANKS } from '../components/home/media'
 import { CurrencyToggle } from '../components/home/HomeParts'
@@ -33,9 +33,21 @@ const METHODS: Method[] = [
 const KHR_RATE = 4100 // 1 USD ≈ 4,100 ៛
 const ACCOUNTS = { USD: '026-00052501', KHR: '026-00052502' } as const
 
+// Converts a "18 Jun 2026" style date to "18/06/26" (DD/MM/YY).
+const MONTHS: Record<string, string> = {
+  Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+  Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12',
+}
+function toDDMMYY(date: string): string {
+  const [day, mon, year] = date.split(' ')
+  const mm = MONTHS[mon] ?? mon
+  return `${day.padStart(2, '0')}/${mm}/${year.slice(-2)}`
+}
+
 export default function AdvanceAccountScreen() {
   const navigate = useNavigate()
   const t = useT()
+  const td = useTd()
   const [params] = useSearchParams()
   // Sample 2 (?v=2) opens the Top-up sheet by default for review.
   const [topUpOpen, setTopUpOpen] = useState((params.get('v') ?? '1') === '2')
@@ -97,13 +109,24 @@ export default function AdvanceAccountScreen() {
               <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.6px', color: '#8A94A6' }}>{t('linkedLoans')}</Typography>
             </Box>
             {[
-              { code: 'SBL', account: '026-01285956' },
-              { code: 'MWL', account: '026-01285959' },
-              { code: 'HL',  account: '026-01285963' },
-            ].map((l, i, arr) => (
-              <Box key={l.code} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2.5, py: '11px', borderTop: '1px solid #F1F4F8' }}>
-                <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: '#0B0F1A' }}>{l.code}</Typography>
-                <Typography sx={{ fontSize: 13, fontWeight: 600, color: '#8A94A6', letterSpacing: '0.3px' }}>{l.account}</Typography>
+              { title: 'Migrant Worker Loan', icon: 'plane' as IconName, account: '026-01285956' },
+              { title: 'Micro Loan', icon: 'sprout' as IconName, account: '026-01285959' },
+              { title: 'Staff Loan', icon: 'idCard' as IconName, account: '026-01285963' },
+            ].map((l) => (
+              <Box
+                key={l.title}
+                role="button"
+                onClick={() => navigate(`/my-loan-detail?product=${encodeURIComponent(l.title)}`)}
+                sx={{ display: 'flex', alignItems: 'center', gap: 1.25, px: 2.5, py: '12px', borderTop: '1px solid #F1F4F8', cursor: 'pointer', '&:active': { bgcolor: '#F8FAFC' } }}
+              >
+                <Box sx={{ width: 34, height: 34, borderRadius: '9px', bgcolor: '#EEF1FC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Icon name={l.icon} size={17} color={BLUE} />
+                </Box>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: '#0B0F1A' }} noWrap>{td(l.title)}</Typography>
+                  <Typography sx={{ fontSize: 12, fontWeight: 600, color: '#8A94A6', letterSpacing: '0.3px' }} noWrap>{l.account}</Typography>
+                </Box>
+                <Icon name="chevronRight" size={16} color="#C9D2DE" />
               </Box>
             ))}
           </Box>
@@ -119,7 +142,7 @@ export default function AdvanceAccountScreen() {
             <Box sx={{ bgcolor: '#fff', border: '1px solid #E8EAEE', borderRadius: '12px', overflow: 'hidden' }}>
               {/* Column header */}
               <Box sx={{ display: 'grid', gridTemplateColumns: '1.45fr 1.05fr 1.05fr 0.85fr', alignItems: 'center', px: '14px', py: '9px', bgcolor: '#FAFAFA', borderBottom: '1px solid #F0F0F0' }}>
-                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6' }}>{t('thActivity')}</Typography>
+                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6' }}>{t('thDate')}</Typography>
                 <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6', textAlign: 'right' }}>{t('thAmountCol')}</Typography>
                 <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6', textAlign: 'right' }}>{t('thBalanceCol')}</Typography>
                 <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.4px', color: '#8A94A6', textAlign: 'right' }}>{t('thView')}</Typography>
@@ -251,12 +274,10 @@ export default function AdvanceAccountScreen() {
 
 function MovementRow({ m, last, onView }: { m: Move; last?: boolean; onView?: () => void }) {
   const t = useT()
-  const td = useTd()
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: '1.45fr 1.05fr 1.05fr 0.85fr', alignItems: 'center', px: '14px', py: '11px', borderBottom: last ? 'none' : '1px solid #F1F4F8' }}>
       <Box sx={{ minWidth: 0 }}>
-        <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: '#0B0F1A' }} noWrap>{td(m.type)}</Typography>
-        <Typography sx={{ fontSize: 11, color: '#8A94A6' }} noWrap>{m.date}</Typography>
+        <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: '#0B0F1A' }} noWrap>{toDDMMYY(m.date)}</Typography>
       </Box>
       <Typography sx={{ fontSize: 12, fontWeight: 800, textAlign: 'right', whiteSpace: 'nowrap', color: m.sign === '+' ? '#1A9E5C' : '#D63B3B' }}>
         {m.sign === '+' ? '+' : '−'}{m.amount}
@@ -267,7 +288,7 @@ function MovementRow({ m, last, onView }: { m: Move; last?: boolean; onView?: ()
           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
           <circle cx="12" cy="12" r="3" />
         </Box>
-        <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: BLUE }}>{t('details')}</Typography>
+        <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: BLUE }}>{t('view')}</Typography>
       </Box>
     </Box>
   )

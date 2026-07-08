@@ -310,7 +310,6 @@ function DocRow({ label, img, uploaded, onUpload, onView }: { label: string; img
       </Box>
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography sx={{ fontSize: 14, fontWeight: 700, color: '#0B0F1A' }} noWrap>{label}</Typography>
-        <Typography sx={{ fontSize: 12, fontWeight: 600, color: uploaded ? GREEN : '#8A94A6' }}>{uploaded ? 'Photo uploaded' : 'Required · not uploaded'}</Typography>
         <Typography role="button" onClick={onView} sx={{ fontSize: 12, fontWeight: 600, color: BLUE, cursor: 'pointer', display: 'inline-block', mt: '1px' }}>
           View sample
         </Typography>
