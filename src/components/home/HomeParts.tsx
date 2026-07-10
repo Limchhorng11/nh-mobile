@@ -255,7 +255,7 @@ function DiscoverGrid() {
       {/* CBC — full-width row */}
       <Box
         role="button"
-        onClick={() => navigate('/cbc')}
+        onClick={() => navigate(isVisitor ? '/sign-up?next=' + encodeURIComponent('/cbc') : '/cbc')}
         sx={{ gridColumn: '1 / -1', position: 'relative', borderRadius: '14px', overflow: 'hidden', height: 80, bgcolor: '#0A2240', cursor: 'pointer', '&:active': { opacity: 0.85 } }}
       >
         <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 100%)' }} />

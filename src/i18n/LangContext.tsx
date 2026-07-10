@@ -6,11 +6,11 @@ interface LangState {
   setLang: (l: LangCode) => void
 }
 
-const LangContext = createContext<LangState>({ lang: 'en', setLang: () => {} })
+const LangContext = createContext<LangState>({ lang: 'km', setLang: () => {} })
 
 export function LangProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<LangCode>(() => {
-    try { return (localStorage.getItem('nh_lang') as LangCode) ?? 'en' } catch { return 'en' }
+    try { return (localStorage.getItem('nh_lang') as LangCode) ?? 'km' } catch { return 'km' }
   })
 
   const setLang = (l: LangCode) => {

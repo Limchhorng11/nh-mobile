@@ -11,19 +11,18 @@ import { getNotices } from '../workspace/notifications'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Notifications — opened from the bell in the greeting header.
-// Four filters: All · Reminder · Transaction · Announcements.
+// Three tabs: Reminder · Transaction · Announcements. Visitor/Staff default to
+// Announcements (no loan yet); every other flow defaults to Reminder.
 // ─────────────────────────────────────────────────────────────────────────────
 const HEADING = '#0B0F1A'
 const MUTED = '#8A94A6'
 const BLUE = '#275CB2'
 const DANGER = '#E11D48'
 const GREEN = '#1FA85C'
-const AMBER = '#C47F11'
 
-type Filter = 'all' | 'reminder' | 'transaction' | 'announcements'
+type Filter = 'reminder' | 'transaction' | 'announcements'
 
-const FILTERS: { id: Filter; label: string; dot?: boolean }[] = [
-  { id: 'all', label: 'All' },
+const FILTERS: { id: Filter; label: string }[] = [
   { id: 'reminder', label: 'Reminder' },
   { id: 'transaction', label: 'Transaction' },
   { id: 'announcements', label: 'Announcements' },
@@ -32,12 +31,14 @@ const FILTERS: { id: Filter; label: string; dot?: boolean }[] = [
 export default function NotificationsScreen() {
   const navigate = useNavigate()
   const { flow } = useFlow()
-  const [filter, setFilter] = useState<Filter>('all')
+  const isVisitor = flow === 'Visitor'
+  const isStaff = flow === 'Staff'
+  const [filter, setFilter] = useState<Filter>((isVisitor || isStaff) ? 'announcements' : 'reminder')
   const [scrolled, setScrolled] = useState(false)
 
   // Only borrowers have a loan → transaction history.
   const hasTransactions = flow === 'Borrower'
-  // Visitors have no loan or application yet → no payment reminders.
+  // Visitors/Staff have no loan or application yet → no payment reminders.
   const hasReminders = flow === 'Applicant' || flow === 'Borrower'
 
   return (
@@ -66,7 +67,7 @@ export default function NotificationsScreen() {
             </Typography>
           </Box>
 
-          {/* Filter — scrollable so 4 pills fit */}
+          {/* Filter — three equal-width pills, no "All" */}
           <Box
             sx={{
               display: 'flex',
@@ -78,9 +79,6 @@ export default function NotificationsScreen() {
               p: '4px',
               bgcolor: '#EBEBEC',
               borderRadius: 999,
-              overflowX: 'auto',
-              '&::-webkit-scrollbar': { display: 'none' },
-              scrollbarWidth: 'none',
               transition: 'margin-top 0.25s ease',
             }}
           >
@@ -88,7 +86,6 @@ export default function NotificationsScreen() {
               <FilterPill
                 key={f.id}
                 label={f.label}
-                dot={f.dot && (f.id === 'all' || (f.id === 'transaction' && hasTransactions))}
                 active={filter === f.id}
                 onClick={() => setFilter(f.id)}
               />
@@ -97,7 +94,6 @@ export default function NotificationsScreen() {
         </Box>
 
         <Box sx={{ px: 3, pt: 1, pb: 5 }}>
-          {filter === 'all' && <AllFeed />}
           {filter === 'reminder' && (hasReminders ? <ReminderFeed /> : <EmptyReminders />)}
           {filter === 'transaction' && (hasTransactions ? <TransactionFeed /> : <EmptyTransactions />)}
           {filter === 'announcements' && <AnnouncementsFeed />}
@@ -107,17 +103,17 @@ export default function NotificationsScreen() {
   )
 }
 
-function FilterPill({ label, active, dot, onClick }: { label: string; active: boolean; dot?: boolean; onClick: () => void }) {
+function FilterPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <Box
       onClick={onClick}
       role="button"
       sx={{
-        flexShrink: 0,
+        flex: 1,
+        minWidth: 0,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 0.625,
         px: '14px',
         borderRadius: 999,
         cursor: 'pointer',
@@ -126,10 +122,9 @@ function FilterPill({ label, active, dot, onClick }: { label: string; active: bo
         transition: 'all 0.15s',
       }}
     >
-      <Typography sx={{ fontSize: 13, fontWeight: 700, color: active ? '#0B0F1A' : '#71717A', whiteSpace: 'nowrap' }}>
+      <Typography sx={{ fontSize: 13, fontWeight: 700, color: active ? HEADING : '#71717A', whiteSpace: 'nowrap' }}>
         {label}
       </Typography>
-      {dot && <Box sx={{ width: 7, height: 7, borderRadius: '50%', bgcolor: DANGER }} />}
     </Box>
   )
 }
@@ -176,11 +171,10 @@ function CardHead({
   )
 }
 
-// ─── All feed — combined loan-status + reminder + transaction items ────────────
-function AllFeed() {
+// ─── Reminder feed ───────────────────────────────────────────────────────────
+function ReminderFeed() {
   const navigate = useNavigate()
   const [callOpen, setCallOpen] = useState(false)
-  const [receiptOpen, setReceiptOpen] = useState(false)
   return (
     <Box>
       <DateLabel>TODAY</DateLabel>
@@ -194,158 +188,6 @@ function AllFeed() {
         </NotifCard>
       ))}
 
-      {/* 1. Loan Approved */}
-      <NotifCard>
-        <CardHead
-          icon="checkCircle"
-          iconBg="#E3F7EC"
-          iconColor={GREEN}
-          time="10:30AM"
-        />
-        <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Your loan has been approved!</Typography>
-        <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
-          Congratulations! Your Small Business Loan application (Ref: SBL-2026-0418) has been approved. Disbursement will be processed within 1–2 business days.
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => navigate('/my-loan-detail')}
-          sx={{ mt: 1.75, height: 44, borderRadius: '10px', px: 2.5, fontSize: 14, fontWeight: 700, bgcolor: BLUE }}
-        >
-          View Loan
-        </Button>
-      </NotifCard>
-
-      {/* 2b. Restructure Approved */}
-      <NotifCard>
-        <CardHead
-          icon="checkCircle"
-          iconBg="#E3F7EC"
-          iconColor={GREEN}
-          time="09:15AM"
-        />
-        <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Loan restructure approved</Typography>
-        <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
-          Your restructure application for account 0019-84727 has been approved. New repayment terms take effect from 1 June 2026.
-        </Typography>
-        <Button
-          variant="text"
-          onClick={() => navigate('/restructure-success')}
-          sx={{ mt: 1.75, height: 44, borderRadius: '10px', px: 2.5, fontSize: 14, fontWeight: 700, color: HEADING, bgcolor: '#F2F4F7', '&:hover': { bgcolor: '#E7ECF2' } }}
-        >
-          View New Terms
-        </Button>
-      </NotifCard>
-
-      {/* Overdue reminder */}
-      <NotifCard>
-        <CardHead icon="alert" iconBg="#FDE7EC" iconColor={DANGER} time="08:00PM" />
-        <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Payment overdue · $176.55</Typography>
-        <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
-          Your repayment for loan account 0019-84727 is overdue by 4 days. Please pay the overdue amount today to avoid additional charges.
-        </Typography>
-        <ReminderActions onPay={() => navigate('/my-loan-detail?pay=1')} onCall={() => setCallOpen(true)} />
-      </NotifCard>
-
-      <DateLabel>15 MAY 2026</DateLabel>
-
-      {/* 2a. Restructure Submitted */}
-      <NotifCard>
-        <CardHead
-          icon="clock"
-          iconBg="#FFF5E6"
-          iconColor={AMBER}
-          time="02:00PM"
-        />
-        <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Restructure request submitted</Typography>
-        <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
-          Your loan restructure application for account 0019-84727 is now under review. We will notify you once a decision has been made.
-        </Typography>
-      </NotifCard>
-
-      {/* 3. Loan Rejected */}
-      <NotifCard>
-        <CardHead
-          icon="alert"
-          iconBg="#FDE7EC"
-          iconColor={DANGER}
-          time="11:00AM"
-        />
-        <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Your loan application was not approved</Typography>
-        <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
-          Unfortunately, your Small Business Loan application (Ref: SBL-2026-0319) could not be approved at this time. Please contact our team for more details.
-        </Typography>
-        <Button
-          variant="text"
-          onClick={() => navigate('/request-consult')}
-          startIcon={<Icon name="phone" size={18} color={HEADING} />}
-          sx={{ mt: 1.75, height: 44, borderRadius: '10px', px: 3, fontSize: 14, fontWeight: 700, color: HEADING, bgcolor: '#F2F4F7', '&:hover': { bgcolor: '#E7ECF2' } }}
-        >
-          Contact Us
-        </Button>
-      </NotifCard>
-
-      {/* 4. Fully Paid Off */}
-      <NotifCard>
-        <CardHead
-          icon="checkCircle"
-          iconBg="#E3F7EC"
-          iconColor={GREEN}
-          time="08:00AM"
-        />
-        <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Loan fully settled!</Typography>
-        <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
-          Your Migrant Worker Loan (Ref: MWL-2025-0221) has been fully paid off. Thank you for your commitment to repayment.
-        </Typography>
-        <Button
-          variant="text"
-          onClick={() => navigate('/my-loan-complete')}
-          sx={{ mt: 1.75, height: 44, borderRadius: '10px', px: 2.5, fontSize: 14, fontWeight: 700, color: HEADING, bgcolor: '#F2F4F7', '&:hover': { bgcolor: '#E7ECF2' } }}
-        >
-          View Summary
-        </Button>
-      </NotifCard>
-
-      {/* Upcoming due reminder */}
-      <NotifCard>
-        <CardHead icon="clock" time="11:32AM" />
-        <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Repayment · $176.55</Typography>
-        <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
-          Your repayment for loan account 0019-84727 is due in 3 days. Pay early to keep your account in good standing.
-        </Typography>
-        <ReminderActions onPay={() => navigate('/my-loan-detail?pay=1')} onCall={() => setCallOpen(true)} />
-      </NotifCard>
-
-      {/* Payment receipts */}
-      {[0, 1].map((i) => (
-        <NotifCard key={i}>
-          <CardHead icon="checkCircle" iconBg="#E3F7EC" iconColor={GREEN} time="08:00PM" />
-          <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Payment received · $176.55</Typography>
-          <Typography sx={{ fontSize: 14, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
-            Thank you for your repayment to account 0042-59001. If the amount or date is incorrect, contact 017 666 036.
-          </Typography>
-          <Button
-            variant="text"
-            onClick={() => setReceiptOpen(true)}
-            sx={{ mt: 1.75, height: 44, borderRadius: '10px', px: 2.5, fontSize: 14, fontWeight: 700, color: HEADING, bgcolor: '#F2F4F7', '&:hover': { bgcolor: '#E7ECF2' } }}
-          >
-            View receipt
-          </Button>
-        </NotifCard>
-      ))}
-
-      <CallSheet open={callOpen} onClose={() => setCallOpen(false)} />
-      <ReceiptSheet open={receiptOpen} onClose={() => setReceiptOpen(false)} />
-    </Box>
-  )
-}
-
-// ─── Reminder feed ───────────────────────────────────────────────────────────
-function ReminderFeed() {
-  const navigate = useNavigate()
-  const [callOpen, setCallOpen] = useState(false)
-  return (
-    <Box>
-      <DateLabel>TODAY</DateLabel>
       <NotifCard>
         <CardHead icon="alert" iconBg="#FDE7EC" iconColor={DANGER} time="08:00PM" />
         <Typography sx={{ fontSize: 16, fontWeight: 800, color: HEADING, mt: 1.25 }}>Payment overdue · $176.55</Typography>
@@ -366,28 +208,6 @@ function ReminderFeed() {
       </NotifCard>
 
       <CallSheet open={callOpen} onClose={() => setCallOpen(false)} />
-    </Box>
-  )
-}
-
-function ReminderActions({ onPay, onCall }: { onPay: () => void; onCall: () => void }) {
-  return (
-    <Box sx={{ display: 'flex', gap: 1, mt: 1.75 }}>
-      <Button
-        variant="contained"
-        onClick={onPay}
-        sx={{ height: 44, borderRadius: '10px', px: 2.5, fontSize: 14, fontWeight: 700, bgcolor: BLUE }}
-      >
-        Pay now
-      </Button>
-      <Button
-        variant="text"
-        onClick={onCall}
-        startIcon={<Icon name="phone" size={18} color={HEADING} />}
-        sx={{ height: 44, borderRadius: '10px', px: 3, fontSize: 14, fontWeight: 700, color: HEADING, bgcolor: '#F2F4F7', '&:hover': { bgcolor: '#E7ECF2' } }}
-      >
-        Call
-      </Button>
     </Box>
   )
 }
@@ -522,6 +342,28 @@ function ReceiptRow({ label, value, bold, labelBold, last, align }: { label: str
     <Box sx={{ display: 'flex', alignItems: align ? 'flex-start' : 'center', justifyContent: 'space-between', gap: 2, py: 1.75, borderBottom: last ? 'none' : '1px solid #F0F0F0' }}>
       <Typography sx={{ fontSize: 16, color: labelBold ? HEADING : '#5B6473', fontWeight: labelBold ? 800 : 400, flexShrink: 0 }}>{label}</Typography>
       <Typography sx={{ fontSize: 16, fontWeight: bold ? 800 : 400, color: HEADING, textAlign: 'right' }}>{value}</Typography>
+    </Box>
+  )
+}
+
+function ReminderActions({ onPay, onCall }: { onPay: () => void; onCall: () => void }) {
+  return (
+    <Box sx={{ display: 'flex', gap: 1, mt: 1.75 }}>
+      <Button
+        variant="contained"
+        onClick={onPay}
+        sx={{ height: 44, borderRadius: '10px', px: 2.5, fontSize: 14, fontWeight: 700, bgcolor: BLUE }}
+      >
+        Pay now
+      </Button>
+      <Button
+        variant="text"
+        onClick={onCall}
+        startIcon={<Icon name="phone" size={18} color={HEADING} />}
+        sx={{ height: 44, borderRadius: '10px', px: 3, fontSize: 14, fontWeight: 700, color: HEADING, bgcolor: '#F2F4F7', '&:hover': { bgcolor: '#E7ECF2' } }}
+      >
+        Call
+      </Button>
     </Box>
   )
 }

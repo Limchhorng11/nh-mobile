@@ -359,7 +359,7 @@ function ProductsTopBar() {
         sx={{ height: 26, width: 'auto', display: 'block', flex: 1, minWidth: 0, objectFit: 'contain', objectPosition: 'left', cursor: 'pointer', '&:active': { opacity: 0.6 } }}
       />
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <IconButton size="small" sx={{ color: '#1A1A1A', p: '6px' }} aria-label="Messages">
+        <IconButton onClick={() => navigate('/sign-up')} size="small" sx={{ color: '#1A1A1A', p: '6px' }} aria-label="Messages">
           <Box component="img" src="/assets/brand/ico_chat.svg" alt="" sx={{ width: 24, height: 24, display: 'block' }} />
         </IconButton>
         <IconButton onClick={() => navigate('/notifications')} size="small" sx={{ color: '#1A1A1A', p: '6px' }} aria-label="Notifications">

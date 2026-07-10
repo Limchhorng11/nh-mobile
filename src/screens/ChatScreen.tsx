@@ -144,27 +144,6 @@ export default function ChatScreen() {
         </Box>
       </Box>
 
-      {/* Compose FAB */}
-      <IconButton
-        aria-label="New message"
-        onClick={() => navigate('/chat-new')}
-        sx={{
-          position: 'absolute',
-          right: 24,
-          bottom: 32,
-          width: 60,
-          height: 60,
-          borderRadius: '50%',
-          bgcolor: BLUE,
-          color: '#fff',
-          boxShadow: '0 6px 16px rgba(0,82,204,0.35)',
-          '&:hover': { bgcolor: '#0048B3' },
-          '&:active': { opacity: 0.9 },
-        }}
-      >
-        <Icon name="plus" size={28} color="#fff" />
-      </IconButton>
-
       <CallSheet open={callOpen} onClose={() => setCallOpen(false)} />
     </Box>
   )

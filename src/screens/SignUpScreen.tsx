@@ -50,7 +50,7 @@ export default function SignUpScreen() {
   const next = params.get('next')
   const { flow } = useFlow()
   const isStaff = flow === 'Staff'
-  const [language, setLanguage] = useState<LangId>('en')
+  const [language, setLanguage] = useState<LangId>('km')
   const [langOpen, setLangOpen] = useState(false)
   const [countrySheetOpen, setCountrySheetOpen] = useState(false)
   const [countrySearch, setCountrySearch] = useState('')
