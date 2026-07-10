@@ -22,6 +22,8 @@ const MwlContractScreen = lazy(() => import('../screens/mwl/MwlContractScreen'))
 const MwlSignReviewScreen = lazy(() => import('../screens/mwl/MwlSignReviewScreen'))
 const MwlContractDocScreen = lazy(() => import('../screens/mwl/MwlContractDocScreen'))
 const MwlSignScreen = lazy(() => import('../screens/mwl/MwlSignScreen'))
+const MwlFaceScanScreen = lazy(() => import('../screens/mwl/MwlFaceScanScreen'))
+const MwlSignedScreen = lazy(() => import('../screens/mwl/MwlSignedScreen'))
 const GuarantorSmsScreen = lazy(() => import('../screens/guarantor/GuarantorSmsScreen'))
 const GuarantorWebScreen = lazy(() => import('../screens/guarantor/GuarantorWebScreen'))
 const GuarantorReviewScreen = lazy(() => import('../screens/guarantor/GuarantorReviewScreen'))
@@ -137,6 +139,8 @@ export default function AppRouter() {
         <Route path="/mwl-sign-review" element={<MwlSignReviewScreen />} />
         <Route path="/mwl-contract-doc" element={<MwlContractDocScreen />} />
         <Route path="/mwl-sign" element={<MwlSignScreen />} />
+        <Route path="/mwl-face-scan" element={<MwlFaceScanScreen />} />
+        <Route path="/mwl-signed" element={<MwlSignedScreen />} />
         <Route path="/guarantor-sms" element={<GuarantorSmsScreen />} />
         <Route path="/guarantor-web" element={<GuarantorWebScreen />} />
         <Route path="/guarantor-review" element={<GuarantorReviewScreen />} />

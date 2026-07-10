@@ -709,6 +709,7 @@ export function AdvanceCard({ amount = '$320.00' }: { amount?: string } = {}) {
         display: 'flex',
         alignItems: 'center',
         gap: 1.5,
+        flexShrink: 0,
         '&:active': { opacity: 0.9 },
       }}
     >
@@ -727,10 +728,7 @@ export function AdvanceCard({ amount = '$320.00' }: { amount?: string } = {}) {
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
-        <Box sx={{ textAlign: 'right' }}>
-          <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#1B8F53', lineHeight: 1.2 }}>{amount}</Typography>
-          <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: '#0B0F1A', lineHeight: 1.3, mt: '1px' }}>៛1,312,000</Typography>
-        </Box>
+        <Typography sx={{ fontSize: 16, fontWeight: 800, color: '#1B8F53', lineHeight: 1.2 }} noWrap>{amount}</Typography>
         <Icon name="chevronRight" size={20} color="#8A94A6" />
       </Box>
     </Box>

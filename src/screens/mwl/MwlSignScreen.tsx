@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -18,9 +18,17 @@ const HEADING = '#0B0F1A'
 
 export default function MwlSignScreen() {
   const navigate = useNavigate()
-  const [verified, setVerified] = useState(false)
+  const [faceVerified, setFaceVerified] = useState(false)
+
+  useEffect(() => {
+    if (sessionStorage.getItem('mwlFaceVerified') === '1') {
+      sessionStorage.removeItem('mwlFaceVerified')
+      setFaceVerified(true)
+    }
+  }, [])
+
   const [agreed, setAgreed] = useState(false)
-  const canSign = verified && agreed
+  const canSign = faceVerified && agreed
 
   return (
     <Box className="screen-enter" sx={{ position: 'relative', overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -34,54 +42,51 @@ export default function MwlSignScreen() {
       </Box>
 
       <Box className="scroll-content" sx={{ flex: 1, px: 3, pt: 1, pb: 3 }}>
-        <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: LABEL }}>VERIFY IT'S YOU</Typography>
+        {/* Face scan */}
+        <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.6px', color: LABEL }}>FACE SCAN</Typography>
         <Typography sx={{ fontSize: 13.5, color: '#5B6473', lineHeight: 1.5, mt: 0.5 }}>
-          Enter your NH PIN to confirm your identity and bind it to the signature.
+          Scan your face to verify you're the person signing this contract.
         </Typography>
 
-        {/* PIN boxes */}
         <Box
           role="button"
-          onClick={() => setVerified(true)}
-          sx={{ display: 'flex', justifyContent: 'center', gap: 1.5, mt: 2.5, cursor: 'pointer' }}
+          onClick={() => { if (!faceVerified) navigate('/mwl-face-scan') }}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 1,
+            mt: 2,
+            py: '20px',
+            borderRadius: '14px',
+            bgcolor: '#fff',
+            border: `1.5px solid ${faceVerified ? GREEN : '#E2E6EC'}`,
+            cursor: 'pointer',
+            transition: 'border-color 0.2s',
+          }}
         >
-          {[0, 1, 2, 3].map((i) => (
-            <Box
-              key={i}
-              sx={{
-                width: 54,
-                height: 54,
-                borderRadius: '12px',
-                bgcolor: '#fff',
-                border: `1.5px solid ${verified ? BLUE : '#CBD3DF'}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'border-color 0.2s',
-              }}
-            >
-              <Box sx={{ width: 9, height: 9, borderRadius: '50%', bgcolor: HEADING, opacity: verified ? 1 : 0, transition: 'opacity 0.2s' }} />
-            </Box>
-          ))}
-        </Box>
-
-        {verified && (
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, mt: 1.5 }}>
-            <Icon name="check" size={15} color={GREEN} />
-            <Typography sx={{ fontSize: 13, fontWeight: 700, color: GREEN }}>PIN verified — identity confirmed</Typography>
-          </Box>
-        )}
-
-        {/* Simulation control */}
-        <Box sx={{ border: '1px dashed #CBD3DF', borderRadius: '14px', p: '14px', mt: 2.5, textAlign: 'center' }}>
-          <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', color: '#A6AEBD', mb: 1 }}>SIMULATION</Typography>
           <Box
-            role="button"
-            onClick={() => setVerified(true)}
-            sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fff', border: '1px solid #E2E6EC', borderRadius: '10px', px: 2, height: 40, cursor: 'pointer', '&:active': { opacity: 0.7 } }}
+            sx={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              bgcolor: faceVerified ? '#EAF7EF' : '#EEF1F5',
+              transition: 'background-color 0.2s',
+            }}
           >
-            <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: HEADING }}>Autofill demo PIN ↗</Typography>
+            <Icon name="faceId" size={30} color={faceVerified ? GREEN : MUTED} />
           </Box>
+          {faceVerified ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Icon name="check" size={15} color={GREEN} />
+              <Typography sx={{ fontSize: 13, fontWeight: 700, color: GREEN }}>Face verified</Typography>
+            </Box>
+          ) : (
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: HEADING }}>Tap to scan face</Typography>
+          )}
         </Box>
 
         {/* Production note */}
@@ -113,7 +118,7 @@ export default function MwlSignScreen() {
           variant="contained"
           fullWidth
           disabled={!canSign}
-          onClick={() => navigate('/my-loan')}
+          onClick={() => navigate('/mwl-signed')}
           sx={{ height: 54, borderRadius: '14px', fontSize: 16, fontWeight: 700, bgcolor: GREEN, '&:hover': { bgcolor: '#198C4C' }, '&.Mui-disabled': { bgcolor: '#C7D0DA', color: '#fff' } }}
         >
           Sign &amp; Accept

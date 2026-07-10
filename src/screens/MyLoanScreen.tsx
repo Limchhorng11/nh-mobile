@@ -73,7 +73,7 @@ export default function MyLoanScreen() {
       <Box className="scroll-content" sx={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
         {/* Header */}
         <HomeTopBar />
-        <Box sx={{ flex: 1, minHeight: 0, px: 3, pb: '54px', display: 'flex', flexDirection: 'column', gap: '24px', mt: '12px' }}>
+        <Box sx={{ flex: 1, minHeight: 0, px: 3, pb: '54px', display: 'flex', flexDirection: 'column', gap: '24px', mt: '22px' }}>
           {isEmpty ? (
             <EmptyState
               label={t('noLoansYet')}
@@ -88,7 +88,11 @@ export default function MyLoanScreen() {
 
               {!isApplicant && <SummaryCard loanCount={3} onPay={() => setPayOpen(true)} />}
 
-              {!isApplicant && <RequestsProgressCard onClick={() => navigate('/loan-requests')} />}
+              {!isApplicant && (
+                <Box sx={{ mt: '10px' }}>
+                  <RequestsProgressCard onClick={() => navigate('/loan-requests')} />
+                </Box>
+              )}
 
 {tab === 'active' && (isApplicant ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
