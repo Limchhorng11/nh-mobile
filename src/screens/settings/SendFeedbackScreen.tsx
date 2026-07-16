@@ -14,6 +14,17 @@ const HEADING = '#0B0F1A'
 const MUTED = '#8A94A6'
 const BLUE = '#275CB2'
 
+const CATEGORIES = [
+  'Suggestion',
+  'Loan processing delay',
+  'Incorrect charges or fees',
+  'Staff conduct',
+  'Payment not recorded',
+  'App or digital service issue',
+  'Data privacy concern',
+  'Other',
+]
+
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
     <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#5B6473', mb: 0.75 }}>
@@ -27,6 +38,8 @@ export default function SendFeedbackScreen() {
   const { collapse, onScroll } = useCollapse()
   const [message, setMessage] = useState('')
   const [contactMe, setContactMe] = useState(false)
+  const [category, setCategory] = useState(CATEGORIES[0])
+  const [categoryOpen, setCategoryOpen] = useState(false)
 
   return (
     <Box className="screen-enter" sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#F5F5F5' }}>
@@ -45,14 +58,48 @@ export default function SendFeedbackScreen() {
 
         <Box sx={{ px: 3, pb: 4, pt: 1 }}>
           {/* Category */}
-          <FieldLabel>Category</FieldLabel>
-          <Box
-            role="button"
-            onClick={() => {}}
-            sx={{ display: 'flex', alignItems: 'center', height: 60, px: '16px', bgcolor: '#fff', borderRadius: '12px', border: '1px solid #E7ECF2', cursor: 'pointer' }}
-          >
-            <Typography sx={{ flex: 1, fontSize: 16, fontWeight: 600, color: HEADING }}>Suggestion</Typography>
-            <Icon name="chevronsUpDown" size={18} color="#8A94A6" />
+          <FieldLabel>Subject</FieldLabel>
+          <Box sx={{ position: 'relative' }}>
+            <Box
+              role="button"
+              onClick={() => setCategoryOpen((v) => !v)}
+              sx={{ display: 'flex', alignItems: 'center', height: 60, px: '16px', bgcolor: '#fff', borderRadius: '12px', border: `1px solid ${categoryOpen ? BLUE : '#E7ECF2'}`, cursor: 'pointer', transition: 'border-color 0.15s' }}
+            >
+              <Typography sx={{ flex: 1, fontSize: 16, fontWeight: 600, color: HEADING }}>{category}</Typography>
+              <Icon name="chevronsUpDown" size={18} color="#8A94A6" />
+            </Box>
+
+            {categoryOpen && (
+              <>
+                <Box onClick={() => setCategoryOpen(false)} sx={{ position: 'fixed', inset: 0, zIndex: 40 }} />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 'calc(100% + 6px)',
+                    left: 0,
+                    right: 0,
+                    zIndex: 41,
+                    bgcolor: '#fff',
+                    border: '1px solid #E8EAEE',
+                    borderRadius: '14px',
+                    boxShadow: '0 8px 24px rgba(11,15,26,0.14)',
+                    py: '6px',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {CATEGORIES.map((c) => (
+                    <Box
+                      key={c}
+                      onClick={() => { setCategory(c); setCategoryOpen(false) }}
+                      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: '16px', py: '12px', cursor: 'pointer', bgcolor: c === category ? '#F4F8FF' : 'transparent', '&:hover': { bgcolor: '#F7F9FC' } }}
+                    >
+                      <Typography sx={{ fontSize: 15, fontWeight: 600, color: c === category ? BLUE : HEADING }}>{c}</Typography>
+                      {c === category && <Icon name="check" size={16} color={BLUE} />}
+                    </Box>
+                  ))}
+                </Box>
+              </>
+            )}
           </Box>
 
           {/* Message */}

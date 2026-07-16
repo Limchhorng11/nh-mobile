@@ -18,6 +18,14 @@ const BRANCHES = [
   'Kampong Cham', 'Kampot', 'Takeo', 'Pursat',
 ]
 
+const CONSULT_TOPICS = [
+  'Loan Application Guidance',
+  'Loan Restructuring',
+  'Repayment Schedule',
+  'Account & Document Support',
+  'General Inquiry',
+]
+
 const TIME_SLOTS = [
   '8:00AM', '9:00AM', '10:00AM', '11:00AM',
   '1:00PM', '2:00PM', '3:00PM', '4:00PM', '5:00PM',
@@ -116,6 +124,8 @@ export default function RequestConsultScreen() {
   const [branch, setBranch] = useState('Kandal — Takhmao')
   const [date, setDate] = useState('12 May 2026')
   const [time, setTime] = useState('8:00AM')
+  const [topic, setTopic] = useState(CONSULT_TOPICS[0])
+  const [topicOpen, setTopicOpen] = useState(false)
   const [sheet, setSheet] = useState<'branch' | 'date' | 'time' | null>(null)
   const [branchSearch, setBranchSearch] = useState('')
   const [portalEl, setPortalEl] = useState<HTMLElement | null>(null)
@@ -239,6 +249,52 @@ export default function RequestConsultScreen() {
                 <Icon name="chevronsUpDown" size={20} color={MUTED} />
               </Box>
             </Box>
+          </Box>
+
+          {/* Consultation Topic — inline dropdown, not a bottom sheet */}
+          <Box sx={{ position: 'relative', mt: 2 }}>
+            <Box
+              onClick={() => setTopicOpen((v) => !v)}
+              sx={{ bgcolor: '#fff', border: `1px solid ${topicOpen ? BLUE : '#E8EAEE'}`, borderRadius: '14px', px: '16px', minHeight: 60, display: 'flex', flexDirection: 'column', justifyContent: 'center', cursor: 'pointer', transition: 'border-color 0.15s' }}
+            >
+              <FieldLabel label="Consultation Topic" required />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.25 }}>
+                <Typography sx={{ fontSize: 16, fontWeight: 600, color: HEADING, flex: 1 }} noWrap>{topic}</Typography>
+                <Icon name="chevronsUpDown" size={20} color={MUTED} />
+              </Box>
+            </Box>
+
+            {topicOpen && (
+              <>
+                <Box onClick={() => setTopicOpen(false)} sx={{ position: 'fixed', inset: 0, zIndex: 40 }} />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 'calc(100% + 6px)',
+                    left: 0,
+                    right: 0,
+                    zIndex: 41,
+                    bgcolor: '#fff',
+                    border: '1px solid #E8EAEE',
+                    borderRadius: '14px',
+                    boxShadow: '0 8px 24px rgba(11,15,26,0.14)',
+                    py: '6px',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {CONSULT_TOPICS.map((tp) => (
+                    <Box
+                      key={tp}
+                      onClick={() => { setTopic(tp); setTopicOpen(false) }}
+                      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: '16px', py: '12px', cursor: 'pointer', bgcolor: tp === topic ? '#F4F8FF' : 'transparent', '&:hover': { bgcolor: '#F7F9FC' } }}
+                    >
+                      <Typography sx={{ fontSize: 15, fontWeight: 600, color: tp === topic ? BLUE : HEADING }}>{tp}</Typography>
+                      {tp === topic && <Icon name="check" size={16} color={BLUE} />}
+                    </Box>
+                  ))}
+                </Box>
+              </>
+            )}
           </Box>
 
           {/* Comment */}
